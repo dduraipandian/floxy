@@ -1,0 +1,18 @@
+:root {
+
+  --font-size: 0.9rem;
+  --padding-x: 1rem;
+  --padding-y: 0.15rem;
+
+  --select-label-width: 150px;
+
+  /* Navbar variables */
+  --navbar-width: 300px;
+
+  /* Dropdown variables */
+  --dropdown-font-size: 0.875em;
+
+  --dropdown-background-color: #56595a;
+  --input-border-color: #dee2e6;
+  --table-header-bg-color: white;
+}

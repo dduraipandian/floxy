@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Split — Minimal Docs</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="./components/css/__app_root.css">
+  <link rel="stylesheet" type="text/css" href="./components/css/__base.css">
+  <link rel="stylesheet" type="text/css" href="./components/css/split.css">
+  <link rel="stylesheet" type="text/css" href="./components/css/doc.css">
+</head>
+
+<body class="p-3" style="overflow:auto">
+  <div class="container page">
+    <div class="header mb-3">
+      <h1 class="mb-0">Split</h1>
+      <span class="subtitle">Resizable panes layout</span>
+    </div>
+    <p class="text-muted mb-3">Two- or multi-pane layout with a draggable divider.</p>
+
+    <div class="card">
+      <div class="section-title">Install & Import</div>
+      <pre><code>&lt;script type="module"&gt;
+import Split from './components/split.js';
+&lt;/script&gt;
+      </code></pre>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Quick Start</div>
+      <pre><code>const split = new Split({ name: 'Main Split' });
+split.renderInto('split-demo');
+split.setPanes([
+  { id: 'left', content: 'Left pane' },
+  { id: 'right', content: 'Right pane' }
+]);
+      </code></pre>
+    </div>
+
+    <div class="card">
+      <div class="section-title">API</div>
+      <ul class="list-compact">
+        <li><code>renderInto(id)</code>: Renders split layout into container.</li>
+        <li><code>setPanes(panes)</code>: Array of panes <code>{ id, content }</code>.</li>
+        <li><code>on('resize', cb)</code>: Subscribe to pane resize events.</li>
+      </ul>
+    </div>
+
+    <hr class="my-4" />
+    <h2 class="mt-4">Live Demo</h2>
+    <div class="card">
+      <div id="split-demo" class="demo-box"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+  <script type="module">
+    import Split from './components/split.js';
+    const split = new Split({ name: 'Demo Split' });
+    split.renderInto('split-demo');
+    split.setPanes([
+      { id: 'left', content: 'Left area' },
+      { id: 'right', content: 'Right area' }
+    ]);
+    split.on('resize', (sizes) => console.debug('[Split] resized', sizes));
+  </script>
+</body>
+
+</html>

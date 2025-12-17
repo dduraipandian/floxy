@@ -1,0 +1,50 @@
+.page {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.subtitle {
+    color: #6c757d;
+}
+
+.card {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 0;
+}
+
+.demo-box {
+    position: relative;
+    width: 100%;
+    min-height: 120px;
+    border: 1px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+pre {
+    background: #f8f9fa;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+pre code {
+    font-size: 12px;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    margin-top: 1rem;
+}
+
+.list-compact li {
+    margin-bottom: 6px;
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UI Frame</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="./components/css/__app_root.css">
+  <link rel="stylesheet" type="text/css" href="./components/css/__base.css">
+</head>
+
+<body>
+  <header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">UI Frame</a>
+      </div>
+    </nav>
+  </header>
+
+  <main style="margin-top: 55px;">
+    <div class="row">
+      <div class="col-2 pe-0">
+        <div class="list-group rounded-0" id="list-tab" role="tablist">
+          <a class="list-group-item list-group-item-action active" id="home-component-tab" data-bs-toggle="list"
+            href="#home-component" role="tab" aria-controls="home-component">Home</a>
+        </div>
+      </div>
+      <div class="col-10 ps-0">
+        <div class="tab-content" id="nav-tabContent">
+          <div class="tab-pane fade show active" id="home-component" role="tabpanel"
+            aria-labelledby="home-component-tab">
+            <div class="container p-4">
+              <h1>Welcome to UI Frame</h1>
+              <p class="lead">Explore the various UI components using the tabs on the left.</p>
+              <hr class="my-4">
+              <p>This application showcases different UI components based on Bootstrap 5. Click on the respective tabs
+                to view live demos and documentation for each component.</p>
+              <div>
+                <h3>Available Components:</h3>
+                <ul id="navigation-to-component"></ul>
+                <p>Use the navigation on the left to explore each component in detail.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+
+  $(document).ready(function () {
+    let components = {
+      "spinner": "A minimal, searchable, animated menu.",
+      "dropdown": "A configurable loading overlay.",
+      "tab": "Simple, configurable tabs.",
+      "table": "Data table with sorting and pagination.",
+      "split": "Resizable panes layout.",
+      "tree": "Interactive folder/tree component.",
+      "contextmenu": "Small context menu built on top of Bootstrap dropdown."
+    }
+    Object.keys(components).forEach(component => {
+      let lstItem = `<a class="list-group-item list-group-item-action" 
+            id="${component}-component-tab" data-bs-toggle="list"
+            href="#${component}-component" 
+            role="tab" aria-controls="${component}-component">${component.charAt(0).toUpperCase() + component.slice(1)}</a>`
+      document.getElementById("list-tab").innerHTML += lstItem;
+      let tabItem = `<div class="tab-pane fade" id="${component}-component" 
+            role="tabpanel" aria-labelledby="${component}-component-tab">
+            <iframe src="/${component}" style="width:100%; height:780px;" frameborder="0"></iframe>
+          </div>`;
+      document.getElementById("nav-tabContent").innerHTML += tabItem;
+
+      let navToComponent = `<li><strong>${component.charAt(0).toUpperCase() + component.slice(1)}</strong>: ${components[component]}</li>`;
+      document.getElementById("navigation-to-component").innerHTML += navToComponent;
+    });
+  });
+</script>
+
+</html>

@@ -1,0 +1,28 @@
+.cm-s-dracula .CodeMirror-gutters,
+.cm-s-dracula.CodeMirror {
+    background-color: var(--background-color) !important;
+}
+
+.CodeMirror-vscrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #5c84ad var(--background-color);
+    scrollbar-gutter: auto;
+    overflow-y: auto
+}
+
+.CodeMirror-dialog {
+    left: inherit !important;
+    top: 5px !important;
+    padding: .25rem 1rem;
+    border-radius: 5px;
+    border: var(--input-border-color) 1px solid !important;
+    width: 350px !important;
+
+    .CodeMirror-search-hint {
+        display: none
+    }
+
+    #CodeMirror-search-field {
+        padding-left: 1rem;
+    }
+}
