@@ -28,6 +28,8 @@ class Tree extends EmitterComponent {
         this.element = this.container;
         this.tree = this.element.querySelector('.tree');
         this.add(this.tree, this.objects);
+
+        // Setup context menu and wire it to emit structured events.
         let contextMenuContainer = this.element.querySelector('#contextMenuContainer');
         this.contextMenu = new ContextMenu({
             name: 'Folder Menu',
@@ -37,10 +39,26 @@ class Tree extends EmitterComponent {
         });
         this.contextMenu.renderInto(contextMenuContainer);
         this.contextMenu.setDropdownItems(this.contextMenuData);
-        this.contextMenu.on('item:click', (node) => {
-            node.item.callback(node);
+
+        // When an item in the context menu is clicked, emit a `context:item` event
+        // with structured payload so external handlers can call tree methods like
+        // `addChildById` or `refreshById`.
+        this.contextMenu.on('item:click', (item) => {
+            const target = this.contextMenu.currentTarget || null;
+            const uri = target?.dataset?.uri || null;
+            const nodeData = uri ? Utility.deepValue(this.objects, uri) : null;
+            this.emit('context:item', { item, target, uri, nodeData, tree: this });
         });
-        this.tree.addEventListener('contextmenu', e => {            
+
+        // Capture right-clicks inside the tree; store the clicked node on the context menu
+        // so callbacks can reference it.
+        this.tree.addEventListener('contextmenu', e => {
+            const el = e.target.closest('.context-menu-container');
+            if (el) {
+                this.contextMenu.currentTarget = el;
+            } else {
+                this.contextMenu.currentTarget = null;
+            }
             this.contextMenu.show(e);
         });
     }
@@ -110,6 +128,73 @@ class Tree extends EmitterComponent {
     update(node) {
         let data = Utility.deepValue(this.objects, node.dataset.uri);
 
+    }
+
+    /* Public API helpers */
+    getObjectByUri(uri) {
+        return Utility.deepValue(this.objects, uri);
+    }
+
+    getElementById(id) {
+        return this.tree.querySelector(`#${id}`);
+    }
+
+    getCollapseById(id) {
+        return this.tree.querySelector(`#${id} #${id}-collapse`);
+    }
+
+    // Add a new child object to a parent identified by its element id
+    addChildById(parentId, childObj) {
+        const parentEl = this.getElementById(parentId);
+        if (!parentEl) throw new Error(`Parent element ${parentId} not found`);
+        const dataPath = parentEl.dataset.uri;
+        const childrenUri = `${dataPath}.children`;
+        const childrenArr = Utility.deepValue(this.objects, childrenUri, []);
+        childrenArr.push(childObj);
+        // If parent is already expanded/visited, refresh its DOM
+        this.refreshById(parentId);
+    }
+
+    addChildByUri(childrenUri, childObj) {
+        const childrenArr = Utility.deepValue(this.objects, childrenUri, []);
+        childrenArr.push(childObj);
+        // find element for uri (its parent id is the uri without .children)
+        const parentDataPath = childrenUri.replace(/\.children$/, '');
+        const parentEl = this.tree.querySelector(`[data-uri="${parentDataPath}"]`);
+        if (parentEl) this.refreshById(parentEl.id);
+    }
+
+    // Refresh children for a parent element (by id)
+    refreshById(parentId) {
+        const parentEl = this.getElementById(parentId);
+        if (!parentEl) return;
+        const dataPath = parentEl.dataset.uri;
+        const childrenUri = `${dataPath}.children`;
+        const collapseEl = this.getCollapseById(parentId);
+        const collapseKey = `#${parentId} #${parentId}-collapse`;
+        if (collapseEl) {
+            collapseEl.innerHTML = '';
+            // remove visited marker so add() will attach events again
+            this.visited.delete(collapseKey);
+            const childrenArr = Utility.deepValue(this.objects, childrenUri, []);
+            if (childrenArr && childrenArr.length) {
+                this.add(collapseEl, childrenArr, childrenUri);
+                this.visited.add(collapseKey);
+            }
+        }
+    }
+
+    // Add a root-level node
+    addNode(nodeObj) {
+        this.objects.push(nodeObj);
+        // render into DOM if top-level already rendered
+        if (this.tree) {
+            // compute path for appended node
+            const index = this.objects.length - 1;
+            const dataPath = `${index}`;
+            const template = this.getChildTemplate(nodeObj.id, nodeObj.name, dataPath);
+            this.tree.insertAdjacentHTML('beforeend', template);
+        }
     }
 }
 

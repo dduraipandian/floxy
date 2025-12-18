@@ -20,7 +20,7 @@
     </nav>
   </header>
 
-  <main style="margin-top: 55px;">
+  <main style="padding-top: 55px;">
     <div class="row">
       <div class="col-2 pe-0">
         <div class="list-group rounded-0" id="list-tab" role="tablist">
@@ -63,7 +63,8 @@
       "table": "Data table with sorting and pagination.",
       "split": "Resizable panes layout.",
       "tree": "Interactive folder/tree component.",
-      "contextmenu": "Small context menu built on top of Bootstrap dropdown."
+      "contextmenu": "Small context menu built on top of Bootstrap dropdown.",
+      "online": "Network status indicator with optional toast notifications."
     }
     Object.keys(components).forEach(component => {
       let lstItem = `<a class="list-group-item list-group-item-action" 
@@ -72,8 +73,8 @@
             role="tab" aria-controls="${component}-component">${component.charAt(0).toUpperCase() + component.slice(1)}</a>`
       document.getElementById("list-tab").innerHTML += lstItem;
       let tabItem = `<div class="tab-pane fade" id="${component}-component" 
-            role="tabpanel" aria-labelledby="${component}-component-tab">
-            <iframe src="/${component}" style="width:100%; height:780px;" frameborder="0"></iframe>
+        role="tabpanel" aria-labelledby="${component}-component-tab">
+        <iframe src="/${component}" style="width:100%; height:calc(100vh - 55px);" frameborder="0"></iframe>
           </div>`;
       document.getElementById("nav-tabContent").innerHTML += tabItem;
 

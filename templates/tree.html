@@ -89,7 +89,7 @@ tree.renderInto('my-tree-container');
 
 
   <script type="module">
-    import Tree from './components/tree.js';
+    import Tree from './components/ctree.js';
 
     const sampleStatic = [
       { id: 'r1', name: 'Root A', children: [
@@ -100,12 +100,30 @@ tree.renderInto('my-tree-container');
         { id: 'r2-1', name: 'Child B1', children: [] }
       ]}
     ];
+    function addMoreData(){
+        return [
+            { id: 'r3', name: 'Root C', children: [] },
+            { id: 'r4', name: 'Root D', children: [] }
+        ];
+    }    
 
     // Demo 1: static tree
     let t1 = null;
     document.getElementById('demo1-show').addEventListener('click', () => {
       if (t1 && t1.isRendered && t1.isRendered()) return;
-      t1 = new Tree({ name: 'demo-tree-1', objects: sampleStatic });
+      const contextData = [
+            { name: 'Alpha', value: 'A' , callback: (node) => { 
+                    console.log('Alpha clicked', node.node); 
+                    const data = addMoreData();
+                } 
+            },
+            { name: 'Bravo', value: 'B', callback: (node) => { console.log('Bravo clicked'); } },
+            { name: 'Charlie', value: 'C', callback: (node) => { console.log('Charlie clicked'); } },
+            { name: ""},
+            { name: 'Delta', value: 'D', callback: (node) => { console.log('Delta clicked'); } }
+        ];
+        
+      t1 = new Tree({ name: 'demo-tree-1', objects: sampleStatic, options: { contextData: contextData } });
       t1.renderInto('tree-demo1');
     });
     document.getElementById('demo1-clear').addEventListener('click', () => {

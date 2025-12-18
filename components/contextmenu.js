@@ -6,6 +6,7 @@ class ContextMenu extends Dropdown {
         super({ name, options });
         this.menu = null;
         this.dropdown = null;
+        this.currentContext = null;
     }
 
     init() {
@@ -18,10 +19,10 @@ class ContextMenu extends Dropdown {
             });
             // Hide on click elsewhere
             document.addEventListener("click", () => {            
-                this.dropdown.hide();
+                this.hide();
             });
             document.addEventListener("scroll", () => {            
-                this.dropdown.hide();
+                this.hide();
             });
             this.menu = this.element.querySelector(`#${this.dropDownId}-menu`);
         }, 1000);
@@ -29,13 +30,19 @@ class ContextMenu extends Dropdown {
 
     show(event) {
         event.preventDefault();
-        // Position menu
+        let container = event.target;
+        while (container && !container.classList.contains('context-menu-container')) {
+            container = container.parentElement;
+        }
+        if (!container) {
+            return;
+        }
 
         const x = event.clientX;
         const y = event.clientY;
 
         // 1️⃣ force reset bootstrap state
-        this.dropdown.hide();
+        this.hide();
 
         // 2️⃣ set position
         console.log(x, y);
@@ -47,6 +54,18 @@ class ContextMenu extends Dropdown {
         requestAnimationFrame(() => {
             this.dropdown.show();
         });
+        this.currentContext = container;
+    }
+    hide() {
+        this.dropdown.hide();
+        this.currentContext = null;
+    }
+    itemOnClick(link, item) {
+        let node = {
+            "node": this.currentContext,
+            "item": item
+        }
+        this.emit(`item:click`, node);        
     }
 }
 
