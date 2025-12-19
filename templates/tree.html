@@ -89,7 +89,7 @@ tree.renderInto('my-tree-container');
 
 
   <script type="module">
-    import Tree from './components/ctree.js';
+    import Tree from './components/tree.js';
 
     const sampleStatic = [
       { id: 'r1', name: 'Root A', children: [
@@ -112,15 +112,16 @@ tree.renderInto('my-tree-container');
     document.getElementById('demo1-show').addEventListener('click', () => {
       if (t1 && t1.isRendered && t1.isRendered()) return;
       const contextData = [
-            { name: 'Alpha', value: 'A' , callback: (node) => { 
-                    console.log('Alpha clicked', node.node); 
+            { name: 'Alpha', value: 'A' , callback: (context, node) => { 
+                    console.log('Alpha clicked', context); 
                     const data = addMoreData();
+                    context.update(node, data);
                 } 
             },
-            { name: 'Bravo', value: 'B', callback: (node) => { console.log('Bravo clicked'); } },
-            { name: 'Charlie', value: 'C', callback: (node) => { console.log('Charlie clicked'); } },
+            { name: 'Bravo', value: 'B', callback: (context, node) => { console.log('Bravo clicked'); } },
+            { name: 'Charlie', value: 'C', callback: (context, node) => { console.log('Charlie clicked'); } },
             { name: ""},
-            { name: 'Delta', value: 'D', callback: (node) => { console.log('Delta clicked'); } }
+            { name: 'Delta', value: 'D', callback: (context, node) => { console.log('Delta clicked'); } }
         ];
         
       t1 = new Tree({ name: 'demo-tree-1', objects: sampleStatic, options: { contextData: contextData } });

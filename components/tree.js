@@ -27,7 +27,7 @@ class Tree extends EmitterComponent {
     init() {
         this.element = this.container;
         this.tree = this.element.querySelector('.tree');
-        this.add(this.tree, this.objects);
+        this.upsert(this.tree, this.objects);
         let contextMenuContainer = this.element.querySelector('#contextMenuContainer');
         this.contextMenu = new ContextMenu({
             name: 'Folder Menu',
@@ -37,40 +37,58 @@ class Tree extends EmitterComponent {
         });
         this.contextMenu.renderInto(contextMenuContainer);
         this.contextMenu.setDropdownItems(this.contextMenuData);
-        this.contextMenu.on('item:click', (node) => {
-            node.item.callback(node);
-        });
-        this.tree.addEventListener('contextmenu', e => {            
-            this.contextMenu.show(e);
+        // this.contextMenu.on('item:click', (node) => {
+        //     node.item.callback(node);
+        // });
+        this.tree.addEventListener('contextmenu', e => {
+            this.contextMenu.show(this, e);
         });
     }
 
-    add(parent, children, path = "") {
+    upsert(parent, children, path = "", update = false) {
         let count = 0;
         children.forEach(object => {
             let dataPath = path == "" ? `${count}` : `${path}.${count}`;
             let template = this.getChildTemplate(object.id, object.name, dataPath);
             parent.insertAdjacentHTML('beforeend', template);
 
-            const collapseContainerKey = `#${object.id} #${object.id}-collapse`
+            const collapseContainerKey = `#${object.id} #${object.id}-collapse`;
             const collapseContainer = parent.querySelector(collapseContainerKey);
-            collapseContainer.addEventListener('show.bs.collapse', () => {
-                if (this.visited.has(collapseContainerKey)) {
-                    return;
-                }
-
-                const uri = collapseContainer.dataset.uri;
-                const source = collapseContainer.dataset.source;
-                let children1 = Utility.deepValue(this.objects, uri);
-                if (this.cb && children1 === undefined) {
-                    children1 = this.cb(object);
-                    children1 = Utility.deepValue(this.objects, uri, children1);
-                }
-                this.add(collapseContainer, children1, uri);
-                this.visited.add(collapseContainerKey);
-            });            
+            collapseContainer.addEventListener('show.bs.collapse', this.upsertChild.bind(this, parent, object, update));
             count++;
-        });        
+        });
+    }
+
+    upsertChild(container, object, update) {
+        const collapseContainerKey = `#${object.id} #${object.id}-collapse`;
+        const collapseContainer = update ? container : container.querySelector(collapseContainerKey);        
+
+        if (update) {
+            const collapseContainerId = container.id
+            if (collapseContainerId !== `${object.id}-collapse`) {
+                console.warn("Mismatched container for update");
+                return;
+            }
+        } else {
+            // Avoid re-loading already loaded containers when expand/collapse happens
+            if (this.visited.has(collapseContainerKey)) {
+                return;
+            }
+        }
+        this.loadChild(collapseContainer, object);
+    }
+
+    loadChild(container, object) {
+        const collapseContainerKey = `#${object.id} #${object.id}-collapse`
+        const uri = container.dataset.uri;
+        const source = container.dataset.source;
+        let children1 = Utility.deepValue(this.objects, uri);
+        if (this.cb && children1 === undefined) {
+            children1 = this.cb(object);
+            children1 = Utility.deepValue(this.objects, uri, children1);
+        }
+        this.upsert(container, children1, uri);
+        this.visited.add(collapseContainerKey);
     }
 
     getChildTemplate(id, name, dataPath) {
@@ -107,9 +125,12 @@ class Tree extends EmitterComponent {
         </ul>
         `
     }
-    update(node) {
-        let data = Utility.deepValue(this.objects, node.dataset.uri);
 
+    update(node, data) {
+        console.log("Updating node", node, data);
+        if(!node || !data) return;
+        
+        this.upsertChild(node, data, true);
     }
 }
 

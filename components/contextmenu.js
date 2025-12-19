@@ -6,7 +6,8 @@ class ContextMenu extends Dropdown {
         super({ name, options });
         this.menu = null;
         this.dropdown = null;
-        this.currentContext = null;
+        this.currentNode = null;
+        this.context = null;
     }
 
     init() {
@@ -28,7 +29,7 @@ class ContextMenu extends Dropdown {
         }, 1000);
     }
 
-    show(event) {
+    show(context, event) {
         event.preventDefault();
         let container = event.target;
         while (container && !container.classList.contains('context-menu-container')) {
@@ -54,18 +55,18 @@ class ContextMenu extends Dropdown {
         requestAnimationFrame(() => {
             this.dropdown.show();
         });
-        this.currentContext = container;
+        this.currentNode = container;
+        this.context = context
     }
+
     hide() {
         this.dropdown.hide();
-        this.currentContext = null;
+        this.currentNode = null;
+        this.context = null;
     }
-    itemOnClick(link, item) {
-        let node = {
-            "node": this.currentContext,
-            "item": item
-        }
-        this.emit(`item:click`, node);        
+
+    itemOnClick(link, item) {       
+        item.callback(this.context, this.currentNode);     
     }
 }
 
