@@ -35,7 +35,15 @@ class Tab extends EmitterComponent {
 
     init() {
         this.tabListContainer = this.container.querySelector(`#${this.tabListId}`);
-        this.tabContentContainer = this.container.querySelector(`#${this.tabContentId}`);        
+        this.tabContentContainer = this.container.querySelector(`#${this.tabContentId}`);
+
+        // Populate initial tabs content
+        this.tabs.forEach(tab => {
+            const container = this.tabContentContainer.querySelector(`#${tab.id}-content`);
+            if (container) {
+                this.populateTabContent(tab, container);
+            }
+        });
     }
 
     addTab(tab) {
@@ -47,12 +55,18 @@ class Tab extends EmitterComponent {
         this.tabContentContainer.insertAdjacentHTML('beforeend', newTabContentTemplate);
 
         const container = this.tabContentContainer.querySelector(`#${tab.id}-content`);
+        this.populateTabContent(tab, container);
+    }
+
+    populateTabContent(tab, container) {
+        if (!container || !tab.content) return;
+
         if (typeof tab.content === "string") {
             container.innerHTML = tab.content;
         } else if (tab.content instanceof EmitterComponent) {
             const element = tab.content.getContainer();
             container.appendChild(element);
-        } else {
+        } else if (tab.content) {
             container.appendChild(tab.content);
         }
     }
