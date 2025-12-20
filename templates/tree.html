@@ -92,36 +92,55 @@ tree.renderInto('my-tree-container');
     import Tree from './components/tree.js';
 
     const sampleStatic = [
-      { id: 'r1', name: 'Root A', children: [
-        { id: 'r1-1', name: 'Child A1', children: [] },
-        { id: 'r1-2', name: 'Child A2', children: [] }
+      { name: 'Root A', children: [
+        { name: 'Child A1', children: [] },
+        { name: 'Child A2', children: [] }
       ]},
-      { id: 'r2', name: 'Root B', children: [
-        { id: 'r2-1', name: 'Child B1', children: [] }
+      { name: 'Root B', children: [
+        { name: 'Child B1', children: [] }
       ]}
     ];
     function addMoreData(){
         return [
-            { id: 'r3', name: 'Root C', children: [] },
-            { id: 'r4', name: 'Root D', children: [] }
+            { name: 'Root C', children: [] },
+            { name: 'Root D', children: [] }
         ];
-    }    
+    }  
+    
+    function refreshData(){
+        return [
+            { name: 'Root F', children: [] },
+            { name: 'Root G', children: [] }
+        ];
+    }   
 
     // Demo 1: static tree
     let t1 = null;
     document.getElementById('demo1-show').addEventListener('click', () => {
       if (t1 && t1.isRendered && t1.isRendered()) return;
       const contextData = [
-            { name: 'Alpha', value: 'A' , callback: (context, node) => { 
-                    console.log('Alpha clicked', context); 
-                    const data = addMoreData();
-                    context.update(node, data);
-                } 
+            { name: 'UpdateNewData', 
+              value: 'update-node' , 
+              callback: (context, node) => { 
+                const data = addMoreData();
+                context.update(node, data);
+              } 
             },
-            { name: 'Bravo', value: 'B', callback: (context, node) => { console.log('Bravo clicked'); } },
-            { name: 'Charlie', value: 'C', callback: (context, node) => { console.log('Charlie clicked'); } },
-            { name: ""},
-            { name: 'Delta', value: 'D', callback: (context, node) => { console.log('Delta clicked'); } }
+            { 
+              name: 'Refresh', 
+              value: 'refresh-node', 
+              callback: (context, node) => { 
+                const data = refreshData();
+                context.refresh(node, data); 
+              } 
+            },
+            { 
+              name: 'Remove', 
+              value: 'remove-node', 
+              callback: (context, node) => { 
+                context.remove(node); 
+              } 
+            }
         ];
         
       t1 = new Tree({ name: 'demo-tree-1', objects: sampleStatic, options: { contextData: contextData } });
@@ -134,12 +153,12 @@ tree.renderInto('my-tree-container');
     });
 
     // Demo 2: lazy-load example using data_callback
-    const lazyObjects = [ { id: 'L0', name: 'Lazy Root', children: [] } ];
+    const lazyObjects = [ { name: 'Lazy Root', children: [] } ];
     function fakeLoader(node) {
       // return children for the node (could be a fetch)
       return [
-        { id: node.id + '-a', name: node.name + ' - child A', children: [] },
-        { id: node.id + '-b', name: node.name + ' - child B', children: [] }
+        { name: node.name + ' - child A', children: [] },
+        { name: node.name + ' - child B', children: [] }
       ];
     }
 

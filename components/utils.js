@@ -12,6 +12,7 @@ class Utility {
             }, delay);
         };
     }
+    
     static deepValue(obj, path, defaultValue = undefined) {
         let prevObj = obj;
         for (var i = 0, path = path.split('.'), len = path.length; i < len; i++) {
@@ -23,6 +24,24 @@ class Utility {
             prevObj = obj
         }
         return obj;
+    }
+    
+    static deleteValue(obj, path) {
+        const keys = path.split('.');
+        if (keys.length === 0) return false;
+        
+        let current = obj;
+        for (let i = 0; i < keys.length - 1; i++) {
+            current = current[keys[i]];
+            if (current === undefined) return false;
+        }
+        
+        const lastKey = keys[keys.length - 1];
+        if (lastKey in current) {
+            delete current[lastKey];
+            return true;
+        }
+        return false;
     }
 }
 
