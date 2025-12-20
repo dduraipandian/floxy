@@ -11,7 +11,6 @@
 
   <link rel="stylesheet" type="text/css" href="./components/css/__app_root.css">
   <link rel="stylesheet" type="text/css" href="./components/css/__base.css">
-  <link rel="stylesheet" type="text/css" href="./components/css/theme/dark.css">
   <link rel="stylesheet" type="text/css" href="./components/css/doc.css">
 </head>
 
@@ -26,7 +25,7 @@
 
     <div class="card">
       <div class="section-title">Install & Import</div>
-      <p class="mb-2">Use as an ES module. Bootstrap CSS/JS already included in this workspace.</p>
+      <p class="mb-2">Use as an ES module.</p>
       <pre><code>&lt;script type="module"&gt;
 import Spinner from './components/spinner.js';
 &lt;/script&gt;
@@ -36,51 +35,47 @@ import Spinner from './components/spinner.js';
     <div class="card">
       <div class="section-title">Quick Start</div>
       <pre><code>const spinner = new Spinner({
-  name: 'profile-spinner',
+  name: 'my-spinner',
   options: {
-    spinnerColor: 'text-primary', // Bootstrap text color class
-    spinnerType: 'border',        // 'border' | 'grow'
-    loadingText: 'Loading'
+    spinnerColor: 'text-primary',
+    spinnerType: 'border'
   }
 });
-spinner.renderInto('my-container');
-spinner.show('Loading your profile...', true); // dot animation
-// later
-spinner.hide();
+spinner.renderInto('container-id');
+spinner.show('Loading...', true); // Shows spinner with dot animation
       </code></pre>
     </div>
 
     <div class="card">
       <div class="section-title">Options</div>
       <ul class="list-compact">
-        <li><strong>spinnerColor</strong>: Bootstrap text color class (e.g., <code>text-primary</code>).</li>
-        <li><strong>spinnerType</strong>: <code>'border'</code> or <code>'grow'</code>.</li>
-        <li><strong>enabledCancel</strong>: Enables cancel event dispatching.</li>
-        <li><strong>loadingText</strong>: Default text under the spinner.</li>
+        <li><strong>spinnerColor</strong>: Bootstrap text color class (default: <code>text-secondary</code>).</li>
+        <li><strong>spinnerType</strong>: <code>border</code> (default) or <code>grow</code>.</li>
+        <li><strong>loadingText</strong>: Default text to display (default: <code>'Loading'</code>).</li>
+        <li><strong>enabledCancel</strong>: Show a cancel button (default: <code>false</code>).</li>
       </ul>
     </div>
 
     <div class="card">
       <div class="section-title">API</div>
       <ul class="list-compact">
-        <li><code>renderInto(id)</code>: Injects overlay into container.</li>
-        <li><code>show(text?, dotAnimation?)</code>: Displays overlay; optional dot animation.</li>
-        <li><code>hide()</code>: Hides overlay and restores parent state.</li>
-        <li><code>cancel</code> event: Dispatched when cancellation is triggered.</li>
+        <li><code>renderInto(id)</code>: Renders the component into the target container.</li>
+        <li><code>show(text?, dotAnimation?)</code>: Shows the spinner. Optional text override and dot animation
+          boolean.</li>
+        <li><code>hide()</code>: Hides the spinner and re-enables the parent container.</li>
       </ul>
     </div>
 
     <div class="card">
-      <div class="section-title">Cancel Event</div>
-      <pre><code>const s = new Spinner({ name: 'cancellable', options: { enabledCancel: true } });
-s.renderInto('container');
-s.container.addEventListener(`spinner:${s.containerId}:${s.id}:cancel`, (ev) =&gt; {
-  console.log('Cancel requested', ev.detail);
+      <div class="section-title">Events</div>
+      <p class="mb-2">Listen to events on the container based on the pattern `spinner:{containerId}:{name}:cancel`.</p>
+      <pre><code>// Example: Handle cancellation
+spinner.container.addEventListener(`spinner:${spinner.containerId}:${spinner.id}:cancel`, (e) => {
+    console.log('User clicked cancel', e.detail);
 });
       </code></pre>
     </div>
 
-    <hr class="my-4" />
     <h2 class="mt-4">Live Demos</h2>
 
     <div class="card">

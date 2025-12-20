@@ -23,35 +23,59 @@
 
     <div class="card">
       <div class="section-title">Install & Import</div>
+      <p class="mb-2">Use as an ES module.</p>
       <pre><code>&lt;script type="module"&gt;
-import Split from './components/split.js';
+import SplitPane from './components/split.js';
 &lt;/script&gt;
       </code></pre>
     </div>
 
     <div class="card">
       <div class="section-title">Quick Start</div>
-      <pre><code>const split = new Split({ name: 'Main Split' });
-split.renderInto('split-demo');
-split.setPanes([
-  { id: 'left', content: 'Left pane' },
-  { id: 'right', content: 'Right pane' }
-]);
+      <pre><code>// Create container and pane elements first
+const topDiv = document.createElement('div');
+topDiv.innerHTML = "Top Content";
+const bottomDiv = document.createElement('div');
+bottomDiv.innerHTML = "Bottom Content";
+
+const split = new SplitPane({
+  containerID: 'split-container',
+  top: topDiv,
+  bottom: bottomDiv,
+  options: {
+    min_size: 100
+  }
+});
+split.render();
       </code></pre>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Options</div>
+      <ul class="list-compact">
+        <li><strong>containerID</strong>: ID of the host element.</li>
+        <li><strong>top</strong>: HTMLElement for the top pane.</li>
+        <li><strong>bottom</strong>: HTMLElement for the bottom pane.</li>
+        <li><strong>options.min_size</strong>: Min size in px for panes (default: 60).</li>
+        <li><strong>options.topHeight</strong>: Initial top pane height (default: '49.9%').</li>
+      </ul>
     </div>
 
     <div class="card">
       <div class="section-title">API</div>
       <ul class="list-compact">
-        <li><code>renderInto(id)</code>: Renders split layout into container.</li>
-        <li><code>setPanes(panes)</code>: Array of panes <code>{ id, content }</code>.</li>
-        <li><code>on('resize', cb)</code>: Subscribe to pane resize events.</li>
+        <li><code>render()</code>: Renders the split layout into the container.</li>
+        <li><code>init()</code>: Re-initializes event listeners (internal).</li>
       </ul>
     </div>
 
-    <hr class="my-4" />
-    <h2 class="mt-4">Live Demo</h2>
     <div class="card">
+      <div class="section-title">Events</div>
+      <p class="mb-2">This component does not currently emit events.</p>
+    </div>
+
+    <h2 class="mt-4">Live Demo</h2>
+    <div class="card" style="height: 700px;">
       <div id="split-demo" class="demo-box"></div>
     </div>
   </div>
@@ -60,14 +84,27 @@ split.setPanes([
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
   <script type="module">
-    import Split from './components/split.js';
-    const split = new Split({ name: 'Demo Split' });
-    split.renderInto('split-demo');
-    split.setPanes([
-      { id: 'left', content: 'Left area' },
-      { id: 'right', content: 'Right area' }
-    ]);
-    split.on('resize', (sizes) => console.debug('[Split] resized', sizes));
+    import SplitPane from './components/split.js';
+
+    const topContent = document.createElement('div');
+    topContent.className = "p-3 bg-light h-100";
+    topContent.textContent = "Top Pane Content";
+
+    const bottomContent = document.createElement('div');
+    bottomContent.className = "p-3 bg-white h-100";
+    bottomContent.textContent = "Bottom Pane Content";
+
+    // Ensure container exists
+    const container = document.getElementById('split-demo');
+    container.style.height = "700px"; // Needs explicit height
+
+    const split = new SplitPane({
+      containerID: 'split-demo',
+      top: topContent,
+      bottom: bottomContent,
+      options: { min_size: 50 }
+    });
+    split.render();
   </script>
 </body>
 

@@ -13,16 +13,16 @@ class ContextMenu extends Dropdown {
     init() {
         super.init();
         this.element = this.container;
-        this.dropDownButton = this.element.querySelector(`#${this.dropDownId}-toggle`);        
+        this.dropDownButton = this.element.querySelector(`#${this.dropDownId}-toggle`);
         setTimeout(() => {
             this.dropdown = new bootstrap.Dropdown(this.dropDownButton, {
                 popperConfig: null   // 🔴 hard-disable Popper
             });
             // Hide on click elsewhere
-            document.addEventListener("click", () => {            
+            document.addEventListener("click", () => {
                 this.hide();
             });
-            document.addEventListener("scroll", () => {            
+            document.addEventListener("scroll", () => {
                 this.hide();
             });
             this.menu = this.element.querySelector(`#${this.dropDownId}-menu`);
@@ -65,8 +65,12 @@ class ContextMenu extends Dropdown {
         this.context = null;
     }
 
-    itemOnClick(link, item) {       
-        item.callback(this.context, this.currentNode);     
+    itemOnClick(link, item) {
+        if (item.callback) {
+            item.callback(this.context, this.currentNode);
+        }
+        // Emit standard event via parent
+        super.itemOnClick(link, item);
     }
 }
 

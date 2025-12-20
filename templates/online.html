@@ -10,7 +10,6 @@
 
   <link rel="stylesheet" type="text/css" href="./components/css/__app_root.css">
   <link rel="stylesheet" type="text/css" href="./components/css/__base.css">
-  <link rel="stylesheet" type="text/css" href="./components/css/theme/dark.css">
   <link rel="stylesheet" type="text/css" href="./components/css/doc.css">
 </head>
 
@@ -22,13 +21,48 @@
     </div>
 
     <div class="card">
-      <div class="section-title">Usage</div>
+      <div class="section-title">Install & Import</div>
+      <p class="mb-2">Use as an ES module.</p>
       <pre><code>&lt;script type="module"&gt;
 import Online from './components/online.js';
-const o = new Online({ name: 'network', options: { notify: true } });
-o.renderInto('online-container');
 &lt;/script&gt;
       </code></pre>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Quick Start</div>
+      <pre><code>const status = new Online({ 
+  name: 'net-status',
+  options: {
+    notify: true
+  }
+});
+status.renderInto('status-container');
+      </code></pre>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Options</div>
+      <ul class="list-compact">
+        <li><strong>notify</strong>: Show toast notification on status change (default: <code>true</code>).</li>
+        <li><strong>online_text</strong>: Text to show when online (default: <code>'Online.'</code>).</li>
+        <li><strong>offline_text</strong>: Text to show when offline (default: <code>'Offline.'</code>).</li>
+        <li><strong>disapear_after</strong>: Toast duration in ms (default: <code>3000</code>).</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="section-title">API</div>
+      <ul class="list-compact">
+        <li><code>renderInto(id)</code>: Renders the status indicator (green/red dot + text).</li>
+        <li><code>updateStatus()</code>: Manually checks and updates status (automatically called on clear events).</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Events</div>
+      <p class="mb-2">This component automatically listens to <code>window.ononline</code> and
+        <code>window.onoffline</code>.</p>
     </div>
 
     <div class="card mt-3">

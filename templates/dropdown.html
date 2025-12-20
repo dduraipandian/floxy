@@ -9,7 +9,6 @@
     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
   <link rel="stylesheet" type="text/css" href="./components/css/__app_root.css">
   <link rel="stylesheet" type="text/css" href="./components/css/__base.css">
-  <link rel="stylesheet" type="text/css" href="./components/css/theme/dark.css">
   <link rel="stylesheet" type="text/css" href="./components/css/dropdown.css">
   <link rel="stylesheet" type="text/css" href="./components/css/doc.css">
 </head>
@@ -24,7 +23,7 @@
 
     <div class="card">
       <div class="section-title">Install & Import</div>
-      <p class="mb-2">Use as an ES module. Bootstrap CSS/JS already included in this workspace.</p>
+      <p class="mb-2">Use as an ES module.</p>
       <pre><code>&lt;script type="module"&gt;
 import Dropdown from './components/dropdown.js';
 &lt;/script&gt;
@@ -34,59 +33,50 @@ import Dropdown from './components/dropdown.js';
     <div class="card">
       <div class="section-title">Quick Start</div>
       <pre><code>const dd = new Dropdown({
-  name: 'Select Item',
+  name: 'my-dropdown',
   options: {
-    maxHeight: '15em',
-    search: true
+    search: true,
+    maxHeight: '15em'
   }
 });
-
-dd.renderInto('dropdown-demo');
+dd.renderInto('container-id');
 dd.setDropdownItems([
-  { name: 'Alpha', value: 'A' },
-  { name: 'Bravo', value: 'B' },
-  { name: 'Charlie', value: 'C' }
+  { name: 'Option A', value: 'a' },
+  { name: 'Option B', value: 'b' }
 ]);
-
-dd.on('item:click', (item) => console.log('Selected', item));
+dd.on('item:click', (item) => console.log('Selected:', item));
       </code></pre>
     </div>
 
     <div class="card">
       <div class="section-title">Options</div>
       <ul class="list-compact">
-        <li><strong>maxHeight</strong>: Max height for list scrolling (default <code>15em</code>).</li>
-        <li><strong>search</strong>: Enables search input and filtering.</li>
+        <li><strong>search</strong>: Enable search input filter (default: <code>false</code>).</li>
+        <li><strong>maxHeight</strong>: CSS max-height for the item list (default: <code>'15em'</code>).</li>
       </ul>
     </div>
 
     <div class="card">
       <div class="section-title">API</div>
       <ul class="list-compact">
-        <li><code>renderInto(id)</code>: Renders dropdown into container.</li>
-        <li><code>setDropdownItems(items)</code>: Sets menu items; expects array of <code>{ name, value }</code>.</li>
-        <li><code>on('item:click', cb)</code>: Subscribe to selection events.</li>
-        <li><code>on('init', cb)</code>: Fired once on first dropdown open.</li>
+        <li><code>renderInto(id)</code>: Renders the dropdown into the target container.</li>
+        <li><code>setDropdownItems(items)</code>: Populates the list. Expects array of <code>{ name, value }</code>
+          objects.</li>
       </ul>
     </div>
 
     <div class="card">
       <div class="section-title">Events</div>
       <ul class="list-compact">
-        <li><strong>init</strong>: Emitted on first open of the dropdown (useful to lazy-load items).</li>
-        <li><strong>item:click</strong>: Emitted when a user selects an item; receives the item object.</li>
+        <li><strong>item:click</strong>: Emitted when an item is selected. Callback receives the item object.</li>
+        <li><strong>init</strong>: Emitted when the dropdown is opened for the first time (useful for lazy loading).
+        </li>
       </ul>
-      <pre><code>const dd = new Dropdown({ name: 'Choose', options: { search: true } });
-dd.renderInto('container');
-dd.on('init', () => {
-  // fetch or set items lazily
-  dd.setDropdownItems([{ name: 'One', value: 1 }]);
-});
-dd.on('item:click', (item) => console.log('Selected', item));
-      </code></pre>
+      <pre><code>dd.on('item:click', (item) => {
+    console.log(item.name, item.value);
+});</code></pre>
     </div>
 
-    <hr class="my-4" />
     <h2 class="mt-4">Live Demos</h2>
 
     <div class="card">
