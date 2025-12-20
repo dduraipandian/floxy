@@ -1,12 +1,13 @@
 import Tree from '../components/tree.js';
-import Utility from '../components/utils.js';
 
 describe('Tree Component', () => {
     let container;
-    const sampleStatic = [
+    const sampleData = [
         {
             name: 'Root A', children: [
-                { name: 'Child A1', children: [] }
+                { name: 'Child A1', children: [] },
+                { name: 'Child A2', children: [] },
+                { name: 'Child A3', children: [] }
             ]
         },
         {
@@ -36,7 +37,7 @@ describe('Tree Component', () => {
     });
 
     test('should render root nodes into container', () => {
-        const tree = new Tree({ name: 'MyTree', objects: sampleStatic });
+        const tree = new Tree({ name: 'MyTree', objects: sampleData });
         tree.renderInto(container);
 
         const treeElement = document.getElementById('mytree-tree');
@@ -46,15 +47,18 @@ describe('Tree Component', () => {
         // stableId = `${parentPathId}-${safeName}` where parentPathId starts as "root"
         const rootA = document.getElementById('root-Root-A');
         const rootB = document.getElementById('root-Root-B');
+        const rootAC1 = document.getElementById('root-Root-A-Child-A1');
 
         expect(rootA).toBeTruthy();
         expect(rootB).toBeTruthy();
+        expect(rootAC1).toBeNull();
+
         expect(rootA.textContent).toContain('Root A');
         expect(rootB.textContent).toContain('Root B');
     });
 
     test('should track opened nodes when collapse events are triggered', () => {
-        const tree = new Tree({ name: 'MyTree', objects: sampleStatic });
+        const tree = new Tree({ name: 'MyTree', objects: sampleData });
         tree.renderInto(container);
 
         const rootACollapse = document.getElementById('root-Root-A-collapse');
@@ -71,17 +75,12 @@ describe('Tree Component', () => {
     });
 
     test('should load children on expand', () => {
-        const tree = new Tree({ name: 'MyTree', objects: sampleStatic });
+        const tree = new Tree({ name: 'MyTree', objects: sampleData });
         tree.renderInto(container);
 
         const rootACollapse = document.getElementById('root-Root-A-collapse');
 
         // Initially, Child A1 shouldn't be in the DOM because upsertChild hasn't been called for Root A
-        // Actually, in the current implementation, upsert is called recursively? 
-        // Let's check tree.js again. upsert calls upsertChild which calls loadChild.
-        // In init(): this.upsert(this.tree, this.objects, "", false, "root");
-        // Root nodes are upserted. For each root, an event listener is added to its collapse container.
-
         expect(document.getElementById('root-Root-A-Child-A1')).toBeNull();
 
         // Simulate show event to trigger upsertChild
@@ -114,7 +113,7 @@ describe('Tree Component', () => {
     });
 
     test('should update a node with new children', () => {
-        const tree = new Tree({ name: 'UpdateTree', objects: JSON.parse(JSON.stringify(sampleStatic)) });
+        const tree = new Tree({ name: 'UpdateTree', objects: sampleData });
         tree.renderInto(container);
 
         const rootB = document.getElementById('root-Root-B');
@@ -126,7 +125,7 @@ describe('Tree Component', () => {
     });
 
     test('should refresh a node with new data', () => {
-        const tree = new Tree({ name: 'RefreshTree', objects: JSON.parse(JSON.stringify(sampleStatic)) });
+        const tree = new Tree({ name: 'RefreshTree', objects: JSON.parse(JSON.stringify(sampleData)) });
         tree.renderInto(container);
 
         const rootA = document.getElementById('root-Root-A');
@@ -140,7 +139,7 @@ describe('Tree Component', () => {
     });
 
     test('should remove a node from DOM and objects', () => {
-        const tree = new Tree({ name: 'RemoveTree', objects: JSON.parse(JSON.stringify(sampleStatic)) });
+        const tree = new Tree({ name: 'RemoveTree', objects: JSON.parse(JSON.stringify(sampleData)) });
         tree.renderInto(container);
 
         const rootB = document.getElementById('root-Root-B');
