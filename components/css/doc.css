@@ -1,69 +1,99 @@
 .page {
-    max-width: 900px;
+    max-width: var(--container-max-width);
     margin: 0 auto;
+    padding: var(--padding-content);
 }
 
 .header {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0;
 }
 
 .subtitle {
-    color: #6c757d;
+    color: var(--text-muted);
+    font-size: 1rem;
 }
 
 .card {
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    padding: 16px;
-    margin: 12px 0;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: var(--bg-main);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
 }
 
 .demo-box {
     position: relative;
     width: 100%;
-    min-height: 120px;
-    border: 1px dashed #dee2e6;
+    min-height: 150px;
+    border: 1px solid var(--border-color);
+    background-color: #fafbfc;
     border-radius: 8px;
-    padding: 12px;
-}
-
-pre {
-    background: #f8f9fa;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 12px;
-}
-
-pre code {
-    font-size: 12px;
+    padding: 1.25rem;
 }
 
 .section-title {
-    font-size: 1.5rem;
-    font-weight: 400;
+    font-size: 1.25rem;
+    font-weight: 600;
     margin-bottom: 1rem;
-    color: #212529;
-}
-
-code {
-    color: #d63384; /* Bootstrap pink */
+    color: var(--text-main);
 }
 
 pre {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
+    background: var(--code-bg);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
-    padding: 16px;
-    margin-top: 0;
+    padding: 1rem;
+    margin: 1rem 0;
+    overflow-x: auto;
 }
 
-.card {
-    border: 1px solid #e9ecef;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    border-radius: 8px;
-    padding: 24px;
-    margin-bottom: 24px;
-    background: white;
+pre code {
+    font-size: 0.85rem;
+    color: var(--text-main);
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+code {
+    color: var(--code-color);
+    background-color: rgba(214, 51, 132, 0.05);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.list-compact li {
+    margin-bottom: 0.5rem;
+}
+
+.list-compact li strong {
+    color: var(--text-main);
+}
+
+/* Sidebar Styles */
+.sidebar-sticky {
+    position: sticky;
+    top: var(--navbar-height);
+    height: calc(100vh - var(--navbar-height));
+    padding-top: 1.5rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: var(--bg-sidebar);
+    border-right: 1px solid var(--border-color);
 }

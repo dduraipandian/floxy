@@ -1,12 +1,4 @@
-body {
-  height: 100vh;
-  overflow: hidden;
-}
-
-body {
-  font-size: 0.9em;
-}
-
+/* Utility classes for components */
 .pointer {
   cursor: pointer;
 }
