@@ -45,6 +45,9 @@ describe('ContextMenu Component', () => {
         // Fast-forward 1s
         jest.advanceTimersByTime(1000);
 
+        // Dropdown menu in context menu should have initiated with popperConfig: null
+        // as position of dropdown is controlled manually. So to avoid bootstrap updating
+        // position of dropdown.
         expect(global.bootstrap.Dropdown).toHaveBeenCalledWith(
             expect.any(HTMLElement),
             expect.objectContaining({ popperConfig: null })
@@ -89,7 +92,8 @@ describe('ContextMenu Component', () => {
         menu.renderInto(container);
         jest.advanceTimersByTime(1000);
 
-        menu.show({}, { preventDefault: jest.fn(), target: document.createElement('div'), clientX: 0, clientY: 0 }); // Note: this show might bail if no container, but let's test hide directly
+        // Note: this show might bail if no container, but let's test hide directly
+        menu.show({}, { preventDefault: jest.fn(), target: document.createElement('div'), clientX: 0, clientY: 0 });
 
         menu.hide();
         expect(mockBootstrapDropdown.hide).toHaveBeenCalled();
@@ -112,10 +116,10 @@ describe('ContextMenu Component', () => {
         const targetContainer = document.createElement('div');
         targetContainer.classList.add('context-menu-container');
 
-        menu.show({ ctx: 1 }, { preventDefault: jest.fn(), target: targetContainer, clientX: 0, clientY: 0 });
+        menu.show({ ctx: 1 }, {
+            preventDefault: jest.fn(), target: targetContainer, clientX: 0, clientY: 0
+        });
 
-        // Manually trigger item click
-        // Drodown items are added via addDropdownItem which creates 'a' tags
         menu.setDropdownItems(items);
         const itemLink = menu.dropdownItemContainer.querySelector('a');
 
