@@ -1,6 +1,10 @@
 # uiframe
 
-A lightweight, component-based frontend framework for building professional web interfaces. Built on top of Bootstrap 5, `uiframe` provides high-performance, reusable UI components with minimal configuration.
+A lightweight, opinionated composable UI framework for building professional web interfaces. Built on top of Bootstrap 5, `uiframe` provides high-performance, reusable UI components with minimal configuration and native ES Module support.
+
+## Why uiframe?
+
+`uiframe` is designed as a utility wrapper for Bootstrap 5. It provides a set of complex components (like resizable split panes, searchable dropdowns, and recursive trees) that are easy to drop into any project without the overhead of a heavy framework.
 
 ## Features
 
@@ -20,55 +24,44 @@ A lightweight, component-based frontend framework for building professional web 
 ### Prerequisites
 
 - Node.js (v24.12.0 or higher)
-- Python 3.11+ (for documentation server)
+- A modern browser with ES Module support.
 
 ### Installation
 
-1. Clone the repository:
+1. Install via npm:
    ```bash
-   git clone https://github.com/your-username/uiframe.git
-   cd uiframe
+   npm install uiframe
    ```
 
-2. Install development dependencies (for testing):
-   ```bash
-   npm install
-   ```
+### Quick Start
 
-3. Install documentation dependencies:
-   ```bash
-   pip install flask
-   ```
-
-## Usage
-
-Each component is an ES Module. Here's a quick example of using the `Spinner`:
+Each component is an ES Module. Here's how to use the `Spinner`:
 
 ```javascript
-import Spinner from './components/spinner.js';
+import { Spinner } from 'uiframe';
 
 const mySpinner = new Spinner({ 
     name: 'MainLoader', 
-    options: { text: 'Loading data...' } 
+    options: { loadingText: 'Loading data...', spinnerColor: 'text-primary' } 
 });
 
 // Render into a container
-const container = document.getElementById('app');
-mySpinner.renderInto(container);
+mySpinner.renderInto('app-container-id');
 
 // Control visibility
 mySpinner.show();
-mySpinner.hide();
+setTimeout(() => mySpinner.hide(), 2000);
 ```
 
 ## Documentation
 
-To run the documentation site locally:
+To run the documentation site locally for development:
 
 ```bash
-python app.py
+npm install
+npm run dev
 ```
-Then visit `http://localhost:5001`.
+Then visit `http://localhost:8000`.
 
 ## Development
 
@@ -80,11 +73,11 @@ We use Jest and JSDOM for unit testing. To run the full test suite:
 npm test
 ```
 
-### Components
+### Components Structure
 
 All core components are located in the `components/` directory:
 - `base.js`: Core component classes (`Component`, `EmitterComponent`).
-- `utils.js`: Shared utility functions (debounce, object path helpers).
+- `utils.js`: Shared utility functions.
 - `table.js`, `tree.js`, `tab.js`, etc.
 
 ## Contributing
@@ -93,4 +86,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the ISC License - see the `package.json` file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
