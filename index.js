@@ -6,3 +6,5 @@ export { default as Tab } from "./components/tab.js";
 export { default as Dropdown } from "./components/dropdown.js";
 export { default as ContextMenu } from "./components/contextmenu.js";
 export { default as Online } from "./components/online.js";
+export { default as SplitPane } from "./components/split.js";
+export { default as Utility } from "./components/utils.js";

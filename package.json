@@ -3,12 +3,21 @@
   "version": "1.0.0",
   "description": "A lightweight, opinionated composable UI framework built on Bootstrap 5.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "jest",
     "dev": "npx serve . -l 8000",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dduraipandian/uiframe.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dduraipandian/uiframe/issues"
+  },
+  "homepage": "https://github.com/dduraipandian/uiframe#readme",
   "keywords": [
     "ui",
     "framework",
@@ -18,7 +27,15 @@
   ],
   "author": "dduraipandian",
   "license": "MIT",
-  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "files": [
+    "components",
+    "index.js",
+    "README.md",
+    "LICENSE"
+  ],
   "devDependencies": {
     "@babel/preset-env": "^7.28.5",
     "babel-jest": "^30.2.0",
