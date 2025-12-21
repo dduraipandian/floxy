@@ -68,11 +68,13 @@ pre code {
     font-size: 0.85rem;
     color: var(--text-main);
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    background: transparent;
+    padding: 0;
 }
 
 code {
-    color: var(--code-color);
-    background-color: rgba(214, 51, 132, 0.05);
+    color: #444;
+    background-color: rgba(0, 0, 0, 0.05);
     padding: 0.2rem 0.4rem;
     border-radius: 4px;
     font-size: 0.9em;
