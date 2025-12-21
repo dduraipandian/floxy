@@ -7,10 +7,10 @@
   <title>Dropdown — Minimal Docs</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  <link rel="stylesheet" type="text/css" href="./components/css/__app_root.css">
-  <link rel="stylesheet" type="text/css" href="./components/css/__base.css">
-  <link rel="stylesheet" type="text/css" href="./components/css/dropdown.css">
-  <link rel="stylesheet" type="text/css" href="./components/css/doc.css">
+  <link rel="stylesheet" type="text/css" href="../components/css/__app_root.css">
+  <link rel="stylesheet" type="text/css" href="../components/css/__base.css">
+  <link rel="stylesheet" type="text/css" href="../components/css/dropdown.css">
+  <link rel="stylesheet" type="text/css" href="../components/css/doc.css">
 </head>
 
 <body class="p-3" style="overflow: auto">
@@ -124,7 +124,7 @@ dd.on('item:click', (item) => console.log('Selected:', item));
     crossorigin="anonymous"></script>
 
   <script type="module">
-    import Dropdown from './components/dropdown.js';
+    import Dropdown from '../components/dropdown.js';
 
     // Demo 1: Basic dropdown
     const dd1 = new Dropdown({ name: 'Select Item', options: { search: true, maxHeight: '15em' } });
