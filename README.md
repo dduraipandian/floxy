@@ -38,15 +38,15 @@ A lightweight, opinionated composable UI framework for building professional web
 Each component is an ES Module. Here's how to use the `Spinner`:
 
 ```javascript
-import { Spinner } from 'uiframe';
+import { Spinner } from "uiframe";
 
-const mySpinner = new Spinner({ 
-    name: 'MainLoader', 
-    options: { loadingText: 'Loading data...', spinnerColor: 'text-primary' } 
+const mySpinner = new Spinner({
+  name: "MainLoader",
+  options: { loadingText: "Loading data...", spinnerColor: "text-primary" },
 });
 
 // Render into a container
-mySpinner.renderInto('app-container-id');
+mySpinner.renderInto("app-container-id");
 
 // Control visibility
 mySpinner.show();
@@ -61,6 +61,7 @@ To run the documentation site locally for development:
 npm install
 npm run dev
 ```
+
 Then visit `http://localhost:8000`.
 
 ## Development
@@ -76,6 +77,7 @@ npm test
 ### Components Structure
 
 All core components are located in the `components/` directory:
+
 - `base.js`: Core component classes (`Component`, `EmitterComponent`).
 - `utils.js`: Shared utility functions.
 - `table.js`, `tree.js`, `tab.js`, etc.

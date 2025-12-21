@@ -29,7 +29,7 @@ class EditorElement {
       theme: "dracula",
       lineNumbers: true,
       readOnly: true,
-      autoRefresh: true
+      autoRefresh: true,
     };
 
     let jsonEditorConfig = {
@@ -41,19 +41,19 @@ class EditorElement {
       lineWrapping: true,
       lint: true,
       gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
-      ...commonConfig
+      ...commonConfig,
     };
 
     let textEditorConfig = {
       mode: "text",
-      ...commonConfig
+      ...commonConfig,
     };
 
     if (this.editorType == "json") {
       jsonEditorConfig.lineWrapping = true;
       jsonEditorConfig.mode = {
         name: "javascript",
-        json: true
+        json: true,
       };
       jsonEditorConfig.gutters = ["CodeMirror-linenumbers", "CodeMirror-foldgutter"];
       this.editor = CodeMirror.fromTextArea(textarea, jsonEditorConfig);
@@ -86,9 +86,7 @@ class EditorElement {
 
   setValue(json) {
     if (this.editor) {
-      this.editor.setValue(
-        typeof json === "string" ? json : JSON.stringify(json, null, 2)
-      );
+      this.editor.setValue(typeof json === "string" ? json : JSON.stringify(json, null, 2));
     }
   }
 

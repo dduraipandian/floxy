@@ -1,12 +1,12 @@
 .div-canvas {
-    position: absolute;
-    background-color: var(--table-background-color);
-    color: var(--table-color);
-    top: 0;
-    right: inherit;
+  position: absolute;
+  background-color: var(--table-background-color);
+  color: var(--table-color);
+  top: 0;
+  right: inherit;
 }
 
 .offcanvas-backdrop {
-    position: absolute;
-    overflow: hidden;
+  position: absolute;
+  overflow: hidden;
 }

@@ -1,34 +1,34 @@
 /* full-height container */
 .split-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 
-    border-radius: .5rem;
-    overflow: hidden;
+  border-radius: 0.5rem;
+  overflow: hidden;
 }
 
 .split-pane {
-    min-height: 130px;
-    /* minimum height to avoid collapsing */
+  min-height: 130px;
+  /* minimum height to avoid collapsing */
 }
 
 /* visual divider / drag handle */
 .split-divider {
-    height: 1px;
-    background-color: var(--split-divider-color) !important;    
-    z-index: 10000;
-    
-    .split-divider-icon {
-        margin-top: -22px;        
-        cursor: row-resize;
-        filter: brightness(0.5);
-    }
+  height: 1px;
+  background-color: var(--split-divider-color) !important;
+  z-index: 10000;
+
+  .split-divider-icon {
+    margin-top: -22px;
+    cursor: row-resize;
+    filter: brightness(0.5);
+  }
 }
 
 /* during drag reduce selection */
 .no-select {
-    user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }

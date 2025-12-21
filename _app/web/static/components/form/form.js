@@ -1,23 +1,22 @@
-import BaseNonPrimitiveElement from './base.js';
+import BaseNonPrimitiveElement from "./base.js";
 
-import emitter from '../emitter.js';
+import emitter from "../emitter.js";
 
-import FormElement from './element.js';
+import FormElement from "./element.js";
 // import NumberInputElement from './elements/number.js';
 // import ObjectElement from './elements/object.js';
 // import DropdownElement from './elements/dropdown.js';
 // import CheckboxElement from './elements/checkbox.js';
 // import ArrayElement from './elements/array.js';
-import Group from './group.js';
-import ArrayGroup from './array_group.js';
+import Group from "./group.js";
+import ArrayGroup from "./array_group.js";
 
-import * as utils from '../utils.js';
-
+import * as utils from "../utils.js";
 
 class Form extends BaseNonPrimitiveElement {
   constructor({ id, action, method, name, schema, type = "function", value = {}, options = {} }) {
     if (!name) {
-      throw new Error('Name and method are required parameters.');
+      throw new Error("Name and method are required parameters.");
     }
     super({ id: id, label: name, name, value, options });
     this.action = action; // Form action URL
@@ -26,16 +25,16 @@ class Form extends BaseNonPrimitiveElement {
     this.type = type; // Type of form, e.g., 'function', 'workflow'
 
     this.submitButtonValue = options.submitButtonValue || "Submit"; // Whether to include a submit button
-    this.schema = schema; // Schema for validation or structure    
+    this.schema = schema; // Schema for validation or structure
     this.elementCommonOptions = {
       classNames: "form-control form-control-sm w-100",
-    }
+    };
 
     // Store reference to the rendered DOM element
     this.domElement = null;
 
     // Register this form globally and create elements registry
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       if (!window.forms) {
         window.forms = {};
       }
@@ -53,15 +52,15 @@ class Form extends BaseNonPrimitiveElement {
   }
 
   renderHtml() {
-    let elementsHTML = ""
+    let elementsHTML = "";
     if (!this.schema || !this.schema.properties) {
-      console.warn('Schema is empty or invalid, no elements to render.');
+      console.warn("Schema is empty or invalid, no elements to render.");
     } else {
       const schema = utils.deepCopy(this.schema);
       const required = schema.required || [];
-      this.#render(schema.properties, required, parent = this); // Render the form elements based on the schema
+      this.#render(schema.properties, required, (parent = this)); // Render the form elements based on the schema
       // this.#createElements()
-      elementsHTML = this.uiElements.map(element => element.render()).join('\n');
+      elementsHTML = this.uiElements.map((element) => element.render()).join("\n");
     }
 
     return `
@@ -87,15 +86,20 @@ class Form extends BaseNonPrimitiveElement {
 
   #render(properties, requiredConfig, parent) {
     if (!properties) {
-      console.warn('Properties are empty or invalid, no elements to render.');
+      console.warn("Properties are empty or invalid, no elements to render.");
       return;
     }
 
-    console.debug(`Rendering form with properties:`, properties, `and required fields:`, requiredConfig);
+    console.debug(
+      "Rendering form with properties:",
+      properties,
+      "and required fields:",
+      requiredConfig
+    );
 
     const orderedProperties = utils.sortFormElements(utils.object2Array(properties));
 
-    orderedProperties.forEach(propertyConfig => {
+    orderedProperties.forEach((propertyConfig) => {
       const property = propertyConfig._id || propertyConfig.name;
       const element = this.#handleProperty(property, propertyConfig, requiredConfig, parent);
       if (element) {
@@ -104,23 +108,28 @@ class Form extends BaseNonPrimitiveElement {
         console.warn(`No element created for property: ${property}`);
       }
     });
-    console.debug(`Ordered properties for rendering:`, parent);
+    console.debug("Ordered properties for rendering:", parent);
   }
 
   #handleProperty(property, propertyConfig, requiredConfig, parent) {
     console.debug(`Handling property: ${property}`, propertyConfig, requiredConfig);
     const type = propertyConfig.type;
-    let element = null
+    let element = null;
 
     switch (type) {
-      case 'string':
-      case 'integer':
-      case 'boolean':
-      case 'json':
-        element = this.#createElementForProperty(parent.id, property, propertyConfig, requiredConfig);
+      case "string":
+      case "integer":
+      case "boolean":
+      case "json":
+        element = this.#createElementForProperty(
+          parent.id,
+          property,
+          propertyConfig,
+          requiredConfig
+        );
         console.debug(`Created element for property: ${property}`, element);
         return element;
-      case 'object':
+      case "object":
         const objectProperties = propertyConfig.properties || {};
         const objectRequired = propertyConfig.required || [];
         let group = new Group({
@@ -128,29 +137,38 @@ class Form extends BaseNonPrimitiveElement {
           name: property || "Group",
           options: {
             formId: this.id,
-            ...propertyConfig
-          }
+            ...propertyConfig,
+          },
         });
         this.#render(objectProperties, objectRequired, group);
         return group;
-      case 'array':
+      case "array":
         // Handle array type, which may contain objects or primitive types
         if (propertyConfig.items && propertyConfig.items.type) {
           const itemType = propertyConfig.items.type;
-          if (itemType === 'object') {
+          if (itemType === "object") {
             const arrayGroup = new ArrayGroup({
               id: `ag-${this.id}-${propertyConfig._id}`,
               name: property || "Array Group",
               options: {
                 formId: this.id,
-                ...propertyConfig
-              }
+                ...propertyConfig,
+              },
             });
-            this.#render(propertyConfig.items.properties, propertyConfig.items.required || [], arrayGroup);
+            this.#render(
+              propertyConfig.items.properties,
+              propertyConfig.items.required || [],
+              arrayGroup
+            );
             return arrayGroup;
           } else {
             // Handle primitive types in arrays
-            return this.#createElementForProperty(parent.id, property, propertyConfig, requiredConfig);
+            return this.#createElementForProperty(
+              parent.id,
+              property,
+              propertyConfig,
+              requiredConfig
+            );
           }
         } else {
           console.warn(`Array type without items defined for property: ${property}`);
@@ -176,8 +194,8 @@ class Form extends BaseNonPrimitiveElement {
     const options = {
       required: required,
       placeholder: desc,
-      helpText: helpText
-    }
+      helpText: helpText,
+    };
 
     const ele = new FormElement({
       type: type,
@@ -190,8 +208,8 @@ class Form extends BaseNonPrimitiveElement {
       options: {
         ...this.elementCommonOptions,
         ...options,
-        formId: this.id // Pass the form ID to the element
-      }
+        formId: this.id, // Pass the form ID to the element
+      },
     });
 
     return ele.getElement();
@@ -203,7 +221,7 @@ class Form extends BaseNonPrimitiveElement {
     const data = this.getValue();
     // Here you can handle the form submission logic, e.g., sending data to a server
     // For now, we just log the data
-    console.log('Form submitted with data:', data);
+    console.log("Form submitted with data:", data);
     emitter.emit(`form:${this.id}:submit`, data);
   }
 }

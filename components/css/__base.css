@@ -17,7 +17,7 @@
   /* scrollbar-gutter: stable; or stable both-edges */
 
   &::-webkit-scrollbar {
-    width: .125em !important;
+    width: 0.125em !important;
   }
 }
 

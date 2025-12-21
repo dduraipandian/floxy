@@ -1,25 +1,25 @@
 class Toast {
-    constructor() {
-        this.INFO = 'info';
-        this.SUCCESS = 'success';
-        this.ERROR = 'error';
-        this.WARNING = 'warning';
+  constructor() {
+    this.INFO = "info";
+    this.SUCCESS = "success";
+    this.ERROR = "error";
+    this.WARNING = "warning";
 
-        this.#getDiv(this.INFO);
-        this.#getDiv(this.SUCCESS);
-        this.#getDiv(this.ERROR);
-        this.#getDiv(this.WARNING);        
-    }
+    this.#getDiv(this.INFO);
+    this.#getDiv(this.SUCCESS);
+    this.#getDiv(this.ERROR);
+    this.#getDiv(this.WARNING);
+  }
 
-    #getDiv(level) {
-        const div = document.createElement('div');
-        div.innerHTML = this.#html(level);
-        document.body.appendChild(div);
-        return div;
-    }
+  #getDiv(level) {
+    const div = document.createElement("div");
+    div.innerHTML = this.#html(level);
+    document.body.appendChild(div);
+    return div;
+  }
 
-    #errorModal() {
-        return `
+  #errorModal() {
+    return `
             <div class="modal fade" id="errorToastModal" 
                 data-bs-backdrop="static" 
                 data-bs-keyboard="false" 
@@ -41,25 +41,25 @@ class Toast {
                     </div>
                 </div>
             </div>
-        `
+        `;
+  }
+
+  #html(level) {
+    let bgClass = "bg-info text-dark";
+    let autoHide = true;
+    let modalHtml = "";
+
+    if (level === "success") {
+      bgClass = "bg-success text-white";
+    } else if (level === "error") {
+      bgClass = "bg-danger text-white";
+      modalHtml = this.#errorModal();
+      autoHide = false;
+    } else if (level === "warning") {
+      bgClass = "bg-warning text-dark";
     }
 
-    #html(level) {
-        let bgClass = 'bg-info text-dark';
-        let autoHide = true;
-        let modalHtml = '';
-
-        if (level === 'success') {
-            bgClass = 'bg-success text-white';
-        } else if (level === 'error') {
-            bgClass = 'bg-danger text-white';
-            modalHtml = this.#errorModal();
-            autoHide = false;
-        } else if (level === 'warning') {
-            bgClass = 'bg-warning text-dark';
-        }
-
-        return `
+    return `
             ${modalHtml}
             <div class="toast-container position-fixed bottom-0 end-0 p-3 me-2 mb-3">
                 <div id="liveToast-${level}" 
@@ -79,57 +79,57 @@ class Toast {
                     </div>
                 </div>
             </div>`;
-    }
-    #showToast(message, level = 'info') {
-        console.debug("Showing toast message:", message);
+  }
+  #showToast(message, level = "info") {
+    console.debug("Showing toast message:", message);
 
-        let toastElement = document.getElementById(`liveToast-${level}`)        
-        const toastBody = document.getElementById(`toast-body-${level}`)
-        toastBody.innerHTML = message
-        
-        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastElement)
-        toastBootstrap.show()
-    }
+    let toastElement = document.getElementById(`liveToast-${level}`);
+    const toastBody = document.getElementById(`toast-body-${level}`);
+    toastBody.innerHTML = message;
 
-    #showErrorModal(title, message) {
-        console.error("Showing error modal:", message);
-        const modalTitle = document.getElementById('errorToastModalTitle');
-        const modalBody = document.getElementById('errorToastModalMessage');
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastElement);
+    toastBootstrap.show();
+  }
 
-        const toastBody = document.getElementById(`toast-body-error`);
+  #showErrorModal(title, message) {
+    console.error("Showing error modal:", message);
+    const modalTitle = document.getElementById("errorToastModalTitle");
+    const modalBody = document.getElementById("errorToastModalMessage");
 
-        toastBody.innerHTML += `
+    const toastBody = document.getElementById("toast-body-error");
+
+    toastBody.innerHTML += `
             <span type="button"
                 data-bs-toggle="modal"       
                 data-bs-target="#errorToastModal"> 
                     <u>show</u>
-            </span>`;        
+            </span>`;
 
-        modalTitle.innerHTML = title;
-        modalBody.innerHTML = message === "string" ? message : JSON.stringify(message, null, 2);
-    }
+    modalTitle.innerHTML = title;
+    modalBody.innerHTML = message === "string" ? message : JSON.stringify(message, null, 2);
+  }
 
-    error(message, title, details) {
-        console.error("Error toast:", message);
-        this.#showToast(message, this.ERROR);
+  error(message, title, details) {
+    console.error("Error toast:", message);
+    this.#showToast(message, this.ERROR);
 
-        if (title && details) {
-            this.#showErrorModal(title, details);
-        }
+    if (title && details) {
+      this.#showErrorModal(title, details);
     }
+  }
 
-    success(message) {
-        console.log("Success toast:", message);
-        this.#showToast(message, this.SUCCESS);
-    }
-    info(message) {
-        console.info("Info toast:", message);
-        this.#showToast(message, this.INFO);
-    }
-    warning(message) {
-        console.warn("Warning toast:", message);
-        this.#showToast(message, this.WARNING);
-    }
+  success(message) {
+    console.log("Success toast:", message);
+    this.#showToast(message, this.SUCCESS);
+  }
+  info(message) {
+    console.info("Info toast:", message);
+    this.#showToast(message, this.INFO);
+  }
+  warning(message) {
+    console.warn("Warning toast:", message);
+    this.#showToast(message, this.WARNING);
+  }
 }
 
 const toast = new Toast();

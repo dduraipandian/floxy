@@ -1,27 +1,27 @@
 .deck-container {
-    .breadcrumb-item {
-        color: var(--input-color) !important;
+  .breadcrumb-item {
+    color: var(--input-color) !important;
 
-        a {
-            text-decoration: none;
-            color: #5c84ad !important;
+    a {
+      text-decoration: none;
+      color: #5c84ad !important;
 
-            &:hover {
-                text-decoration: underline;
-            }
-        }
+      &:hover {
+        text-decoration: underline;
+      }
     }
+  }
 
-    .hide {
-        transition: opacity 2s allow-discrete;
-        opacity: 0;
-        height: 0;
-        overflow: hidden;
-    }
+  .hide {
+    transition: opacity 2s allow-discrete;
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+  }
 
-    .active {
-        opacity: 1;
-        height: auto;
-        transition: opacity 2s allow-discrete;
-    }
+  .active {
+    opacity: 1;
+    height: auto;
+    transition: opacity 2s allow-discrete;
+  }
 }

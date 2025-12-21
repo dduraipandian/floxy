@@ -1,27 +1,26 @@
-import BaseNonPrimitiveElement from './base.js';
-
+import BaseNonPrimitiveElement from "./base.js";
 
 class Group extends BaseNonPrimitiveElement {
-    constructor({ id, name, value = {}, options = {} }) {
-        if (!id || !name) {
-            throw new Error('ID and name are required parameters.');
-        }
-        super({ id, label: name, name, value, options });
-
-        if (options.collapse?.enabled == undefined) {
-            options.collapse = {
-                enabled: true,
-                show: false
-            }; // Default to enabled if not specified
-        }
-        this.collapse = options.collapse?.enabled ? true : false; // Whether the group is collapsible
-        this.show = options.collapse?.show ? "show" : ''; // Inline styles for the form
+  constructor({ id, name, value = {}, options = {} }) {
+    if (!id || !name) {
+      throw new Error("ID and name are required parameters.");
     }
+    super({ id, label: name, name, value, options });
 
-    renderHtml() {
-        const groupedElementsHTML = this.uiElements.map(element => element.render()).join('\n');
-        if (this.collapse) {
-            return `
+    if (options.collapse?.enabled == undefined) {
+      options.collapse = {
+        enabled: true,
+        show: false,
+      }; // Default to enabled if not specified
+    }
+    this.collapse = options.collapse?.enabled ? true : false; // Whether the group is collapsible
+    this.show = options.collapse?.show ? "show" : ""; // Inline styles for the form
+  }
+
+  renderHtml() {
+    const groupedElementsHTML = this.uiElements.map((element) => element.render()).join("\n");
+    if (this.collapse) {
+      return `
             <div class="col-12">
                 <div class="p-3 px-1">
                     <div class="row app-form-group pb-2 rounded">
@@ -48,11 +47,10 @@ class Group extends BaseNonPrimitiveElement {
                     </div>
                 </div>
             </div>`;
-        }
-        else {
-            return `${groupedElementsHTML}`;
-        }
+    } else {
+      return `${groupedElementsHTML}`;
     }
+  }
 }
 
 export default Group;

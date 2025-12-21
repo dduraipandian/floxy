@@ -1,15 +1,15 @@
 class DummyComponent {
-    constructor(innerHtml = "") {
-        this.innerHtml = innerHtml;     
-    }
+  constructor(innerHtml = "") {
+    this.innerHtml = innerHtml;
+  }
 
-    render() {
-        return this.renderHtml()
-    }
+  render() {
+    return this.renderHtml();
+  }
 
-    renderHtml() {
-        return this.innerHtml;
-    }
+  renderHtml() {
+    return this.innerHtml;
+  }
 }
 
 export default DummyComponent;

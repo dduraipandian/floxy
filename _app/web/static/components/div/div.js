@@ -4,31 +4,31 @@
  */
 
 class DivContainer {
-    constructor({ element = "", id = "", options = {} }) {
-        this.id = id;
-        this.element = element;
-        this.classNames = options.classNames || "";
-        this.style = options.style || "";     
-        
-        this.elementId = `${this.id}-div-container`;
-    }
+  constructor({ element = "", id = "", options = {} }) {
+    this.id = id;
+    this.element = element;
+    this.classNames = options.classNames || "";
+    this.style = options.style || "";
 
-    render() {
-        return this.renderHtml()
-    }
+    this.elementId = `${this.id}-div-container`;
+  }
 
-    getId() {
-        return this.elementId
-    }
+  render() {
+    return this.renderHtml();
+  }
 
-    renderHtml() {
-        return `
+  getId() {
+    return this.elementId;
+  }
+
+  renderHtml() {
+    return `
             <div ${this.id ? `id="${this.elementId}"` : ""}
                 class="${this.classNames}" 
                 style="${this.style}">
-                ${this.element.renderHtml ? this.element.renderHtml(): ""}
+                ${this.element.renderHtml ? this.element.renderHtml() : ""}
             </div>`;
-    }
+  }
 }
 
 export default DivContainer;

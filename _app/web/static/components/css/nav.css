@@ -1,48 +1,47 @@
 :root {
-    --nav-link-padding-x: var(--padding-x);
-    --nav-link-padding-y: var(--padding-y);
+  --nav-link-padding-x: var(--padding-x);
+  --nav-link-padding-y: var(--padding-y);
 }
 
 .ui-nav {
-    width: var(--navbar-width);
-    background-color: var(--navbar-background-color);
+  width: var(--navbar-width);
+  background-color: var(--navbar-background-color);
+  color: var(--navbar-text-color);
+  height: 100vh;
+  box-shadow: 4px 0 8px -2px rgba(0, 0, 0, 0.3);
+
+  .nav-link {
     color: var(--navbar-text-color);
-    height: 100vh;
-    box-shadow: 4px 0 8px -2px rgba(0, 0, 0, 0.3);
+    padding: var(--nav-link-padding-y) var(--nav-link-padding-x) !important;
+    font-size: var(--font-size) !important;
+  }
 
-    .nav-link {
-        color: var(--navbar-text-color);
-        padding: var(--nav-link-padding-y) var(--nav-link-padding-x) !important;
-        font-size: var(--font-size) !important;
+  .nav-link.active {
+    background-color: var(--navbar-active-background-color);
+    border-color: var(--input-border-color) !important;
+    box-shadow: var(--input-box-shadow) !important;
+  }
+
+  .nav-header {
+    .nav-header-title {
+      text-decoration: none;
+      font-size: 1.5rem !important;
+      color: var(--navbar-text-color);
     }
-
-    .nav-link.active {
-        background-color: var(--navbar-active-background-color);
-        border-color: var(--input-border-color) !important;
-        box-shadow: var(--input-box-shadow) !important;
-    }
-
-    .nav-header {
-        .nav-header-title {
-            text-decoration: none;
-            font-size: 1.5rem !important;
-            color: var(--navbar-text-color);
-        }
-    }
-
+  }
 }
 
 .ui-nav-content {
-    width: calc(100% - var(--navbar-width) - 10px);
-    background-color: var(--background-color);
-    color: var(--navbar-text-color);
-    border-left: 1px solid var(--navbar-border-color);
+  width: calc(100% - var(--navbar-width) - 10px);
+  background-color: var(--background-color);
+  color: var(--navbar-text-color);
+  border-left: 1px solid var(--navbar-border-color);
 
-    height: 100vh;
-    overflow-y: auto;
-    scrollbar-color: var(--input-background-color) var(--input-background-color);
+  height: 100vh;
+  overflow-y: auto;
+  scrollbar-color: var(--input-background-color) var(--input-background-color);
 
-    &:hover {
-        scrollbar-color: var(--input-border-color) var(--input-background-color);
-    }
+  &:hover {
+    scrollbar-color: var(--input-border-color) var(--input-background-color);
+  }
 }

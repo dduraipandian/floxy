@@ -4,40 +4,40 @@
  */
 
 class TabContainer {
-    constructor({ id, name, options = {} }) {
-        if (!id || !name) {
-            throw new Error('SideNav requires an id, name, items array, and containerId');
-        }
-
-        this.id = id;
-        this.name = name;
-        
-        this.options = options || {};
-        this.classNames = options.classNames || "";
-        this.style = options.style || "";
-
-        this.tabTitleClassNames = options.tabTitle?.classNames || "";
-        this.tabTitleStyle = options.tabTitle?.style || "";
-
-        this.element = null;      
-        
-        this._tabNav = [];
-        this._tabContent = [];
-
-        this.navContainer = null;
-        this.tabContentContainer = null;
-        this.isRendered = false;
+  constructor({ id, name, options = {} }) {
+    if (!id || !name) {
+      throw new Error("SideNav requires an id, name, items array, and containerId");
     }
 
-    render() {
-        this.isRendered = true;
-        return this.renderHtml()
-    }
+    this.id = id;
+    this.name = name;
 
-    add(tabId, tabName, content, active = false) {        
-        const tabNav = `
+    this.options = options || {};
+    this.classNames = options.classNames || "";
+    this.style = options.style || "";
+
+    this.tabTitleClassNames = options.tabTitle?.classNames || "";
+    this.tabTitleStyle = options.tabTitle?.style || "";
+
+    this.element = null;
+
+    this._tabNav = [];
+    this._tabContent = [];
+
+    this.navContainer = null;
+    this.tabContentContainer = null;
+    this.isRendered = false;
+  }
+
+  render() {
+    this.isRendered = true;
+    return this.renderHtml();
+  }
+
+  add(tabId, tabName, content, active = false) {
+    const tabNav = `
             <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-0 ${active ? 'active' : ''} ${this.tabTitleClassNames}" 
+                <button class="nav-link rounded-0 ${active ? "active" : ""} ${this.tabTitleClassNames}" 
                     style="${this.tabTitleStyle}"
                     id="${tabId}-tab" 
                     data-bs-toggle="tab" 
@@ -49,30 +49,30 @@ class TabContainer {
                         ${tabName}
                 </button>
             </li>`;
-        const tabContent = `
-            <div class="tab-pane fade ${active ? 'active show' : ''}" 
+    const tabContent = `
+            <div class="tab-pane fade ${active ? "active show" : ""}" 
                 id="${tabId}-pane" 
                 role="tabpanel" 
                 aria-labelledby="${tabId}-tab" 
                 tabindex="0">
-                ${content ? content.renderHtml(): ""}
+                ${content ? content.renderHtml() : ""}
             </div>`;
-         
-        this._tabNav.push(tabNav);
-        this._tabContent.push(tabContent);
-        
-        if (this.isRendered) {
-            const navContainer = document.querySelector(`#${this.id} #${this.id}-nav`);
-            const tabContentContainer = document.querySelector(`#${this.id} #${this.id}-content`);
-            if (navContainer && tabContentContainer) {
-                navContainer.insertAdjacentHTML('beforeend', tabNav);
-                tabContentContainer.insertAdjacentHTML('beforeend', tabContent);
-            }            
-        }     
-    }
 
-    renderHtml() {        
-        return `
+    this._tabNav.push(tabNav);
+    this._tabContent.push(tabContent);
+
+    if (this.isRendered) {
+      const navContainer = document.querySelector(`#${this.id} #${this.id}-nav`);
+      const tabContentContainer = document.querySelector(`#${this.id} #${this.id}-content`);
+      if (navContainer && tabContentContainer) {
+        navContainer.insertAdjacentHTML("beforeend", tabNav);
+        tabContentContainer.insertAdjacentHTML("beforeend", tabContent);
+      }
+    }
+  }
+
+  renderHtml() {
+    return `
             <div class="tab-container card-body p-0 border-top-0" 
                 id="${this.id}">
                 <ul class="nav nav-tabs border-top-0 ${this.classNames}" 
@@ -85,16 +85,15 @@ class TabContainer {
                         ${this._renderTabContent()}
                 </div>
             </div>`;
-    }
+  }
 
-    _renderNavItems() {
-        return this._tabNav.join('');
-    }  
+  _renderNavItems() {
+    return this._tabNav.join("");
+  }
 
-    _renderTabContent() {
-        return this._tabContent.join('');
-    }   
+  _renderTabContent() {
+    return this._tabContent.join("");
+  }
 }
-
 
 export default TabContainer;

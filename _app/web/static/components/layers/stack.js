@@ -4,44 +4,44 @@
  */
 
 class StackLayer {
-    constructor({ id, options = {}}) {
-        this.id = id;
+  constructor({ id, options = {} }) {
+    this.id = id;
 
-        this.classNames = options.classNames || "";
-        this.style = options.style || "";
+    this.classNames = options.classNames || "";
+    this.style = options.style || "";
 
-        this.innerHTML = ""
-        this._elements = [];
-    }
+    this.innerHTML = "";
+    this._elements = [];
+  }
 
-    render() {
-        return this.renderHtml()
-    }    
+  render() {
+    return this.renderHtml();
+  }
 
-    renderHtml() {
-        const innerHTML = this._elements.map(element => this.addElement(element)).join('');
+  renderHtml() {
+    const innerHTML = this._elements.map((element) => this.addElement(element)).join("");
 
-        return  `
+    return `
             <div class="${this.classNames}">
                 ${innerHTML}
             </div>`;
-    }
-    
-    add(element) {
-        if (!element) {
-            throw new Error('StackLayer requires a valid element');
-        }
-        this._elements.push(element);
-    }
+  }
 
-    addElement(element) {
-        return `
+  add(element) {
+    if (!element) {
+      throw new Error("StackLayer requires a valid element");
+    }
+    this._elements.push(element);
+  }
+
+  addElement(element) {
+    return `
             <div class="row">
                 <div class="col-12">
                     ${element.renderHtml()}
                 </div>
             </div>`;
-    }
+  }
 }
 
 export default StackLayer;

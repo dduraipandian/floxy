@@ -1,9 +1,8 @@
 :root {
-
   --background-color: #212529;
   --title-color: #0f366f;
   --box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
-  --button-background-color: #83a6db;;
+  --button-background-color: #83a6db;
 
   /* Form variables */
   --form-background-color: var(--background-color);
@@ -14,7 +13,9 @@
   --input-border-color: #353738;
   --input-color: #e8e6e3;
   --input-background-color: #25292b;
-  --input-box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
+  --input-box-shadow:
+    rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em,
+    rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
   --input-label-color: #8f9396;
 
   --box-shadow-border-color: #4a4f52;
