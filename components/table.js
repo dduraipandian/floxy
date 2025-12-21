@@ -1,7 +1,21 @@
-import { EmitterComponent } from "./base.js"
-import Utility from "./utils.js"
-
+/**
+ * Feature-rich data grid component with search, pagination, and export capabilities.
+ * @extends EmitterComponent
+ */
 class Table extends EmitterComponent {
+    /**
+     * @param {Object} options
+     * @param {string} options.name - Unique name for the table instance.
+     * @param {Object} [options.options] - Configuration options.
+     * @param {boolean} [options.options.search=true] - Enable/disable search toolbar.
+     * @param {boolean} [options.options.export=true] - Enable/disable data export (JSON/CSV).
+     * @param {boolean} [options.options.pagination=true] - Enable/disable pagination.
+     * @param {number} [options.options.pageSize=25] - Rows per page.
+     * @param {Array<string>} [options.options.fields=[]] - Specific fields to display/sort.
+     * @param {string} [options.options.height='460'] - Initial height of the table body.
+     * @param {Object} [options.options.link] - Link configuration for row identifiers.
+     * @param {string} [options.options.classNames=""] - Additional CSS classes for the table.
+     */
     constructor({ name, options = {} }) {
         super({ name });
 
@@ -45,6 +59,10 @@ class Table extends EmitterComponent {
         this.createContainer();
     }
 
+    /**
+     * Initializes the table component, setting up DOM references and listeners.
+     * @override
+     */
     init() {
         this.tableContainer = this.container.querySelector(`#${this.tableContainerId}`);
 
@@ -64,6 +82,11 @@ class Table extends EmitterComponent {
         this.#handleExport();
     }
 
+    /**
+     * Returns the HTML template for the table structure.
+     * @override
+     * @returns {string}
+     */
     html() {
         let searchTemplate = '';
         let exportTemplate = "";
@@ -140,6 +163,10 @@ class Table extends EmitterComponent {
         `
     }
 
+    /**
+     * Updates the table with new data and refreshes the display.
+     * @param {Array<Object>} newData - The new data array to display.
+     */
     updateData(newData) {
         var data = []
         if (!Array.isArray(newData)) data.push(newData)
@@ -276,6 +303,10 @@ class Table extends EmitterComponent {
         this.activatePage(1);
     }
 
+    /**
+     * Filters the table rows based on a search query.
+     * @param {string} query - The search term.
+     */
     handleSearch(query) {
         console.log("Searching for:", query);
         const lowerQuery = query.toLowerCase();
@@ -424,6 +455,10 @@ class Table extends EmitterComponent {
         return pageItem;
     }
 
+    /**
+     * Activates a specific page and updates the visible rows.
+     * @param {number} pageNumber - The 1-indexed page number to activate.
+     */
     activatePage(pageNumber) {
         if (!this.enablePagination) return;
 

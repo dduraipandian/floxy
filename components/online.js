@@ -1,6 +1,22 @@
 import { EmitterComponent } from "./base.js"
 
+/**
+ * Component for monitoring and displaying network status (Online/Offline).
+ * Can also trigger Bootstrap Toast notifications on status change.
+ * @extends EmitterComponent
+ */
 class Online extends EmitterComponent {
+    /**
+     * @param {Object} options
+     * @param {string} options.name - Unique name for the component.
+     * @param {Object} [options.options] - Configuration options.
+     * @param {boolean} [options.options.notify=true] - Whether to show Toast notifications.
+     * @param {string} [options.options.online_notification_text] - Toast text when online.
+     * @param {string} [options.options.offline_notification_text] - Toast text when offline.
+     * @param {string} [options.options.online_text] - Display text for online status.
+     * @param {string} [options.options.offline_text] - Display text for offline status.
+     * @param {number} [options.options.disapear_after=3000] - Toast visibility duration in ms.
+     */
     constructor({ name, options = {} }) {
         super({ name });
         this.options = options || {};
@@ -17,10 +33,19 @@ class Online extends EmitterComponent {
         this.element = null;
     }
 
+    /**
+     * Checks if the browser is currently online.
+     * @returns {boolean}
+     */
     isOnline() {
         return navigator.onLine
     }
 
+    /**
+     * Returns the HTML status indicator (SVG + text).
+     * @override
+     * @returns {string}
+     */
     html() {
         const status = this.isOnline();
         let statusColor = status ? "green" : "red";
@@ -32,6 +57,10 @@ class Online extends EmitterComponent {
         return `${statusTemplate}${statusText}`;
     }
 
+    /**
+     * Initializes the online component and sets up network event listeners.
+     * @override
+     */
     init() {
         this.element = this.container;
 
@@ -62,6 +91,9 @@ class Online extends EmitterComponent {
         window.addEventListener('offline', this.updateStatus.bind(this));
     }
 
+    /**
+     * Updates the status display and triggers notifications on change.
+     */
     updateStatus() {
         const status = this.isOnline();
         if (this.notify && this.isCreated()) {

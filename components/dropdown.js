@@ -1,7 +1,19 @@
 import { EmitterComponent } from "./base.js"
 import Utility from "./utils.js"
 
+/**
+ * Searchable, animated dropdown component built on Bootstrap.
+ * @extends EmitterComponent
+ */
 class Dropdown extends EmitterComponent {
+    /**
+     * @param {Object} options
+     * @param {string} options.name - Display name/label for the dropdown.
+     * @param {Object} [options.options] - Configuration options.
+     * @param {string} [options.options.maxHeight='15em'] - CSS max-height for the item list.
+     * @param {boolean} [options.options.search=false] - Enable search input within the menu.
+     * @param {boolean} [options.options.contextMenu=false] - Whether this is used as a context menu (affects display).
+     */
     constructor({ name, options = {} }) {
         super({ name });
 
@@ -28,6 +40,11 @@ class Dropdown extends EmitterComponent {
         this.createContainer();
     }
 
+    /**
+     * Returns the HTML structure for the dropdown and its search input.
+     * @override
+     * @returns {string}
+     */
     html() {
         let searchTemplate = "";
         if (this.enableSearch) {
@@ -103,6 +120,10 @@ class Dropdown extends EmitterComponent {
         }
     }
 
+    /**
+     * Populates the dropdown with a list of items.
+     * @param {Array<Object>} items - Array of {name, value} objects.
+     */
     setDropdownItems(items) {
         this.clear(this.dropdownItemContainer);
 
@@ -132,7 +153,7 @@ class Dropdown extends EmitterComponent {
             return;
         }
         this.itemsCount += 1;
-        
+
         const link = document.createElement('a');
         link.classList.add('dropdown-item', 'hide', "pointer");
         link.innerHTML = `${item.name}`;
@@ -148,6 +169,10 @@ class Dropdown extends EmitterComponent {
         this.itemTransition(link, true);
     }
 
+    /**
+     * Initializes the dropdown component and sets up observers and animations.
+     * @override
+     */
     init() {
         this.element = this.container.querySelector(`#${this.dropDownId}`);
         this.dropdownItemContainer = this.element.querySelector(`#${this.dropDownItemContainerId}`);
@@ -181,6 +206,10 @@ class Dropdown extends EmitterComponent {
         }
     }
 
+    /**
+     * Filters items based on search term.
+     * @param {string} value - The search term.
+     */
     handleSearch(value) {
         const searchTerm = value.toLowerCase();
         const dropDownItems = this.element.querySelectorAll(`#${this.dropDownItemContainerId} .dropdown-item`);

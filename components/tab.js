@@ -1,6 +1,17 @@
 import { EmitterComponent } from "./base.js"
 
+/**
+ * Component for managing multiple tabs and their content containers.
+ * @extends EmitterComponent
+ */
 class Tab extends EmitterComponent {
+    /**
+     * @param {Object} options
+     * @param {string} options.name - Unique name for the tab container.
+     * @param {Object} [options.options] - Configuration options.
+     * @param {Array<Object>} [options.options.tabs=[]] - Initial array of tab objects {id, title, content}.
+     * @param {string} [options.options.activeTab] - ID of the tab to be active on load.
+     */
     constructor({ name, options = {} }) {
         super({ name });
 
@@ -18,6 +29,11 @@ class Tab extends EmitterComponent {
         this.createContainer();
     }
 
+    /**
+     * Returns the HTML structure for the tab navigation and content panes.
+     * @override
+     * @returns {string}
+     */
     html() {
         const tabHeaders = this.tabs.map((tab) => this.newTabListHtml(tab)).join('');
 
@@ -33,6 +49,10 @@ class Tab extends EmitterComponent {
         `;
     }
 
+    /**
+     * Initializes the tab component and populates initial tab contents.
+     * @override
+     */
     init() {
         this.tabListContainer = this.container.querySelector(`#${this.tabListId}`);
         this.tabContentContainer = this.container.querySelector(`#${this.tabContentId}`);
@@ -46,6 +66,13 @@ class Tab extends EmitterComponent {
         });
     }
 
+    /**
+     * Dynamically adds a new tab to the container.
+     * @param {Object} tab - The tab object.
+     * @param {string} tab.id - Unique ID for the tab.
+     * @param {string} tab.title - Display title for the tab.
+     * @param {string|HTMLElement|EmitterComponent} tab.content - Content to render.
+     */
     addTab(tab) {
         this.tabs.push(tab);
         const newTabHeaderTemplate = this.newTabListHtml(tab);

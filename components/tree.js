@@ -35,7 +35,19 @@ function animateExpandedCollapse(container, mutateFn) {
     }, { once: true });
 }
 
+/**
+ * Hierarchical tree component with lazy-loading, recursive nodes, and state persistence.
+ * @extends EmitterComponent
+ */
 class Tree extends EmitterComponent {
+    /**
+     * @param {Object} options
+     * @param {string} options.name - Unique name for the tree instance.
+     * @param {Array<Object>} [options.objects=[]] - Initial tree data.
+     * @param {Object} [options.options] - Configuration options.
+     * @param {Function} [options.options.data_callback] - Async/dynamic data loader for children.
+     * @param {Array<Object>} [options.options.contextData] - Data for the right-click context menu.
+     */
     constructor({ name, objects = [], options = {} }) {
         super({ name });
         this.options = options || {};
@@ -49,6 +61,11 @@ class Tree extends EmitterComponent {
         this.openedNodes = {};
     }
 
+    /**
+     * Returns the HTML structure for the tree and its context menu container.
+     * @override
+     * @returns {string}
+     */
     html() {
         return `
             <div class="tree" id="${this.id}-tree">
@@ -58,6 +75,10 @@ class Tree extends EmitterComponent {
         `;
     }
 
+    /**
+     * Initializes the tree component, rendering the root nodes and setting up global listeners.
+     * @override
+     */
     init() {
         this.element = this.container;
         this.tree = this.element.querySelector('.tree');
@@ -235,6 +256,11 @@ class Tree extends EmitterComponent {
         `
     }
 
+    /**
+     * Updates a node with new data.
+     * @param {HTMLElement} node - The node to update.
+     * @param {Array<Object>} data - New data for the node's children.
+     */
     update(node, data) {
         if (!node || !data) return;
 
@@ -247,6 +273,11 @@ class Tree extends EmitterComponent {
         this.upsertChild(node, this.objects, true, currentPathId);
     }
 
+    /**
+     * Refreshes a node by clearing its children and re-rendering them with new data.
+     * @param {HTMLElement} node - The node to refresh.
+     * @param {Array<Object>} data - New data for the children.
+     */
     refresh(node, data) {
         if (!node || !data) return;
 
@@ -274,6 +305,10 @@ class Tree extends EmitterComponent {
         this.upsertChild(node, this.objects, true, currentPathId);
     }
 
+    /**
+     * Removes a node from the tree and the internal data structure.
+     * @param {HTMLElement} node - The node to remove.
+     */
     remove(node) {
         if (!node) return;
 

@@ -1,4 +1,18 @@
+/**
+ * Component for creating resizable split-pane layouts (Top/Bottom).
+ */
 class SplitPane {
+    /**
+     * @param {Object} options
+     * @param {string} options.containerID - The ID of the existing DOM element to inject the split pane into.
+     * @param {HTMLElement} options.top - The content element for the top pane.
+     * @param {HTMLElement} options.bottom - The content element for the bottom pane.
+     * @param {Object} [options.options] - Configuration options.
+     * @param {number} [options.options.min_size=60] - Minimum height in px for each pane.
+     * @param {number} [options.options.min_top=130] - Minimum height in px for the top pane.
+     * @param {string} [options.options.topHeight='49.9%'] - Initial height of the top pane (CSS value).
+     * @param {string} [options.options.bottomHeight='49.9%'] - Initial height of the bottom pane (CSS value).
+     */
     constructor({ containerID, top, bottom, options = {} }) {
         this.containerID = containerID; // id of the container div
         this.topContainer = top;
@@ -22,6 +36,9 @@ class SplitPane {
         this.dividerContainerID = `${this.containerID}-split-divider`; // id of the divider
     }
 
+    /**
+     * Renders the split pane into the container and initializes interactivity.
+     */
     render() {
         const innerHTML = this.#html();
         this.container.insertAdjacentHTML('beforeend', innerHTML);
@@ -54,6 +71,9 @@ class SplitPane {
         `;
     }
 
+    /**
+     * Initializes pointer events for resizing.
+     */
     init() {
         // ensure elements exist
         const container = this.container.querySelector(`#${this.splitContainerID}`);

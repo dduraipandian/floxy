@@ -1,6 +1,19 @@
 import { EmitterComponent } from "./base.js"
 
+/**
+ * Component for displaying a loading spinner/overlay.
+ * @extends EmitterComponent
+ */
 class Spinner extends EmitterComponent {
+    /**
+     * @param {Object} options
+     * @param {string} options.name - Unique name for the spinner instance.
+     * @param {Object} [options.options] - Configuration options.
+     * @param {string} [options.options.spinnerColor="text-secondary"] - Bootstrap text color class for the spinner.
+     * @param {boolean} [options.options.enabledCancel=false] - Whether to show a cancel button.
+     * @param {string} [options.options.spinnerType="border"] - Spinner type ('border' or 'grow').
+     * @param {string} [options.options.loadingText='Loading'] - Initial loading text.
+     */
     constructor({ name, options = {} }) {
         super({ name });
 
@@ -23,6 +36,11 @@ class Spinner extends EmitterComponent {
         this.createContainer();
     }
 
+    /**
+     * Returns the HTML template for the spinner.
+     * @override
+     * @returns {string}
+     */
     html() {
         let progressHTML = '';
         let cancelHTML = '';
@@ -54,6 +72,10 @@ class Spinner extends EmitterComponent {
             </div>`;
     }
 
+    /**
+     * Initializes the spinner component and sets up the cancel button listener if enabled.
+     * @override
+     */
     init() {
         // Attach any necessary event listeners here
         // For example, you might want to handle the cancel button click
@@ -86,6 +108,11 @@ class Spinner extends EmitterComponent {
         this.element.dispatchEvent(customEvent);
     }
 
+    /**
+     * Shows the spinner and optionally updates the loading text.
+     * @param {string} [loadingText=null] - Optional new text to display.
+     * @param {boolean} [textDotChange=false] - Whether to animate the text with trailing dots.
+     */
     show(loadingText = null, textDotChange = false) {
         loadingText = loadingText || this.loadingText;
 
@@ -94,6 +121,11 @@ class Spinner extends EmitterComponent {
         this.setLoadingProgress(loadingText, textDotChange);
     }
 
+    /**
+     * Sets the loading progress text and starts the dot animation if requested.
+     * @param {string} loadingText - The text to display.
+     * @param {boolean} textDotChange - Whether to animate dots.
+     */
     setLoadingProgress(loadingText, textDotChange) {
         this.count = 1;
         let originalText = loadingText;
@@ -114,6 +146,9 @@ class Spinner extends EmitterComponent {
         }
     }
 
+    /**
+     * Hides the spinner and clears any active animations.
+     */
     hide() {
         this.element.style.display = 'none';
         this.enableParentContainer(true);
