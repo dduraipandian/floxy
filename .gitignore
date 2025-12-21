@@ -13,15 +13,6 @@ yarn-error.log*
 # Jest
 coverage/
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.venv
-venv/
-ENV/
-.python-version
-
 # IDEs
 .vscode/
 .idea/
