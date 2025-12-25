@@ -10,13 +10,11 @@
       integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" type="text/css" href="../components/css/__app_root.css" />
-    <link rel="stylesheet" type="text/css" href="../components/css/__base.css" />
-    <link rel="stylesheet" type="text/css" href="../components/css/dropdown.css" />
+    <link rel="stylesheet" type="text/css" href="../components/css/base.css" />
     <link rel="stylesheet" type="text/css" href="../components/css/doc.css" />
   </head>
 
-  <body class="p-3" style="overflow: auto">
+  <body class="p-3 template-body">
     <div class="container page">
       <div class="header mb-3">
         <h1 class="mb-0">Dropdown</h1>
@@ -104,7 +102,7 @@ dd.on('item:click', (item) => console.log('Selected:', item));
           </div>
         </div>
         <div id="demo1" class="demo-box mt-2">
-          <div id="dropdown-demo" class="mt-2"></div>
+          <div id="dropdown-demo" class="mt-2 float-end"></div>
           <small class="text-muted">Click items to see console logs.</small>
         </div>
       </div>
@@ -117,7 +115,7 @@ dd.on('item:click', (item) => console.log('Selected:', item));
           </div>
         </div>
         <div id="demo2" class="demo-box mt-2">
-          <div id="dropdown-demo-2" class="mt-2"></div>
+          <div id="dropdown-demo-2" class="mt-2 float-end"></div>
           <small class="text-muted">Type to filter results.</small>
         </div>
       </div>

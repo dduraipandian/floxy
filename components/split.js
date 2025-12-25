@@ -30,10 +30,10 @@ class SplitPane {
     // ensure elements exist
     this.container = document.getElementById(this.containerID);
 
-    this.splitContainerID = `${this.containerID}-split-container`;
-    this.topContainerID = `${this.containerID}-split-top`;
-    this.bottomContainerID = `${this.containerID}-split-bottom`;
-    this.dividerContainerID = `${this.containerID}-split-divider`; // id of the divider
+    this.splitContainerID = `uiframe-${this.containerID}-split-container`;
+    this.topContainerID = `uiframe-${this.containerID}-split-top`;
+    this.bottomContainerID = `uiframe-${this.containerID}-split-bottom`;
+    this.dividerContainerID = `uiframe-${this.containerID}-split-divider`; // id of the divider
   }
 
   /**
@@ -50,11 +50,12 @@ class SplitPane {
   #html() {
     return `
             <div id="${this.splitContainerID}" 
-                class="split-container d-flex flex-column" 
+                class="uiframe-split-container d-flex flex-column" 
                 style="height: 100%; width: 100%; position: relative; overflow: hidden;">
                 <div id="${this.topContainerID}" 
                     class="split-pane" style="height: ${this.topContainerHeight}; overflow: auto;"></div>
-                <div id="${this.dividerContainerID}" class="split-divider text-center"
+                <div id="${this.dividerContainerID}" 
+                    class="split-divider text-center"
                     role="separator" 
                     aria-orientation="vertical" 
                     aria-label="Resize panels">

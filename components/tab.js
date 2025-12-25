@@ -17,8 +17,8 @@ class Tab extends EmitterComponent {
 
     this.options = options;
 
-    this.tabListId = `${this.containerID}-tab-list`;
-    this.tabContentId = `${this.containerID}-tab-content`;
+    this.tabListId = `uiframe-${this.containerID}-tab-list`;
+    this.tabContentId = `uiframe-${this.containerID}-tab-content`;
 
     this.tabs = options.tabs || [];
     this.activeTab = options.activeTab || (this.tabs.length > 0 ? this.tabs[0].id : null);
@@ -38,12 +38,12 @@ class Tab extends EmitterComponent {
     const tabHeaders = this.tabs.map((tab) => this.newTabListHtml(tab)).join("");
 
     return `
-            <nav class="frame-tab">
+            <nav class="uiframe-tab">
                 <div class="nav nav-tabs" id="${this.tabListId}" role="tablist">
                     ${tabHeaders}
                 </div>
             </nav>
-            <div class="tab-content" id="${this.tabContentId}" style="height: calc(100% - 40px); overflow: auto;">
+            <div class="uiframe-tab-content" id="${this.tabContentId}" style="height: calc(100% - 40px); overflow: auto;">
                 ${this.tabs.map((tab) => this.newTabContentHtml(tab)).join("")}
             </div>
         `;

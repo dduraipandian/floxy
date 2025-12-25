@@ -66,9 +66,9 @@ class Dropdown extends EmitterComponent {
       displayEnd = "";
     }
     const template = `
-            <div class="dropdown" id="${this.dropDownId}">
+            <div class="uiframe-dropdown dropdown" id="${this.dropDownId}">
                 <div class="btn-group btn-group-sm">
-                    <button class="btn btn-secondary dropdown-title ${hide}" type="button">${this.name}</button>
+                    <button class="btn btn-outline-secondary dropdown-title ${hide}" type="button">${this.name}</button>
                     <button type="button" 
                             id="${this.dropDownId}-toggle"
                             class="btn btn-secondary dropdown-toggle dropdown-toggle-split ${hide}"
