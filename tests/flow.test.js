@@ -1,8 +1,10 @@
 import { Flow } from "../components/flow.js";
+import notification from "../components/notification.js";
+
+jest.mock("../components/notification.js");
 
 describe("Flow Component", () => {
   let container;
-
   beforeEach(() => {
     // Mock IntersectionObserver
     global.IntersectionObserver = class IntersectionObserver {
@@ -91,7 +93,7 @@ describe("Flow Component", () => {
     const n1 = flow.addNode({ name: "N1", inputs: 0, outputs: 1 });
     const n2 = flow.addNode({ name: "N2", inputs: 1, outputs: 0 });
 
-    flow.addConnection(n1, 0, n2, 0);
+    flow.makeConnection(n1, 0, n2, 0);
 
     expect(flow.connections.length).toBe(1);
     expect(flow.connections[0]).toEqual({
@@ -104,6 +106,59 @@ describe("Flow Component", () => {
     // Verify SVG path creation
     const svg = container.querySelector("svg.flow-connections");
     expect(svg.querySelectorAll("path").length).toBe(1);
+  });
+
+  test("should not add connections between nodes when cyclic", () => {
+    const flow = new Flow({ name: "TestFlow" });
+    flow.renderInto(container);
+
+    const n1 = flow.addNode({ name: "N1", inputs: 0, outputs: 1 });
+    const n2 = flow.addNode({ name: "N2", inputs: 1, outputs: 1 });
+    const n3 = flow.addNode({ name: "N3", inputs: 1, outputs: 2 });
+    const n4 = flow.addNode({ name: "N4", inputs: 1, outputs: 1 });
+
+    let connected = flow.makeConnection(n1, 0, n2, 0);
+    connected = flow.makeConnection(n2, 0, n3, 0);
+    expect(connected).toBeTruthy();
+
+    flow.makeConnection(n3, 1, n4, 0);
+
+    connected = flow.makeConnection(n4, 0, n2, 0);
+    expect(connected).not.toBeTruthy();
+
+    expect(flow.connections.length).toBe(3);
+
+    // Verify notification was called
+    expect(notification.warning).toHaveBeenCalled();
+  });
+
+  test("should add connections between nodes when cyclic if flow is non-dag", () => {
+    const flow = new Flow({ name: "TestFlow", options: { dag: false } });
+    flow.renderInto(container);
+
+    const n1 = flow.addNode({ name: "N1", inputs: 0, outputs: 1 });
+    const n2 = flow.addNode({ name: "N2", inputs: 1, outputs: 0 });
+    const n3 = flow.addNode({ name: "N3", inputs: 1, outputs: 1 });
+
+    let connected = flow.makeConnection(n1, 0, n2, 0);
+    connected = flow.makeConnection(n3, 0, n2, 0);
+
+    connected = flow.makeConnection(n2, 0, n3, 0);
+
+    expect(flow.dag).toBe(false);
+    expect(connected).toBeTruthy();
+
+    expect(flow.connections.length).toBe(3);
+    expect(flow.connections[1]).toEqual({
+      outNodeId: n3,
+      outPort: 0,
+      inNodeId: n2,
+      inPort: 0,
+    });
+
+    // Verify SVG path creation
+    const svg = container.querySelector("svg.flow-connections");
+    expect(svg.querySelectorAll("path").length).toBe(3);
   });
 
   test("should move node on drag", async () => {
@@ -134,7 +189,7 @@ describe("Flow Component", () => {
 
     const n1 = flow.addNode({ name: "N1", x: 0, y: 0, outputs: 1 });
     const n2 = flow.addNode({ name: "N2", x: 200, y: 0, inputs: 1 });
-    flow.addConnection(n1, 0, n2, 0);
+    flow.makeConnection(n1, 0, n2, 0);
 
     const path = container.querySelector("path.flow-connection-path");
     const initialD = path.getAttribute("d");
@@ -209,7 +264,7 @@ describe("Flow Component", () => {
     const n1 = flow.addNode({ name: "N1", x: 0, y: 0, inputs: 0, outputs: 1 });
     const n2 = flow.addNode({ name: "N2", x: 200, y: 0, inputs: 1, outputs: 0 });
 
-    flow.addConnection(n1, 0, n2, 0);
+    flow.makeConnection(n1, 0, n2, 0);
 
     // Verify initial state
     expect(flow.connections.length).toBe(1);
@@ -238,9 +293,9 @@ describe("Flow Component", () => {
     const n3 = flow.addNode({ name: "N3", x: 400, y: 0, inputs: 1, outputs: 1 });
     const n4 = flow.addNode({ name: "N4", x: 600, y: 0, inputs: 1, outputs: 0 });
 
-    flow.addConnection(n1, 0, n2, 0);
-    flow.addConnection(n2, 0, n3, 0);
-    flow.addConnection(n3, 0, n4, 0);
+    flow.makeConnection(n1, 0, n2, 0);
+    flow.makeConnection(n2, 0, n3, 0);
+    flow.makeConnection(n3, 0, n4, 0);
 
     expect(Object.keys(flow.nodes).length).toBe(4);
     expect(flow.connections.length).toBe(3);
