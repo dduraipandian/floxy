@@ -1,5 +1,5 @@
-import Flow from "../components/flow.js";
-import DagValidator from "../components/flow/plugins/dag-validator.js";
+import Flow from "../src/flow.js";
+import DagValidator from "../src/components/plugins/dag-validator.js";
 
 describe("Flow Component", () => {
   let container;
@@ -296,7 +296,7 @@ describe("Flow Component", () => {
       getData: jest.fn((type) => (type === "application/json" ? JSON.stringify(nodeData) : "")),
     };
 
-    const containerEl = container.querySelector(".uiframe-flow-container");
+    const containerEl = container.querySelector(".floxy-flow-container");
     containerEl.dispatchEvent(dropEvent);
 
     const nodes = Object.values(flow.nodeManager.nodes);

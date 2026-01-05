@@ -1,9 +1,9 @@
 import { EmitterComponent } from "./base.js";
-import FlowCanvas from "./flow/canvas.js";
-import FlowNodeManager from "./flow/node.js";
-import FlowConnectionManager from "./flow/connection.js";
-import FlowSerializer from "./flow/serializer.js";
-import * as Constant from "./flow/constants.js";
+import FlowCanvas from "./components/canvas.js";
+import FlowNodeManager from "./components/node.js";
+import FlowConnectionManager from "./components/connection.js";
+import FlowSerializer from "./components/serializer.js";
+import * as Constant from "./components/constants.js";
 
 /**
  * A lightweight Flow/Node editor component inspired by Drawflow, and freeform.
@@ -60,7 +60,7 @@ class Flow extends EmitterComponent {
   }
 
   init() {
-    this.container.classList.add("uiframe-flow-container");
+    this.container.classList.add("floxy-flow-container");
 
     this.canvas = new FlowCanvas({
       name: this.name + "-canvas",

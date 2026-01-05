@@ -1,4 +1,4 @@
-name: uiFrame CI
+name: Floxy CI
 
 on:
   push:

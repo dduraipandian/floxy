@@ -67,7 +67,7 @@ class Notification extends EmitterComponent {
 
     return `
             ${modalHtml}
-            <div class="uiframe-notification-container position-fixed bottom-0 end-0 p-3 me-2 mb-3">
+            <div class="floxy-notification-container position-fixed bottom-0 end-0 p-3 me-2 mb-3">
                 <div id="notification-${level}" 
                     class="toast align-items-center ${bgClass}" 
                     role="alert"

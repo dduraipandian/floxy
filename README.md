@@ -1,35 +1,31 @@
-# uiframe
+# floxy
 
-[![Tests](https://github.com/dduraipandian/uiframe/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/dduraipandian/uiframe/actions/workflows/ci.yml)
+[![Tests](https://github.com/dduraipandian/floxy/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/dduraipandian/floxy/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js >= 20](https://img.shields.io/badge/node-%3E%3D%2020-brightgreen)](https://nodejs.org/)
+[![Node.js >= 18.16.0](https://img.shields.io/badge/node-%3E%3D%2018.16.0-brightgreen)](https://nodejs.org/)
 
-A lightweight, opinionated composable UI framework for building professional web interfaces. Built on top of Bootstrap 5, `uiframe` provides high-performance, reusable UI components with minimal configuration and native ES Module support.
+A lightweight, opinionated composable Flow/Node editor editor. Built on top of Bootstrap 5, `floxy` provides a high-performance, reusable Flow component for building node-based interfaces with minimal configuration and native ES Module support.
 
-## Why uiframe?
+## Why floxy?
 
-`uiframe` is designed as a utility wrapper for Bootstrap 5. It provides a set of complex components (like resizable split panes, searchable dropdowns, and recursive trees) that are easy to drop into any project without the overhead of a heavy framework.
+`floxy` is designed as a focused utility for building flow-based UIs like DAGs, workflow editors, and graph visualizations. It leverages Bootstrap 5 for styling and provides a clean, manager-based architecture for extending functionality.
 
 ## Features
 
 - **🚀 Performance Oriented**: Efficient DOM manipulation and clean lifecycle management.
 - **🎨 Modern Aesthetics**: Professional styling out of the box with Bootstrap 5 integration.
-- **📂 Component Library**:
-  - **Table**: Feature-rich data grid with search, pagination, and JSON/CSV export.
-  - **Tree**: Dynamic, recursive tree view with lazy loading and state persistence.
-  - **ContextMenu**: Flexible right-click menus with async initialization.
-  - **DropDown**: Compact dropdown with optional search, item animations, and event-driven selection.
-  - **Tab**: Dynamic tab management for complex layouts.
-  - **Spinner**: Customizable loading indicators with event handling.
-  - **Split**: Two or multi-pane layout with a draggable divider
-  - **Online**: Real-time network status monitoring with automatic Toast notifications.
+- **📂 Core Features**:
+  - **Flow Editor**: Draggable nodes, zoom/pan canvas, and bezier connections.
+  - **DAG Validation**: Built-in plugin for ensuring directed acyclic graphs.
+  - **Extensible**: Plugin-based architecture for custom validators and managers.
+  - **Event Driven**: Robust event system for reacting to node moves, connections, and deletions.
 - **🧪 Robust Testing**: Comprehensive unit test suite using Jest and JSDOM.
 
 ## Getting Started
 
 ### Prerequisites
 
-- **Node.js** (v20 or higher; tested on v20, v22, v24)
+- **Node.js** (v18.16.0 or higher)
 - **Modern browser** with ES Module support (all modern browsers: Chrome 61+, Firefox 67+, Safari 11+, Edge 79+)
 
 ### Installation
@@ -37,37 +33,38 @@ A lightweight, opinionated composable UI framework for building professional web
 Clone locally for development:
 
 ```bash
-git clone https://github.com/dduraipandian/uiframe.git
-cd uiframe
+git clone https://github.com/dduraipandian/floxy.git
+cd floxy
 npm install
 ```
 
 ### Quick Start
 
-All components are ES Modules. Here's a simple example using the `Spinner` component:
+All components are ES Modules. Here's a simple example using the `Flow` component:
 
 ```html
 <!-- In your HTML -->
-<div id="app-container"></div>
+<div id="flow-container" style="height: 600px; width: 100%;"></div>
 
 <script type="module">
-  import { Spinner } from "./components/spinner.js";
-  // or import { Spinner } from "uiframe"; if installed via npm
+  import { Flow } from "./index.js";
 
-  const mySpinner = new Spinner({
-    name: "MainLoader",
+  const flow = new Flow({
+    name: "MainFlow",
     options: {
-      loadingText: "Loading data...",
-      spinnerColor: "text-primary",
-    },
+      zoom: 1,
+    }
   });
 
   // Render into a container
-  mySpinner.renderInto("app-container");
+  flow.renderInto("flow-container");
 
-  // Control visibility
-  mySpinner.show();
-  setTimeout(() => mySpinner.hide(), 2000);
+  // Add nodes
+  const n1 = flow.addNode({ name: "Start", x: 100, y: 100, outputs: 1 });
+  const n2 = flow.addNode({ name: "End", x: 400, y: 100, inputs: 1 });
+
+  // Connect them
+  flow.addConnection(n1, 0, n2, 0);
 </script>
 ```
 
@@ -81,8 +78,6 @@ npm run dev
 # Visit http://localhost:8000 in your browser
 ```
 
-The docs include live demos for all components with interactive examples.
-
 ## Development
 
 ### Running Tests
@@ -94,8 +89,6 @@ npm install  # Install dev dependencies
 npm test     # Run full test suite
 ```
 
-All tests (38 tests across 9 suites) are passing. See [tests/](tests/) for examples.
-
 ### Code Quality
 
 ```bash
@@ -103,40 +96,18 @@ npm run lint    # Run ESLint style checker
 npm run format  # Auto-format code with Prettier
 ```
 
-### Components Structure
+### Project Structure
 
-All core components are located in [components/](components/):
-
-| File             | Purpose                                                   |
+| File/Directory   | Purpose                                                   |
 | ---------------- | --------------------------------------------------------- |
-| `base.js`        | Core component classes (`Component`, `EmitterComponent`)  |
-| `utils.js`       | Shared utility functions (deep value access, etc.)        |
-| `spinner.js`     | Loading indicator with custom styling                     |
-| `table.js`       | Data grid with search, pagination, export                 |
-| `tree.js`        | Recursive tree view with lazy-loading & state persistence |
-| `tab.js`         | Dynamic tab management                                    |
-| `dropdown.js`    | Searchable dropdown component                             |
-| `contextmenu.js` | Right-click context menus                                 |
-| `online.js`      | Network status monitoring                                 |
-| `split.js`       | Resizable split pane layouts                              |
+| `src/base.js`    | Core component classes (`Component`, `EmitterComponent`)  |
+| `src/flow.js`    | Main Flow component orchestrator                          |
+| `src/components/`| Managers (node, connection, canvas, serializer)           |
+| `src/css/`       | Component styles                                          |
 
 ## Contributing
 
-Contributions are welcome! Here's how to get started:
-
-1. **Fork & Clone** the repository
-2. **Create a feature branch**: `git checkout -b feature/my-feature`
-3. **Make changes** and add tests if applicable
-4. **Run tests & lint**: `npm test && npm run lint`
-5. **Commit** with clear messages
-6. **Push** and open a Pull Request
-
-Please ensure:
-
-- All tests pass (`npm test`)
-- Code is properly formatted (`npm run format`)
-- No linting errors (`npm run lint`)
-- Changes include relevant test updates
+Contributions are welcome!
 
 ## License
 

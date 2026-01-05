@@ -1,27 +1,28 @@
 {
-  "name": "uiframe",
+  "name": "floxy",
   "version": "1.0.0",
-  "description": "A lightweight, opinionated composable UI framework built on Bootstrap 5.",
+  "description": "A lightweight, opinionated composable Flow/Node editor built on Bootstrap 5.",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "jest",
-    "dev": "npx serve . -l 8000",
+    "dev": "npx serve . -l 8001",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dduraipandian/uiframe.git"
+    "url": "git+https://github.com/dduraipandian/floxy.git"
   },
   "bugs": {
-    "url": "https://github.com/dduraipandian/uiframe/issues"
+    "url": "https://github.com/dduraipandian/floxy/issues"
   },
-  "homepage": "https://github.com/dduraipandian/uiframe#readme",
+  "homepage": "https://github.com/dduraipandian/floxy#readme",
   "keywords": [
-    "ui",
-    "framework",
-    "bootstrap",
+    "drag and drop",
+    "graph",
+    "workflow",
+    "flowchart",
     "components",
     "es-modules"
   ],
@@ -31,7 +32,7 @@
     "node": ">=18.16.0"
   },
   "files": [
-    "components",
+    "src",
     "index.js",
     "README.md",
     "LICENSE"
