@@ -1,0 +1,205 @@
+/* START: Utility classes for components */
+.pointer {
+  cursor: pointer;
+}
+
+.clickable {
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(120%);
+  }
+}
+
+.scrollbar {
+  scrollbar-width: thin;
+  /* scrollbar-color: var(--input-border-color) var(--input-background-color); */
+  /* scrollbar-gutter: stable; or stable both-edges */
+
+  &::-webkit-scrollbar {
+    width: 0.125em !important;
+  }
+}
+
+.disabled {
+  pointer-events: none !important;
+  /* opacity: 0.7 !important; */
+  filter: brightness(60%);
+}
+
+.hide {
+  opacity: 0;
+}
+
+.show {
+  opacity: 100 !important;
+}
+
+.hover-light:hover {
+  filter: brightness(120%);
+}
+
+/* during drag reduce selection. It used in the split. */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+/* END: Utility classes for components */
+
+/* START: FLOW COMPONENT */
+/* Flow Container - The stage */
+/* Container must handle overflow and cursor */
+.floxy-flow-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+  cursor: grab;
+  background-image: radial-gradient(#c1c1c4 1.4px, transparent 1.4px);
+  background-size: 24px 24px;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  .flow-toolbar {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 1000;
+  }
+
+  /* Canvas transforms for pan/zoom */
+  .flow-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform-origin: 0 0;
+
+    /* Nodes - absolute positioning required */
+    .flow-node {
+      position: absolute;
+      display: flex;
+      z-index: 1;
+      cursor: grab;
+
+      /* --bs-focus-ring-width: 0.125rem; */
+
+      &:active {
+        cursor: grabbing;
+      }
+
+      &.selected {
+        z-index: 10;
+        outline: 0;
+
+        /* Hard coded focus right as it needs to be persisted */
+        box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0) var(--bs-focus-ring-blur, 0)
+          var(--bs-focus-ring-width) var(--bs-focus-ring-color);
+
+        .node-close {
+          display: block;
+        }
+      }
+
+      .node-close {
+        right: 0;
+        position: absolute;
+        font-size: 0.5rem;
+        display: none;
+        border: var(--bs-border-width) var(--bs-border-style) #212529 !important;
+      }
+
+      /* Ports - functional layout */
+      .flow-ports-column {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 0;
+        position: relative;
+        z-index: 2;
+        overflow: visible;
+
+        &.flow-ports-out {
+          left: -2px;
+        }
+
+        &.flow-ports-in {
+          left: 2px;
+        }
+
+        .flow-port {
+          width: 10px;
+          height: 10px;
+          background: var(--bs-body-bg);
+          border-radius: 50%;
+          margin: 8px 0;
+          z-index: 2;
+          cursor: crosshair;
+          position: relative;
+          border: var(--bs-border-width) solid var(--bs-border-color);
+        }
+
+        .flow-port:hover {
+          transform: scale(1.5);
+          --bs-focus-ring-width: 1px;
+          box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0)
+            var(--bs-focus-ring-blur, 0) var(--bs-focus-ring-width) var(--bs-focus-ring-color);
+        }
+      }
+    }
+  }
+
+  /* SVG layer for connections */
+  .flow-connections {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    z-index: 0;
+    pointer-events: none;
+
+    /* Connection paths */
+    .flow-connection-path {
+      fill: none;
+      stroke: var(--bs-secondary);
+      stroke-width: 2px;
+      stroke-linecap: round;
+      pointer-events: stroke;
+      transition: stroke 0.2s;
+
+      &:hover {
+        stroke: var(--bs-primary);
+        stroke-width: 3px;
+        cursor: pointer;
+      }
+
+      &.selected {
+        stroke: var(--bs-primary);
+      }
+      &.flow-connection-path-bad {
+        stroke: var(--bs-danger);
+      }
+    }
+  }
+}
+
+/* END: FLOW COMPONENT */
+
+/* START: NOTIFICATION COMPONENT */
+
+.floxy-notification-container {
+  .toast {
+    border: none;
+  }
+}
+
+/* END: NOTIFICATION COMPONENT */
