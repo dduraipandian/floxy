@@ -236,4 +236,52 @@ describe("Flow Integration", () => {
     const updatedD = path.getAttribute("d");
     expect(updatedD).not.toBe(initialD);
   });
+
+  test("should export flow state correctly", () => {
+    const n1 = flow.addNode({ name: "N1", x: 100, y: 100, outputs: 1 });
+    const n2 = flow.addNode({ name: "N2", x: 400, y: 100, inputs: 1 });
+    flow.addConnection(n1, 0, n2, 0);
+    flow.canvas.zoom = 1.5;
+
+    const data = flow.export();
+
+    expect(data.zoom).toBe(1.5);
+    expect(data.nodes.length).toBe(2);
+    expect(data.connections.length).toBe(1);
+    expect(data.nodes[0].name).toBe("N1");
+    expect(data.connections[0]).toEqual({
+      outNodeId: n1,
+      outPort: 0,
+      inNodeId: n2,
+      inPort: 0,
+    });
+  });
+
+  test("should import flow state correctly", () => {
+    const importData = {
+      zoom: 2,
+      canvas: { x: 150, y: 50 },
+      nodes: [
+        { id: 1, name: "Node A", x: 10, y: 10, inputs: 1, outputs: 1 },
+        { id: 2, name: "Node B", x: 300, y: 10, inputs: 1, outputs: 1 },
+      ],
+      connections: [{ outNodeId: 1, outPort: 0, inNodeId: 2, inPort: 0 }],
+    };
+
+    flow.import(importData);
+
+    expect(flow.zoom).toBe(2);
+    expect(Object.keys(flow.nodeManager.nodes).length).toBe(2);
+    expect(flow.connectionManager.connections.length).toBe(1);
+
+    const nodeA = flow.nodeManager.nodes[1];
+    expect(nodeA.name).toBe("Node A");
+    expect(container.querySelector("#node-1")).toBeTruthy();
+    expect(container.querySelector("path")).toBeTruthy();
+
+    expect(flow.canvas.canvasX).toBe(150);
+    expect(flow.canvas.canvasY).toBe(50);
+    expect(flow.canvasEl.style.transform).toContain("translate(150px, 50px)");
+    expect(flow.container.style.backgroundPosition).toBe("150px 50px");
+  });
 });

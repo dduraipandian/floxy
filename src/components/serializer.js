@@ -36,7 +36,12 @@ class FlowSerializer {
     const { nodeManager, connectionManager, canvas } = flow;
 
     // 1. Reset canvas
-    canvas.zoom = data.zoom || 1;
+    const zoom = data.zoom || 1;
+    flow.zoom = zoom;
+    canvas.zoom = zoom;
+    nodeManager.zoom = zoom;
+    connectionManager.zoom = zoom;
+
     canvas.canvasX = data.canvas?.x || 0;
     canvas.canvasY = data.canvas?.y || 0;
     canvas.redrawCanvas();
