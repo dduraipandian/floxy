@@ -1,4 +1,5 @@
 # floxy
+
 [![Tests](https://github.com/dduraipandian/floxy/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/dduraipandian/floxy/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js >= 18.16.0](https://img.shields.io/badge/node-%3E%3D%2018.16.0-brightgreen)](https://nodejs.org/)
@@ -52,7 +53,7 @@ All components are ES Modules. Here's a simple example using the `Flow` componen
     name: "MainFlow",
     options: {
       zoom: 1,
-    }
+    },
   });
 
   // Render into a container
@@ -97,12 +98,12 @@ npm run format  # Auto-format code with Prettier
 
 ### Project Structure
 
-| File/Directory   | Purpose                                                   |
-| ---------------- | --------------------------------------------------------- |
-| `src/base.js`    | Core component classes (`Component`, `EmitterComponent`)  |
-| `src/flow.js`    | Main Flow component orchestrator                          |
-| `src/components/`| Managers (node, connection, canvas, serializer)           |
-| `src/css/`       | Component styles                                          |
+| File/Directory    | Purpose                                                  |
+| ----------------- | -------------------------------------------------------- |
+| `src/base.js`     | Core component classes (`Component`, `EmitterComponent`) |
+| `src/flow.js`     | Main Flow component orchestrator                         |
+| `src/components/` | Managers (node, connection, canvas, serializer)          |
+| `src/css/`        | Component styles                                         |
 
 ## Contributing
 
@@ -111,4 +112,3 @@ Contributions are welcome!
 ## License
 
 MIT © 2025 [dduraipandian](https://github.com/dduraipandian). See [LICENSE](LICENSE) for details.
->>>>>>> flow_refactoring_from_uiframe_1

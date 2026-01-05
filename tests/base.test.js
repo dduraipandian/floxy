@@ -5,14 +5,14 @@ class TestComponent extends Component {
   html() {
     return '<div id="test-el">Test</div>';
   }
-  init() { }
+  init() {}
 }
 
 class TestEmitter extends EmitterComponent {
   html() {
     return "<div>Emitter</div>";
   }
-  init() { }
+  init() {}
 }
 
 describe("Base Component Classes", () => {
