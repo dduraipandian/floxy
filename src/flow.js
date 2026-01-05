@@ -267,14 +267,13 @@ class Flow extends EmitterComponent {
 
   // eslint-disable-next-line no-unused-vars
   keyDownCancelConnection(event, nodeId) {
-    console.log(event);
     // ESCAPE key pressed
-    if (event.type == "keydown" && event.keyCode != 27) {
+    if (event.type == "keydown" && event.key !== "Escape" && event.keyCode !== 27) {
       return;
     }
 
     this.isConnecting = false;
-    this.connectionManager.clearTempPath();
+    this.connectionManager.endTempConnection();
 
     if (this._drawConnection) {
       window.removeEventListener("mousemove", this._drawConnection);
