@@ -55,7 +55,7 @@ class FlowSerializer {
     // 4. Recreate connections (validators already active)
     if (data.connections) {
       data.connections.forEach((c) => {
-        flow.makeConnection(c.outNodeId, c.outPort, c.inNodeId, c.inPort);
+        flow.addConnection(c.outNodeId, c.outPort, c.inNodeId, c.inPort);
       });
     }
   }
