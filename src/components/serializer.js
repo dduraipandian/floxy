@@ -36,7 +36,12 @@ class FlowSerializer {
     const { nodeManager, connectionManager, canvas } = flow;
 
     // 1. Reset canvas
-    canvas.zoom = data.zoom || 1;
+    const zoom = data.zoom || 1;
+    flow.zoom = zoom;
+    canvas.zoom = zoom;
+    nodeManager.zoom = zoom;
+    connectionManager.zoom = zoom;
+
     canvas.canvasX = data.canvas?.x || 0;
     canvas.canvasY = data.canvas?.y || 0;
     canvas.redrawCanvas();
@@ -55,7 +60,7 @@ class FlowSerializer {
     // 4. Recreate connections (validators already active)
     if (data.connections) {
       data.connections.forEach((c) => {
-        flow.makeConnection(c.outNodeId, c.outPort, c.inNodeId, c.inPort);
+        flow.addConnection(c.outNodeId, c.outPort, c.inNodeId, c.inPort);
       });
     }
   }
