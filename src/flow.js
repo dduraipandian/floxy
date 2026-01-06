@@ -27,8 +27,6 @@ class Flow extends EmitterComponent {
     this.serializer = new FlowSerializer();
     this.zoom = options.zoom || 1;
     this.originalZoom = this.zoom;
-    this.canvasX = options.canvas?.x || 0;
-    this.canvasY = options.canvas?.y || 0;
 
     this.nodes = {}; // { id: { id, x, y, inputs, outputs, data, el } }
     // this.connections = []; // [ { outputNodeId, outputPort, inputNodeId, inputPort } ]
@@ -38,18 +36,10 @@ class Flow extends EmitterComponent {
     this.canvasEl = null;
     this.svgEl = null;
 
-    this.MOUSE_RIGHT_CLICK = 2;
-    this.gridFactor = 24;
-    this.nodeWidth = 200;
-    this.nodeHeight = 90;
-
-    this.zoomInEl = null;
-    this.zoomOutEl = null;
-    this.zoomResetEl = null;
-
     this.nodeManager = null;
     this.connectionManager = null;
     this.rafId = null;
+    this.isConnecting = false;
   }
 
   /**
@@ -195,8 +185,8 @@ class Flow extends EmitterComponent {
         this.connectionStart.prevX == this.connectionStart.x &&
         this.connectionStart.prevY == this.connectionStart.y;
       if (this.connectionStart.x && this.connectionStart.y && !samePreviousPos) {
-        this.connectionManager.prevX = this.connectionStart.x;
-        this.connectionManager.prevY = this.connectionStart.y;
+        this.connectionStart.prevX = this.connectionStart.x;
+        this.connectionStart.prevY = this.connectionStart.y;
         this.connectionManager.updateTempConnection(this.connectionStart.x, this.connectionStart.y);
       }
     });

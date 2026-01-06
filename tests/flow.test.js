@@ -150,20 +150,58 @@ describe("Flow Integration", () => {
   test("should cancel connection on ESC and clear bad connection marks", async () => {
     const n1 = flow.addNode({ name: "N1" });
     const n2 = flow.addNode({ name: "N2" });
+    const n3 = flow.addNode({ name: "N3" });
+    const n4 = flow.addNode({ name: "N4" });
     flow.addConnection(n1, 0, n2, 0);
+    flow.addConnection(n2, 0, n3, 0);
+    flow.addConnection(n3, 0, n4, 0);
 
-    const outPort = container.querySelector(`#node-${n2} .flow-port[data-type="output"]`);
-    flow.mouseDownStartConnection(outPort, n2, { stopPropagation: jest.fn() });
+    const outPort = container.querySelector(`#node-${n4} .flow-port[data-type="output"]`);
+    const inPort = container.querySelector(`#node-${n2} .flow-port[data-type="input"]`);
+    outPort.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+    expect(flow.isConnecting).toBe(true);
 
-    // Simulate "bad" state manually for testing the clear logic
-    flow.connectionManager.markPathBad(flow.connectionManager.connections[0]);
-    expect(container.querySelector(".flow-connection-path-bad")).toBeTruthy();
+    // Move mouse
+    window.dispatchEvent(new MouseEvent("mousemove", { clientX: 100, clientY: 100 }));
 
-    // ESC to cancel (using keyCode for parity)
+    // Wait for RAF
+    await new Promise((resolve) => setTimeout(resolve, 1));
+
+    expect(container.querySelector(".flow-connection-temp")).not.toBeNull();
+
+    // Release on input
+    inPort.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+
+    let pathId = "2:0-3:0";
+    let path = flow.svgEl.querySelector(`path[data-id="${pathId}"]`);
+    expect(path.classList.contains("flow-connection-path-bad")).toBeTruthy();
+
+    let pathId2 = "3:0-4:0";
+    let path2 = flow.svgEl.querySelector(`path[data-id="${pathId2}"]`);
+    expect(path2.classList.contains("flow-connection-path-bad")).toBeTruthy();
+
+    let pathId3 = "4:0-2:0";
+    let path3 = flow.svgEl.querySelector(`path[data-id="${pathId3}"]`);
+    expect(path3).toBeNull();
+
+    let path4 = flow.svgEl.querySelector(".flow-connection-temp");
+    expect(path4.classList.contains("flow-connection-path-bad")).toBeTruthy();
+
+    // Press ESC key to cancel
     window.dispatchEvent(new KeyboardEvent("keydown", { keyCode: 27, bubbles: true }));
 
+    // Verify connection was cancelled
+    expect(flow.isConnecting).toBe(false);
+    expect(container.querySelector(".flow-connection-temp")).toBeNull();
     expect(flow.connectionManager.tempSource).toBeNull();
-    expect(container.querySelector(".flow-connection-path-bad")).toBeFalsy();
+
+    pathId = "2:0-3:0";
+    path = flow.svgEl.querySelector(`path[data-id="${pathId}"]`);
+    expect(path.classList.contains("flow-connection-path-bad")).not.toBeTruthy();
+
+    pathId2 = "3:0-4:0";
+    path2 = flow.svgEl.querySelector(`path[data-id="${pathId2}"]`);
+    expect(path2.classList.contains("flow-connection-path-bad")).not.toBeTruthy();
   });
 
   test("should cancel connection on ESC keydown while drawing", async () => {
@@ -205,7 +243,7 @@ describe("Flow Integration", () => {
     const inPort = container.querySelector(`#node-${n2} .flow-port[data-type="input"]`);
 
     // Start on output
-    flow.mouseDownStartConnection(outPort, n1, { stopPropagation: jest.fn() });
+    outPort.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
 
     // End on input
     inPort.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
