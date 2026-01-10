@@ -1,6 +1,9 @@
-export { Component, EmitterComponent } from "./src/base.js";
-export { default as Flow } from "./src/flow.js";
-export { default as FlowCanvas } from "./src/components/canvas.js";
-export { default as Utility } from "./src/components/utils.js";
-export { default as notification } from "./src/notification.js";
-export { default as DagValidator } from "./src/components/plugins/dag-validator.js";
+export { EmitterComponent } from "@uiframe/core";
+export { notification } from "@uiframe/notification";
+
+export { Flow } from "./src/flow.js";
+export { FlowCanvas } from "./src/components/canvas.js";
+export { DagValidator } from "./src/components/plugins/dag-validator.js";
+
+import "@uiframe/core/dist/base.css";
+import "@uiframe/notification/dist/notification.css";
