@@ -66,4 +66,4 @@ class FlowSerializer {
   }
 }
 
-export default FlowSerializer;
+export { FlowSerializer };

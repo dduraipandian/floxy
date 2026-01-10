@@ -1,5 +1,5 @@
-import { EmitterComponent } from "../base.js";
-import DragHandler from "./utils.js";
+import { EmitterComponent } from "@uiframe/core";
+import { DragHandler } from "./utils.js";
 import * as Constant from "./constants.js";
 
 // eslint-disable-next-line no-unused-vars
@@ -169,4 +169,4 @@ class FlowNodeManager extends EmitterComponent {
   }
 }
 
-export default FlowNodeManager;
+export { FlowNodeManager };

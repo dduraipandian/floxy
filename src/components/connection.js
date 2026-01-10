@@ -1,4 +1,4 @@
-import { EmitterComponent } from "../base.js";
+import { EmitterComponent } from "@uiframe/core";
 import * as Constant from "./constants.js";
 
 // eslint-disable-next-line no-unused-vars
@@ -242,4 +242,4 @@ class FlowConnectionManager extends EmitterComponent {
   }
 }
 
-export default FlowConnectionManager;
+export { FlowConnectionManager };
