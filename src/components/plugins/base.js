@@ -7,8 +7,8 @@ class FlowValidator {
     return { valid: true };
   }
 
-  onConnectionAdded({ outNodeId, inNodeId }) { }
-  onConnectionRemoved({ outNodeId, inNodeId }) { }
+  onConnectionAdded({ outNodeId, inNodeId }) {}
+  onConnectionRemoved({ outNodeId, inNodeId }) {}
 }
 
 export { FlowValidator };

@@ -27,21 +27,21 @@ export default {
     },
     {
       file: "dist/floxy.min.js",
-      format: "iife",           // browser-friendly
-      name: "floxy",            // window.floxy
-      sourcemap: publishSourceMap
-    }
+      format: "iife", // browser-friendly
+      name: "floxy", // window.floxy
+      sourcemap: publishSourceMap,
+    },
   ],
 
   plugins: [
     resolve({
-      browser: true
+      browser: true,
     }),
 
     commonjs(),
 
     cssPlugin,
 
-    terser()
-  ]
+    terser(),
+  ],
 };
