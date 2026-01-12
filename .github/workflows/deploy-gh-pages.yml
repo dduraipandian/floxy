@@ -1,0 +1,36 @@
+name: Build and Deploy Github Pages
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies and build
+        run: |
+          npm ci
+          npm run pre-publish
+
+      - name: Prepare Pages folder
+        run: |
+          rm -rf pages
+          mkdir pages
+          cp index.html pages/
+          cp -r templates pages/
+          cp -r dist pages/
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: pages
+          clean: true
