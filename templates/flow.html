@@ -12,7 +12,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     />
-    <link rel="stylesheet" type="text/css" href="../src/css/base.css" />
+    <link rel="stylesheet" type="text/css" href="../dist/floxy.css" />
     <style>
       body {
         height: 100vh;
@@ -107,18 +107,15 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../dist/floxy.min.js"></script>
     <script type="module">
-      import { Flow } from "../index.js";
-      import { notification } from "../index.js";
-      import { DagValidator } from "../index.js";
-
-      const validators = [new DagValidator()];
+      const validators = [new floxy.DagValidator()];
 
       // Initialize Flow
-      const flow = new Flow({
+      const flow = new floxy.Flow({
         name: "MyFlow",
         options: { zoom: 0.8 },
-        notification: notification,
+        notification: floxy.notification,
         validators: validators,
       });
       flow.renderInto("flow-wrapper");
@@ -152,12 +149,10 @@
       window.clearData = () => {
         flow.import({ nodes: [], connections: [] });
       };
-    </script>
-    <script>
       function drag(ev) {
         const data = ev.target.getAttribute("data-node");
         ev.dataTransfer.setData("application/json", data);
       }
-    </script>
+    </script>    
   </body>
 </html>

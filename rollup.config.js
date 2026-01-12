@@ -5,6 +5,12 @@ import postcss from "rollup-plugin-postcss";
 
 const publishSourceMap = process.env.PUBLISH_SOURCEMAP === "true";
 
+const cssPlugin = postcss({
+  extract: "floxy.css",
+  minimize: true,
+  sourceMap: publishSourceMap,
+});
+
 export default {
   input: "index.js",
 
@@ -20,9 +26,9 @@ export default {
       sourcemap: publishSourceMap,
     },
     {
-      file: "dist/floxy.js",
+      file: "dist/floxy.min.js",
       format: "iife",           // browser-friendly
-      name: "floxy",            // window.Floxy
+      name: "floxy",            // window.floxy
       sourcemap: publishSourceMap
     }
   ],
@@ -34,11 +40,7 @@ export default {
 
     commonjs(),
 
-    postcss({
-      extract: true,          // dist/floxy.css
-      minimize: true,
-      sourceMap: true
-    }),
+    cssPlugin,
 
     terser()
   ]
