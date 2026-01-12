@@ -1,8 +1,9 @@
-import { EmitterComponent } from "./base.js";
-import FlowCanvas from "./components/canvas.js";
-import FlowNodeManager from "./components/node.js";
-import FlowConnectionManager from "./components/connection.js";
-import FlowSerializer from "./components/serializer.js";
+import { EmitterComponent } from "@uiframe/core";
+
+import { FlowCanvas } from "./components/canvas.js";
+import { FlowNodeManager } from "./components/node.js";
+import { FlowConnectionManager } from "./components/connection.js";
+import { FlowSerializer } from "./components/serializer.js";
 import * as Constant from "./components/constants.js";
 
 /**
@@ -315,4 +316,4 @@ class Flow extends EmitterComponent {
   }
 }
 
-export default Flow;
+export { Flow };

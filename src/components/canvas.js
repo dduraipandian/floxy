@@ -1,5 +1,5 @@
-import { EmitterComponent } from "../base.js";
-import DragHandler from "./utils.js";
+import { EmitterComponent } from "@uiframe/core";
+import { DragHandler } from "./utils.js";
 
 /**
  * Manages the state and logical operations of a Flow.
@@ -129,4 +129,4 @@ class FlowCanvas extends EmitterComponent {
   }
 }
 
-export default FlowCanvas;
+export { FlowCanvas };

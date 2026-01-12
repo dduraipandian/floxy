@@ -115,4 +115,4 @@ class DragHandler {
   }
 }
 
-export default DragHandler;
+export { DragHandler };

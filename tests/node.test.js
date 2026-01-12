@@ -1,4 +1,4 @@
-import FlowNodeManager from "../src/components/node.js";
+import { FlowNodeManager } from "../src/components/node.js";
 import * as Constant from "../src/components/constants.js";
 
 describe("FlowNodeManager", () => {

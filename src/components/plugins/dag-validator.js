@@ -1,4 +1,4 @@
-import FlowValidator from "./base.js";
+import { FlowValidator } from "./base.js";
 
 class DagValidator extends FlowValidator {
   constructor({ enabled = true } = {}) {
@@ -95,4 +95,4 @@ class DagValidator extends FlowValidator {
   }
 }
 
-export default DagValidator;
+export { DagValidator };

@@ -1,5 +1,5 @@
-import FlowConnectionManager from "../src/components/connection.js";
-import FlowNodeManager from "../src/components/node.js";
+import { FlowConnectionManager } from "../src/components/connection.js";
+import { FlowNodeManager } from "../src/components/node.js";
 import * as Constant from "../src/components/constants.js";
 
 describe("FlowConnectionManager", () => {

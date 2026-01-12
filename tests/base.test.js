@@ -1,4 +1,4 @@
-import { Component, EmitterComponent } from "../src/base.js";
+import { Component, EmitterComponent } from "@uiframe/core";
 
 // Define concrete classes for testing base classes
 class TestComponent extends Component {

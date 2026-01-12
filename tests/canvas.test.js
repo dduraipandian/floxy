@@ -1,4 +1,4 @@
-import FlowCanvas from "../src/components/canvas.js";
+import { FlowCanvas } from "../src/components/canvas.js";
 
 describe("FlowCanvas", () => {
   let container;

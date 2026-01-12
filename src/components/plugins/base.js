@@ -11,4 +11,4 @@ class FlowValidator {
   onConnectionRemoved({ outNodeId, inNodeId }) {}
 }
 
-export default FlowValidator;
+export { FlowValidator };

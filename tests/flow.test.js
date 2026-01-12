@@ -1,5 +1,5 @@
-import Flow from "../src/flow.js";
-import DagValidator from "../src/components/plugins/dag-validator.js";
+import { Flow } from "../src/flow.js";
+import { DagValidator } from "../src/components/plugins/dag-validator.js";
 
 describe("Flow Integration", () => {
   let container;
