@@ -115,7 +115,7 @@
       const flow = new floxy.Flow({
         name: "MyFlow",
         options: { zoom: 0.8 },
-        notification: floxy.notification,
+        notification: floxy.notification({ name: "floxy" }),
         validators: validators,
       });
       flow.renderInto("flow-wrapper");
@@ -149,6 +149,8 @@
       window.clearData = () => {
         flow.import({ nodes: [], connections: [] });
       };
+    </script>
+    <script>
       function drag(ev) {
         const data = ev.target.getAttribute("data-node");
         ev.dataTransfer.setData("application/json", data);

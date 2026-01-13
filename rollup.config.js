@@ -1,14 +1,16 @@
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
-import { terser } from "rollup-plugin-terser";
+import terser from "@rollup/plugin-terser";
 import postcss from "rollup-plugin-postcss";
+import nesting from "postcss-nesting";
 
-const publishSourceMap = process.env.PUBLISH_SOURCEMAP === "true";
+const publishSourceMap = process.env.PUBLISH_SOURCEMAP ?? false;
 
 const cssPlugin = postcss({
   extract: "floxy.css",
   minimize: true,
   sourceMap: publishSourceMap,
+  plugins: [nesting()],
 });
 
 export default {
@@ -30,18 +32,8 @@ export default {
       format: "iife", // browser-friendly
       name: "floxy", // window.floxy
       sourcemap: publishSourceMap,
+      plugins: [terser()],
     },
   ],
-
-  plugins: [
-    resolve({
-      browser: true,
-    }),
-
-    commonjs(),
-
-    cssPlugin,
-
-    terser(),
-  ],
+  plugins: [resolve(), commonjs(), cssPlugin],
 };
