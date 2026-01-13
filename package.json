@@ -10,8 +10,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "clean": "rimraf dist",
-    "build": "rollup -c",
-    "pre-publish": "npm run lint && npm test && npm run clean && npm run build"
+    "build": "rollup -c"
   },
   "repository": {
     "type": "git",
