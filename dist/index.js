@@ -1,1 +1,1531 @@
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0});class t{constructor({name:n}){if(new.target===t)throw new TypeError("Cannot construct Component instances directly");this.name=n,this.containerID=this.name?this.name.toLowerCase().replace(/\s+/g,"-"):`tab-${Math.random().toString(36).substring(2,15)}`,this.id=this.containerID,this.container=null,this.created=!1,this.rendered=!1,this.parentContainer=null,this.onlyChild=null}renderInto(t,n=!1){let e;if(this.onlyChild=n,this.isRendered())console.warn(`'${this.name}' component is already rendered.`);else{if("string"==typeof t){if(e=document.getElementById(t),!e)throw new Error(`Container with id ${t} not found`)}else{if(!(t instanceof HTMLElement))throw new Error("Container must be a valid HTMLElement or a string ID.");e=t}if(!e.id)throw new Error("Container must have a valid id.");this.parentContainer=e,this.createContainer(),this.onlyChild?this.parentContainer.replaceChildren(this.container):this.parentContainer.appendChild(this.container),console.log("DOM is rendered into container ",e.id),this.rendered=!0}}getParentContainer(){return this.rendered?this.parentContainer:(console.warn(`'${this.name}' component is not rendered yet.`),null)}createContainer(){return this.isCreated()?this.container?this.container:void console.warn(`${this.component} component is already rendered.`):(this.container=this.#t(),this.initContainer(),this.container)}getContainer(){return this.container||this.createContainer(),this.container}#t(){const t=document.createElement("div");t.id=this.containerID,t.style.height="100%",t.style.width="100%";const n=this.html();return t.insertAdjacentHTML("beforeend",n),t}initContainer(){this.init(),this.created=!0}isCreated(){return this.created}isRendered(){return this.rendered}init(){throw new Error("Method 'init()' must be implemented in the subclass")}html(){throw new Error("Method '#html()' must be implemented in the subclass")}}class n extends t{constructor({name:t}){super({name:t}),this.events={}}on(t,n){(this.events[t]||=[]).push(n)}emit(t,n){(this.events[t]||[]).forEach(t=>t(n))}off(t,n){this.events[t]&&(this.events[t]=this.events[t].filter(t=>t!==n))}clear(t){t?delete this.events[t]:this.events={}}}class e extends n{constructor({name:t,options:n={}}){super({name:t}),this.options=n,this.INFO="info",this.SUCCESS="success",this.ERROR="error",this.WARNING="warning",this.#n(this.INFO),this.#n(this.SUCCESS),this.#n(this.ERROR),this.#n(this.WARNING)}#n(t){const n=document.createElement("div");return n.innerHTML=this.html(t),document.body.appendChild(n),n}#e(){return'\n            <div class="modal fade" id="errorNotificationModal" \n                data-bs-backdrop="static" \n                data-bs-keyboard="false" \n                tabindex="-1" \n                aria-labelledby="errorNotificationModalTitle" \n                aria-hidden="true">\n                <div class="modal-dialog modal-dialog-centered">\n                    <div class="modal-content" style="max-width: 650px; width: 650px">\n                        <div class="modal-header">\n                            <h1 class="modal-title fs-5" id="errorNotificationModalTitle"></h1>\n                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>\n                        </div>\n                        <div class="modal-body">\n                            <pre id="errorNotificationModalMessage"></pre>\n                        </div>\n                        <div class="modal-footer">\n                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        '}html(t){let n="bg-info text-dark",e=!0,o="";return"success"===t?n="bg-success text-white":"error"===t?(n="bg-danger text-white",o=this.#e(),e=!1):"warning"===t&&(n="bg-warning text-dark"),`\n            ${o}\n            <div class="uiframe-notification-container position-fixed bottom-0 end-0 p-3 me-2 mb-3">\n                <div id="notification-${t}" \n                    class="toast align-items-center ${n}" \n                    role="alert"\n                    aria-live="assertive"\n                    data-bs-autohide="${e}"\n                    aria-atomic="true" \n                    data-bs-delay="3000">\n                    <div class="d-flex">\n                        <div id="toast-body-${t}" class="toast-body"></div>\n                        <button type="button" \n                            class="btn-close btn-close-white me-2 m-auto" \n                            data-bs-dismiss="toast" \n                            aria-label="Close">\n                        </button>\n                    </div>\n                </div>\n            </div>`}#o(t,n="info"){console.debug("Showing toast message:",t);let e=document.getElementById(`notification-${n}`);document.getElementById(`toast-body-${n}`).innerHTML=t;bootstrap.Toast.getOrCreateInstance(e).show()}#i(t,n){console.error("Showing error modal:",n);const e=document.getElementById("errorNotificationModalTitle"),o=document.getElementById("errorNotificationModalMessage");document.getElementById("toast-body-error").innerHTML+='\n            <span type="button"\n                data-bs-toggle="modal"       \n                data-bs-target="#errorNotificationModal"> \n                    <u>show</u>\n            </span>',e.innerHTML=t,o.innerHTML="string"===n?n:JSON.stringify(n,null,2)}error(t,n,e){console.error("Error toast:",t),this.#o(t,this.ERROR),n&&e&&this.#i(n,e)}success(t){console.debug("Success toast:",t),this.#o(t,this.SUCCESS)}info(t){console.debug("Info toast:",t),this.#o(t,this.INFO)}warning(t){console.debug("Warning toast:",t),this.#o(t,this.WARNING)}}let o=null;class i{constructor(t,n,e={x:0,y:0},o={x:0,y:0},i=1){this.element=t,this.onMoveHandler=n,this.zoomGetter="function"==typeof i?i:()=>i,this.isDragging=!1,this.dragStartPosition=o,this.initialPosition=e,this.elementX=this.initialPosition.x,this.elementY=this.initialPosition.y,this.rafId=null,this.MOUSE_RIGHT_CLICK=2}destroy(){this.element.removeEventListener("mousedown",this.onHold.bind(this)),window.removeEventListener("mousemove",this.onMove.bind(this)),window.removeEventListener("mouseup",this.onRelease.bind(this))}registerDragEvent(){this.element.addEventListener("mousedown",this.onHold.bind(this))}onHold(t){t.button!==this.MOUSE_RIGHT_CLICK?(t.stopPropagation(),this.isDragging=!0,this.dragStartPosition={x:t.clientX,y:t.clientY},this.initialPosition={x:this.elementX,y:this.elementY},this.element.style.cursor="grabbing",window.addEventListener("mousemove",this.onMove.bind(this)),window.addEventListener("mouseup",this.onRelease.bind(this)),this.startRaf()):console.debug("FLOW: Ignoreing Right click on ",this.element)}onMove(t){if(t.button===this.MOUSE_RIGHT_CLICK)return void console.debug("FLOW: Ignoreing Right click on",this.element);if(t.stopPropagation(),!this.isDragging)return;const n=this.zoomGetter(),e=(t.clientX-this.dragStartPosition.x)/n,o=(t.clientY-this.dragStartPosition.y)/n;this.elementX=this.initialPosition.x+e,this.elementY=this.initialPosition.y+o}onRelease(t){t.button!==this.MOUSE_RIGHT_CLICK?(t.stopPropagation(),this.isDragging=!1,this.element.style.cursor="grab",window.removeEventListener("mousemove",this.onMove.bind(this)),window.removeEventListener("mouseup",this.onRelease.bind(this))):console.debug("FLOW: Ignoreing right click on",this.element)}static register(t,n,e=1){const o=new i(t,n,{x:0,y:0},{x:0,y:0},e);return o.registerDragEvent(),o}startRaf(){if(this.rafId)return;const t=()=>{if(!this.isDragging)return cancelAnimationFrame(this.rafId),void(this.rafId=null);this.onMoveHandler(this.elementX,this.elementY),this.rafId=requestAnimationFrame(t)};this.rafId=requestAnimationFrame(t)}}class s extends n{constructor({name:t,options:n={}}){super({name:t}),this.options=n,this.zoom=n.zoom||1,this.enableZoomActions=n.enable_zoom_actions||!0,this.originalZoom=this.zoom,this.canvasX=n.canvas?.x||0,this.canvasY=n.canvas?.y||0,this.canvasId=this.id+"-canvas",this.containerId=this.id+"-flow-container",this.zoomActionsId=this.id+"-zoom-actions"}html(){return`\n            <div id="${this.canvasId}" \n                class="flow-canvas" \n                style="transform: translate(${this.canvasX}px, ${this.canvasY}px) scale(${this.zoom})">\n                <svg id="${this.id}-svg" class="flow-connections"></svg>\n            </div>\n            ${this.enableZoomActions?`<div id="${this.zoomActionsId}" class="zoom-actions"></div>`:""}\n        `}init(){this.containerEl=this.parentContainer,this.canvasEl=this.container.querySelector(`#${this.canvasId}`),this.svgEl=this.container.querySelector(`#${this.id}-svg`),this.container=this.canvasEl,i.register(this.containerEl,this.redrawCanvasWithXY.bind(this)),this.enableZoomActions&&this.containerEl.addEventListener("wheel",this.onCanvasWheelZoom.bind(this),{passive:!1}),this.containerEl.addEventListener("dragover",t=>t.preventDefault()),this.containerEl.addEventListener("drop",this.onDrop.bind(this))}redrawCanvas(){this.redrawCanvasWithXY(this.canvasX,this.canvasY)}redrawCanvasWithXY(t,n){this.canvasX=t,this.canvasY=n,this.canvasEl.style.transform=`translate(${t}px, ${n}px) scale(${this.zoom})`;const e=this.gridFactor*this.zoom;this.containerEl.style.backgroundSize=`${e}px ${e}px`,this.containerEl.style.backgroundPosition=`${t}px ${n}px`,this.containerEl.style.backgroundImage=`radial-gradient(#c1c1c4 ${1.5*this.zoom}px, transparent ${1.5*this.zoom}px)`}onCanvasWheelZoom(t){t.preventDefault(),console.log("FLOW: Wheel on canvas with deltaY: ",t.deltaY);const n=t.deltaY>0?-.1:.1,e=Math.max(.1,Math.min(this.zoom+n,3));this.zoom=e,this.redrawCanvas(),this.emit("canvas:zoom",{data:{zoom:this.zoom,x:this.canvasX,y:this.canvasY,delta:n,originalZoom:this.originalZoom}})}onDrop(t){t.preventDefault(),t.stopPropagation();try{const n=t.dataTransfer.getData("application/json");if(!n)return;const e=JSON.parse(n),o=this.containerEl.getBoundingClientRect(),i=t.clientX-o.left-this.canvasX,s=t.clientY-o.top-this.canvasY;this.emit("node:dropped",{data:{x:i,y:s,...e}}),console.debug("FLOW - DROP: ",e,i,s)}catch(t){console.error("Invalid drop data",t)}}}const a="node:moved",d="node:removed",r="connection:created",c="connection:removed",h="connection:clicked";class l extends n{constructor({name:t,canvasContainer:n,options:e={}}){super({name:t+"-flow-node-manager"}),this.options=e,this.zoom=e.zoom||1,this.originalZoom=this.zoom,this.nodes={},this.nodeIdCounter=1,this.nodeWidth=e.nodeWidth||200,this.nodeHeight=e.nodeHeight||90,this.selectedNodeId=null,this.canvasContainer=n}dropNode(t){const n=(t.x-this.nodeWidth/2)/this.zoom,e=(t.y-this.nodeHeight/2)/this.zoom;this.addNode({...t,x:n,y:e})}addNode({name:t,inputs:n=1,outputs:e=1,x:o=0,y:i=0,html:s=""}){const a=this.nodeIdCounter++,d={id:a,name:t,inputs:n,outputs:e,x:o,y:i,contentHtml:s};return this.nodes[a]=d,this.renderNode(d),a}renderNode(t){const n=document.createElement("div"),e=`<div class="flow-port" data-type="input" data-node-id="${t.id}" data-index="{{index}}"></div>`,o=`<div class="flow-port" data-type="output" data-node-id="${t.id}" data-index="{{index}}"></div>`,s=`\n        <div id="node-${t.id}" \n            data-id="${t.id}" \n            class="flow-node rounded" \n            style="top: ${t.y}px; left: ${t.x}px; \n                    width: ${this.nodeWidth}px; height: fit-content">                        \n            <div class="flow-ports-column flow-ports-in">\n                ${Array.from({length:t.inputs},(t,n)=>e.replace("{{index}}",n)).join("\n")}\n            </div>\n            <div class="flow-node-content card w-100">              \n              <div class="card-header">${t.name}</div>\n              <div class="card-body">${t.contentHtml}</div>              \n            </div>            \n            <div class="flow-ports-column flow-ports-out">                \n                ${Array.from({length:t.outputs},(t,n)=>o.replace("{{index}}",n)).join("\n")}\n            </div>\n            <button type="button" \n                data-id="${t.id}"\n                class="btn-danger btn-close node-close border rounded shadow-none m-1" \n                aria-label="Close">\n            </button>\n        </div>\n        `;n.innerHTML=s;const a=n.querySelector(`#node-${t.id}`);a.onclick=n=>this.onNodeClick(n,t.id),a.onmousedown=n=>this.onNodeClick(n,t.id);new i(a,this.redrawNodeWithXY.bind(this,t.id),{x:this.nodes[t.id].x,y:this.nodes[t.id].y},{x:0,y:0},()=>this.zoom).registerDragEvent(),a.querySelector("button.node-close").addEventListener("click",n=>this.removeNode(n,t.id)),a.querySelectorAll(".flow-ports-out .flow-port").forEach(n=>{n.onmousedown=e=>{this.emit("port:connect:start",{nodeId:t.id,portIndex:n.dataset.index,event:e})}}),a.querySelectorAll(".flow-ports-in .flow-port").forEach(n=>{n.onmouseup=e=>{this.emit("port:connect:end",{nodeId:t.id,portIndex:n.dataset.index,event:e})}}),this.nodes[t.id].el=a,this.canvasContainer.appendChild(a)}reset(){Object.values(this.nodes).forEach(t=>{t.el?.remove()}),this.nodes={},this.nodeIdCounter=1,this.selectedNodeId=null}redrawNodeWithXY(t,n,e){this.nodes[t].x=n,this.nodes[t].y=e,this.nodes[t].el.style.top=`${e}px`,this.nodes[t].el.style.left=`${n}px`,this.emit(a,{id:t,x:n,y:e})}onNodeClick(t,n){this.selectedNodeId&&this.nodes[this.selectedNodeId]&&this.nodes[this.selectedNodeId].el.classList.remove("selected"),this.nodes[n].el.classList.add("selected"),this.selectedNodeId=n}removeNode(t,n){console.debug("FLOW: removing node ",n),t.stopPropagation();const e=parseInt(n);this.emit(d,{id:e}),this.nodes[n].el.remove(),delete this.nodes[n]}}class m extends n{constructor({name:t,connectionContainer:n,nodeManager:e,options:o={}}){super({name:t+"-flow-connection-manager",options:o}),this.connectionContainer=n,this.nodeManager=e,this.options=o,this.zoom=o.zoom||1,this.originalZoom=this.zoom,this.nodes=this.nodeManager.nodes,this.nodeIdCounter=1,this.nodeWidth=o.nodeWidth||200,this.nodeHeight=o.nodeHeight||90,this.connections=[],this.pathMap=new Map,this.tempPath=null,this.badPaths=new Set,this.tempSource=null}addConnection(t,n,e,o){const i=parseInt(t),s=parseInt(e),a=parseInt(n),d=parseInt(o);if(this.connections.some(t=>t.outNodeId===i&&t.outPort===a&&t.inNodeId===s&&t.inPort===d))return;const c={outNodeId:i,outPort:a,inNodeId:s,inPort:d};return this.connections.push(c),this.createConnectionPath(c),this.emit(r,c),!0}reset(){this.connections=[],this.pathMap.forEach(t=>t.remove()),this.pathMap.clear(),this.clearTempPath?.()}getConnectionKey(t){return`${t.outNodeId}:${t.outPort}-${t.inNodeId}:${t.inPort}`}createConnectionPath(t){const n=this.getConnectionKey(t),e=this.getPortPosition(t.outNodeId,"output",t.outPort),o=this.getPortPosition(t.inNodeId,"input",t.inPort),i=document.createElementNS("http://www.w3.org/2000/svg","path"),s=this.getBazierPath(e.x,e.y,o.x,o.y);i.setAttribute("d",s),i.setAttribute("class","flow-connection-path"),i.dataset.id=n,i.onclick=n=>{n.stopPropagation(),this.emit(h,t)},this.connectionContainer.appendChild(i),this.pathMap.set(n,i)}updateConnections(t){const n=parseInt(t);this.connections.filter(t=>t.outNodeId===n||t.inNodeId===n).forEach(t=>{const n=this.getConnectionKey(t),e=this.pathMap.get(n);if(!e)return;const o=this.getPortPosition(t.outNodeId,"output",t.outPort),i=this.getPortPosition(t.inNodeId,"input",t.inPort),s=this.getBazierPath(o.x,o.y,i.x,i.y);e.setAttribute("d",s),this.emit("connection:updated",t)})}removeConnection(t){const n=this.getConnectionKey(t),e=this.pathMap.get(n);e&&(e.remove(),this.pathMap.delete(n)),this.connections=this.connections.filter(n=>n!==t),this.emit(c,t)}removeRelatedConnections(t){this.connections.filter(n=>n.outNodeId===t||n.inNodeId===t).forEach(t=>{this.removeConnection(t)})}getPortPosition(t,n,e){const o=this.nodes[t];if(!o||!o.el)return{x:0,y:0};const i=o.el.querySelector(`.flow-port[data-type="${n}"][data-index="${e}"]`);if(!i)return{x:o.x,y:o.y};const s=i.getBoundingClientRect(),a=o.el.getBoundingClientRect(),d=(s.left-a.left+s.width/2)/this.zoom,r=(s.top-a.top+s.height/2)/this.zoom;return{x:o.x+d,y:o.y+r}}getBazierPath(t,n,e,o){return`M ${t} ${n} C ${t+.5*Math.abs(e-t)} ${n} ${e-.5*Math.abs(e-t)} ${o} ${e} ${o}`}beginTempConnection(t,n){this.tempSource={nodeId:t,portIndex:n}}endTempConnection(){this.tempSource=null,this.clearTempPath()}updateTempConnection(t,n){if(!this.tempSource)return;const{nodeId:e,portIndex:o}=this.tempSource,i=this.getPortPosition(e,"output",o);this.createTempPath(i,{x:t,y:n})}createTempPath(t,n){if(this.tempPath)this.clearBadPaths();else{const t=document.createElementNS("http://www.w3.org/2000/svg","path");t.setAttribute("class","flow-connection-path selected flow-connection-temp"),t.style.pointerEvents="none",this.connectionContainer.appendChild(t),this.tempPath=t}const e=this.getBazierPath(t.x,t.y,n.x,n.y);this.tempPath.setAttribute("d",e)}clearTempPath(){this.tempPath&&(this.tempPath.remove(),this.tempPath=null),this.clearBadPaths()}markPathBad(t){this.markTempPathBad(),this.markExistingPathBad(t)}markTempPathBad(){this.tempPath&&(this.tempPath.classList.add("flow-connection-path-bad"),this.badPaths.add(this.tempPath))}markExistingPathBad(t){const n=this.getConnectionKey(t),e=this.pathMap.get(n);e&&(e.classList.add("flow-connection-path-bad"),this.badPaths.add(e))}clearBadPaths(){this.badPaths.forEach(t=>{t.classList.remove("flow-connection-path-bad")}),this.badPaths.clear()}}class u{export(t){const n=t.nodeManager,e=t.connectionManager,o=t.canvas;return{nodes:Object.values(n.nodes).map(({el:t,node:n,...e})=>({id:e.id,name:e.name,inputs:e.inputs,outputs:e.outputs,x:e.x,y:e.y,html:e.html})),connections:e.connections.map(t=>({outNodeId:t.outNodeId,outPort:t.outPort,inNodeId:t.inNodeId,inPort:t.inPort})),zoom:o.zoom,canvas:{x:o.canvasX,y:o.canvasY}}}import(t,n){const{nodeManager:e,connectionManager:o,canvas:i}=t,s=n.zoom||1;t.zoom=s,i.zoom=s,e.zoom=s,o.zoom=s,i.canvasX=n.canvas?.x||0,i.canvasY=n.canvas?.y||0,i.redrawCanvas(),e.reset?.(),o.reset?.(),n.nodes&&n.nodes.forEach(t=>{e.addNode(t)}),n.connections&&n.connections.forEach(n=>{t.addConnection(n.outNodeId,n.outPort,n.inNodeId,n.inPort)})}}class p{onConnectionAttempt({outNodeId:t,inNodeId:n}){return{valid:!0}}onConnectionAdded({outNodeId:t,inNodeId:n}){}onConnectionRemoved({outNodeId:t,inNodeId:n}){}}exports.DagValidator=class extends p{constructor({enabled:t=!0}={}){super(),this.enabled=t,this.adjacencyList={},this.nonCyclicCache={},this.tempCyclicCache={},this.tempStackCache={}}onConnectionAttempt({outNodeId:t,inNodeId:n}){const e="This connection will create cyclic flow.";if(!this.enabled)return{valid:!0};const o=`${t}->${n}`;if(void 0!==this.nonCyclicCache[o])return{valid:!this.nonCyclicCache[o]};if(this.tempCyclicCache[o])return{valid:!1,stack:this.tempStackCache[o],message:e};this.tempStackCache[o]=[];const i=this.tempStackCache[o],s=new Set;let a=new Set(this.adjacencyList[t]||new Set);a.add(n),s.add(t),i.push(t);for(const t of a)if(this.#s(t,s,i))return this.tempCyclicCache[o]=!0,{valid:!1,stack:i,message:e};return{valid:!0}}onConnectionAdded({outNodeId:t,inNodeId:n}){this.#a(t,n),this.#d(t,n)}onConnectionRemoved({outNodeId:t,inNodeId:n}){const e=`${t}->${n}`;this.adjacencyList[t]?.delete(n),delete this.nonCyclicCache[e],this.tempCyclicCache={}}#a(t,n){this.adjacencyList[t]||(this.adjacencyList[t]=new Set),this.adjacencyList[t].add(n)}#d(t,n){const e=`${t}->${n}`;this.nonCyclicCache[e]=!1,delete this.tempStackCache[e]}#s(t,n,e){if(e.includes(t))return e.push(t),!0;if(n.has(t))return!1;n.add(t),e.push(t);for(const o of this.adjacencyList[t]||[])if(this.#s(o,n,e))return!0;return e.pop(),!1}},exports.Flow=class extends n{constructor({name:t,options:n={},validators:e=[],notification:o=null}){super({name:t}),this.options=n,this.validators=e,this.notification=o,this.serializer=new u,this.zoom=n.zoom||1,this.originalZoom=this.zoom,this.nodes={},this.nodeIdCounter=1,this.canvasEl=null,this.svgEl=null,this.nodeManager=null,this.connectionManager=null,this.rafId=null,this.isConnecting=!1}html(){return""}init(){this.container.classList.add("floxy-flow-container"),this.canvas=new s({name:this.name+"-canvas",options:this.options}),this.canvas.renderInto(this.container),this.containerEl=this.container,this.canvasEl=this.canvas.canvasEl,this.svgEl=this.canvas.svgEl,this.nodeManager=new l({name:this.name+"-flow-node-manager",canvasContainer:this.canvasEl,options:this.options}),this.connectionManager=new m({name:this.name+"-flow-connection-manager",connectionContainer:this.svgEl,nodeManager:this.nodeManager,options:this.options}),this.canvas.on("canvas:zoom",({data:t})=>{this.zoom=t.zoom,this.connectionManager.zoom=t.zoom,this.nodeManager.zoom=t.zoom}),this.canvas.on("node:dropped",({data:t})=>{console.debug("Node is dropped: ",t),this.emit("node:dropped",t),this.nodeManager.dropNode(t)}),this.nodeManager.on(a,({id:t,x:n,y:e})=>{console.debug("Node is moved: ",t,n,e),this.emit(a,{id:t,x:n,y:e}),this.connectionManager.updateConnections(t)}),this.nodeManager.on(d,({id:t})=>{console.debug("Node is removed: ",t),this.emit(d,{id:t}),this.removeNode(t)}),this.nodeManager.on("port:connect:start",({nodeId:t,portIndex:n,event:e})=>{this.mouseDownStartConnection({dataset:{index:n}},t,e)}),this.nodeManager.on("port:connect:end",({nodeId:t,portIndex:n,event:e})=>{this.mouseUpCompleteConnection({dataset:{index:n}},t,e)}),this.connectionManager.on(r,t=>{console.debug("Connection is created: ",t),this.emit(r,t),this.validators.forEach(n=>n.onConnectionAdded?.({outNodeId:t.outNodeId,inNodeId:t.inNodeId}))}),this.connectionManager.on(h,t=>{console.debug("Connection is clicked: ",t),this.emit(h,t),this.connectionManager.removeConnection(t)}),this.connectionManager.on(c,t=>{console.debug("Connection is removed: ",t),this.emit(c,t),this.validators.forEach(n=>n.onConnectionRemoved?.({outNodeId:t.outNodeId,inNodeId:t.inNodeId}))})}highlightCycle(t){if(t&&!(t.length<2))for(let n=0;n<t.length-1;n++){const e=this.connectionManager.connections.find(e=>e.outNodeId===t[n]&&e.inNodeId===t[n+1]);e&&this.connectionManager.markPathBad(e)}}addNode(t){return this.nodeManager.addNode(t)}mouseDownStartConnection(t,n,e){console.debug("FLOW: Start connection from port: ",t,"nodeId: ",n),e.stopPropagation(),this.isConnecting=!0,this.connectionStart={nodeId:n,index:t.dataset.index},this.connectionManager.beginTempConnection(n,t.dataset.index),this._drawConnection=e=>this.mouseMoveDrawConnection(t,n,e),this._cancelConnection=t=>this.keyDownCancelConnection(t,n),window.addEventListener("mousemove",this._drawConnection),window.addEventListener("keydown",this._cancelConnection),this.startRaf(()=>{const t=this.connectionStart.prevX==this.connectionStart.x&&this.connectionStart.prevY==this.connectionStart.y;this.connectionStart.x&&this.connectionStart.y&&!t&&(this.connectionStart.prevX=this.connectionStart.x,this.connectionStart.prevY=this.connectionStart.y,this.connectionManager.updateTempConnection(this.connectionStart.x,this.connectionStart.y))})}mouseMoveDrawConnection(t,n,e){if(this.isConnecting){this._canvasRect||(this._canvasRect=this.canvasEl.getBoundingClientRect());const t=this._canvasRect,n=(e.clientX-t.left)/this.zoom,o=(e.clientY-t.top)/this.zoom;this.connectionStart.x=n,this.connectionStart.y=o}}mouseUpCompleteConnection(t,n,e){if(this.isConnecting){const t=e.target.closest(".flow-port");if(t&&"input"===t.dataset.type){const o=parseInt(t.dataset.nodeId),i=parseInt(t.dataset.index);this.addConnection(this.connectionStart.nodeId,this.connectionStart.index,o,i,e,n)&&this.connectionManager.endTempConnection()}}}addConnection(t,n,e,o,i=null,s=null){for(const n of this.validators){const o=n.onConnectionAttempt({outNodeId:t,inNodeId:e});if(!o.valid)return this.notification?.warning(o.message),this.connectionManager.markTempPathBad(),o.stack&&this.highlightCycle(o.stack),!1}const a=this.connectionManager.addConnection(t,n,e,o);return a&&(this.validators.forEach(n=>n.onConnectionAdded?.({outNodeId:t,inNodeId:e})),i&&this.keyDownCancelConnection(i,s)),a}keyDownCancelConnection(t,n){"keydown"==t.type&&"Escape"!==t.key&&27!==t.keyCode||(this.isConnecting=!1,this.connectionManager.endTempConnection(),this._drawConnection&&(window.removeEventListener("mousemove",this._drawConnection),window.removeEventListener("keydown",this._cancelConnection),this._drawConnection=null))}removeNode(t){this.connectionManager.removeRelatedConnections(t)}export(){return this.serializer.export(this)}import(t){this.serializer.import(this,t)}startRaf(t){if(this.rafId)return;const n=()=>{if(!this.isConnecting)return cancelAnimationFrame(this.rafId),this.rafId=null,void(this._canvasRect=null);t(),this.rafId=requestAnimationFrame(n)};this.rafId=requestAnimationFrame(n)}destroy(){this.isConnecting=!1,this._drawConnection&&(window.removeEventListener("mousemove",this._drawConnection),window.removeEventListener("keydown",this._cancelConnection)),cancelAnimationFrame(this.rafId)}},exports.FlowCanvas=s,exports.notification=function({app:t,options:n={}}){return"undefined"!=typeof window&&window.uiframe?(window.uiframe._notification=window.uiframe._notification||new e({name:t,options:n}),window.uiframe._notification):(o||(o=new e({name:t,options:n})),o)};
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+/**
+ * Base class for all UI components in the library.
+ * Provides a standardized lifecycle: constructor -> createContainer -> init -> renderInto.
+ * @abstract
+ */
+class Component {
+  /**
+   * @param {Object} options
+   * @param {string} options.name - The unique name of the component, used to generate the DOM ID.
+   */
+  constructor({ name }) {
+    if (new.target === Component) {
+      throw new TypeError("Cannot construct Component instances directly");
+    }
+
+    this.name = name;
+    this.containerID = this.name
+      ? this.name.toLowerCase().replace(/\s+/g, "-")
+      : `tab-${Math.random().toString(36).substring(2, 15)}`;
+    this.id = this.containerID;
+    this.container = null;
+
+    this.created = false;
+    this.rendered = false;
+
+    this.parentContainer = null;
+    this.onlyChild = null;
+  }
+
+  /**
+   * Renders the component into a DOM element.
+   * @param {HTMLElement|string} container - The element or string ID of the container to render into.
+   * @throws {Error} If the container is not found or is invalid.
+   */
+  renderInto(container, onlyChild = false) {
+    this.onlyChild = onlyChild;
+    let containerElement;
+    if (this.isRendered()) {
+      console.warn(`'${this.name}' component is already rendered.`);
+      return;
+    }
+
+    if (typeof container === "string") {
+      containerElement = document.getElementById(container);
+      if (!containerElement) {
+        throw new Error(`Container with id ${container} not found`);
+      }
+    } else if (!(container instanceof HTMLElement)) {
+      throw new Error("Container must be a valid HTMLElement or a string ID.");
+    } else {
+      containerElement = container;
+    }
+
+    if (!containerElement.id) {
+      throw new Error("Container must have a valid id.");
+    }
+
+    this.parentContainer = containerElement;
+    this.createContainer();
+
+    if (this.onlyChild) {
+      this.parentContainer.replaceChildren(this.container);
+    } else {
+      this.parentContainer.appendChild(this.container);
+    }
+    console.log("DOM is rendered into container ", containerElement.id);
+    this.rendered = true;
+  }
+
+  /**
+   * Returns the element the component was rendered into.
+   * @returns {HTMLElement|null}
+   */
+  getParentContainer() {
+    if (!this.rendered) {
+      console.warn(`'${this.name}' component is not rendered yet.`);
+      return null;
+    }
+    return this.parentContainer;
+  }
+
+  /**
+   * Creates the internal container element and initializes it.
+   * @protected
+   * @returns {HTMLElement}
+   */
+  createContainer() {
+    if (this.isCreated()) {
+      if (this.container) return this.container;
+
+      console.warn(`${this.component} component is already rendered.`);
+      return;
+    }
+    this.container = this.#createAndGetElement();
+    this.initContainer();
+
+    return this.container;
+  }
+
+  /**
+   * Returns the internal container element, creating it if necessary.
+   * @returns {HTMLElement}
+   */
+  getContainer() {
+    if (!this.container) {
+      this.createContainer();
+    }
+    return this.container;
+  }
+
+  #createAndGetElement() {
+    const div = document.createElement("div");
+    div.id = this.containerID;
+    div.style.height = "100%";
+    div.style.width = "100%";
+
+    const template = this.html();
+
+    div.insertAdjacentHTML("beforeend", template);
+    return div;
+  }
+
+  /**
+   * Initializes the component after the container is created.
+   * @protected
+   */
+  initContainer() {
+    this.init();
+    this.created = true;
+  }
+
+  /**
+   * Returns whether the component's internal container has been created.
+   * @returns {boolean}
+   */
+  isCreated() {
+    return this.created;
+  }
+
+  /**
+   * Returns whether the component has been rendered into a parent container.
+   * @returns {boolean}
+   */
+  isRendered() {
+    return this.rendered;
+  }
+
+  /**
+   * Abstract method to be implemented by subclasses for initialization logic (e.g., event listeners).
+   * @abstract
+   */
+  init() {
+    throw new Error("Method 'init()' must be implemented in the subclass");
+  }
+
+  /**
+   * Abstract method to be implemented by subclasses to return the HTML template string.
+   * @abstract
+   * @returns {string}
+   */
+  html() {
+    throw new Error("Method '#html()' must be implemented in the subclass");
+  }
+}
+
+/**
+ * Base class for components that need to emit and listen to custom events.
+ * @extends Component
+ */
+class EmitterComponent extends Component {
+  /**
+   * @param {Object} options
+   * @param {string} options.name - The unique name of the component.
+   */
+  constructor({ name }) {
+    super({ name });
+    this.events = {};
+  }
+
+  /**
+   * Subscribes a handler function to a custom event.
+   * @param {string} event - The name of the event.
+   * @param {Function} handler - The callback function.
+   */
+  on(event, handler) {
+    (this.events[event] ||= []).push(handler);
+  }
+
+  /**
+   * Emits a custom event with an optional payload.
+   * @param {string} event - The name of the event.
+   * @param {*} [payload] - Optional data to pass to handlers.
+   */
+  emit(event, payload) {
+    (this.events[event] || []).forEach((fn) => fn(payload));
+  }
+
+  /**
+   * Unsubscribes a handler function from an event.
+   * @param {string} event - The name of the event.
+   * @param {Function} handler - The specific handler function to remove.
+   */
+  off(event, handler) {
+    if (!this.events[event]) return;
+    this.events[event] = this.events[event].filter((fn) => fn !== handler);
+  }
+
+  /**
+   * Clears all handlers for a specific event, or all events if none specified.
+   * @param {string} [event] - The name of the event to clear.
+   */
+  clear(event) {
+    if (event) delete this.events[event];
+    else this.events = {};
+  }
+}
+
+class Notification extends EmitterComponent {
+  constructor({ name, options = {} }) {
+    super({ name });
+
+    this.options = options;
+
+    this.INFO = "info";
+    this.SUCCESS = "success";
+    this.ERROR = "error";
+    this.WARNING = "warning";
+
+    this.#getDiv(this.INFO);
+    this.#getDiv(this.SUCCESS);
+    this.#getDiv(this.ERROR);
+    this.#getDiv(this.WARNING);
+  }
+
+  #getDiv(level) {
+    const div = document.createElement("div");
+    div.innerHTML = this.html(level);
+    document.body.appendChild(div);
+    return div;
+  }
+
+  #errorModal() {
+    return `
+            <div class="modal fade" id="errorNotificationModal" 
+                data-bs-backdrop="static" 
+                data-bs-keyboard="false" 
+                tabindex="-1" 
+                aria-labelledby="errorNotificationModalTitle" 
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content" style="max-width: 650px; width: 650px">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="errorNotificationModalTitle"></h1>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <pre id="errorNotificationModalMessage"></pre>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+  }
+
+  html(level) {
+    let bgClass = "bg-info text-dark";
+    let autoHide = true;
+    let modalHtml = "";
+
+    if (level === "success") {
+      bgClass = "bg-success text-white";
+    } else if (level === "error") {
+      bgClass = "bg-danger text-white";
+      modalHtml = this.#errorModal();
+      autoHide = false;
+    } else if (level === "warning") {
+      bgClass = "bg-warning text-dark";
+    }
+
+    return `
+            ${modalHtml}
+            <div class="uiframe-notification-container position-fixed bottom-0 end-0 p-3 me-2 mb-3">
+                <div id="notification-${level}" 
+                    class="toast align-items-center ${bgClass}" 
+                    role="alert"
+                    aria-live="assertive"
+                    data-bs-autohide="${autoHide}"
+                    aria-atomic="true" 
+                    data-bs-delay="3000">
+                    <div class="d-flex">
+                        <div id="toast-body-${level}" class="toast-body"></div>
+                        <button type="button" 
+                            class="btn-close btn-close-white me-2 m-auto" 
+                            data-bs-dismiss="toast" 
+                            aria-label="Close">
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+  }
+  #showToast(message, level = "info") {
+    console.debug("Showing toast message:", message);
+
+    let toastElement = document.getElementById(`notification-${level}`);
+    const toastBody = document.getElementById(`toast-body-${level}`);
+    toastBody.innerHTML = message;
+
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastElement);
+    toastBootstrap.show();
+  }
+
+  #showErrorModal(title, message) {
+    console.error("Showing error modal:", message);
+    const modalTitle = document.getElementById("errorNotificationModalTitle");
+    const modalBody = document.getElementById("errorNotificationModalMessage");
+
+    const toastBody = document.getElementById("toast-body-error");
+
+    toastBody.innerHTML += `
+            <span type="button"
+                data-bs-toggle="modal"       
+                data-bs-target="#errorNotificationModal"> 
+                    <u>show</u>
+            </span>`;
+
+    modalTitle.innerHTML = title;
+    modalBody.innerHTML = message === "string" ? message : JSON.stringify(message, null, 2);
+  }
+
+  error(message, title, details) {
+    console.error("Error toast:", message);
+    this.#showToast(message, this.ERROR);
+
+    if (title && details) {
+      this.#showErrorModal(title, details);
+    }
+  }
+
+  success(message) {
+    console.debug("Success toast:", message);
+    this.#showToast(message, this.SUCCESS);
+  }
+  info(message) {
+    console.debug("Info toast:", message);
+    this.#showToast(message, this.INFO);
+  }
+  warning(message) {
+    console.debug("Warning toast:", message);
+    this.#showToast(message, this.WARNING);
+  }
+}
+
+let instance = null;
+
+function getInstance({ app, options = {} }) {
+  // IIFE / Browser path
+  if (typeof window !== "undefined" && window.uiframe) {
+    window.uiframe._notification =
+      window.uiframe._notification || new Notification({ name: app, options });
+
+    return window.uiframe._notification;
+  }
+
+  // ESM / CJS path
+  if (!instance) {
+    instance = new Notification({ name: app, options });
+  }
+
+  return instance;
+}
+
+class DragHandler {
+  constructor(
+    element,
+    onMoveHandler,
+    initialPosition = { x: 0, y: 0 },
+    startDragPosition = { x: 0, y: 0 },
+    zoom = 1
+  ) {
+    this.element = element;
+    this.onMoveHandler = onMoveHandler;
+    this.zoomGetter = typeof zoom === "function" ? zoom : () => zoom;
+
+    this.isDragging = false;
+    this.dragStartPosition = startDragPosition;
+    this.initialPosition = initialPosition;
+
+    this.elementX = this.initialPosition.x;
+    this.elementY = this.initialPosition.y;
+
+    this.rafId = null;
+
+    this.MOUSE_RIGHT_CLICK = 2;
+  }
+
+  destroy() {
+    this.element.removeEventListener("mousedown", this.onHold.bind(this));
+    window.removeEventListener("mousemove", this.onMove.bind(this));
+    window.removeEventListener("mouseup", this.onRelease.bind(this));
+  }
+
+  registerDragEvent() {
+    // Canvas Panning Listeners for click and drag, draggable will not work
+    // as it will go to initial position when click is released
+    this.element.addEventListener("mousedown", this.onHold.bind(this));
+  }
+
+  onHold(e) {
+    if (e.button === this.MOUSE_RIGHT_CLICK) {
+      console.debug("FLOW: Ignoreing Right click on ", this.element);
+      return;
+    }
+
+    e.stopPropagation();
+    this.isDragging = true;
+    this.dragStartPosition = { x: e.clientX, y: e.clientY };
+    this.initialPosition = { x: this.elementX, y: this.elementY };
+    this.element.style.cursor = "grabbing";
+
+    window.addEventListener("mousemove", this.onMove.bind(this));
+    window.addEventListener("mouseup", this.onRelease.bind(this));
+    this.startRaf();
+  }
+
+  onMove(e) {
+    if (e.button === this.MOUSE_RIGHT_CLICK) {
+      console.debug("FLOW: Ignoreing Right click on", this.element);
+      return;
+    }
+    e.stopPropagation();
+
+    if (!this.isDragging) {
+      return;
+    }
+
+    const zoom = this.zoomGetter();
+    const dx = (e.clientX - this.dragStartPosition.x) / zoom;
+    const dy = (e.clientY - this.dragStartPosition.y) / zoom;
+
+    this.elementX = this.initialPosition.x + dx;
+    this.elementY = this.initialPosition.y + dy;
+  }
+
+  onRelease(e) {
+    if (e.button === this.MOUSE_RIGHT_CLICK) {
+      console.debug("FLOW: Ignoreing right click on", this.element);
+      return;
+    }
+
+    e.stopPropagation();
+    this.isDragging = false;
+    this.element.style.cursor = "grab";
+
+    window.removeEventListener("mousemove", this.onMove.bind(this));
+    window.removeEventListener("mouseup", this.onRelease.bind(this));
+  }
+
+  static register(element, onMoveHandler, zoom = 1) {
+    const dragHandler = new DragHandler(
+      element,
+      onMoveHandler,
+      { x: 0, y: 0 },
+      { x: 0, y: 0 },
+      zoom
+    );
+    dragHandler.registerDragEvent();
+    return dragHandler;
+  }
+
+  startRaf() {
+    if (this.rafId) return;
+
+    const loop = () => {
+      if (!this.isDragging) {
+        cancelAnimationFrame(this.rafId);
+        this.rafId = null;
+        return;
+      }
+
+      // DOM update happens ONLY here
+      this.onMoveHandler(this.elementX, this.elementY);
+      this.rafId = requestAnimationFrame(loop);
+    };
+
+    this.rafId = requestAnimationFrame(loop);
+  }
+}
+
+/**
+ * Manages the state and logical operations of a Flow.
+ * Adheres to SRP by only handling data and logical transformations.
+ */
+class FlowCanvas extends EmitterComponent {
+  constructor({ name, options = {} }) {
+    super({ name });
+
+    this.options = options;
+    this.zoom = options.zoom || 1;
+    this.enableZoomActions = options.enable_zoom_actions || true;
+    this.originalZoom = this.zoom;
+    this.canvasX = options.canvas?.x || 0;
+    this.canvasY = options.canvas?.y || 0;
+
+    this.canvasId = this.id + "-canvas";
+    this.containerId = this.id + "-flow-container";
+    this.zoomActionsId = this.id + "-zoom-actions";
+    // this.nodeManager = new FlowNodeManager({ name: this.name + "-flow-node-manager", canvasId: this.canvasId, options });
+  }
+
+  html() {
+    return `
+            <div id="${this.canvasId}" 
+                class="flow-canvas" 
+                style="transform: translate(${this.canvasX}px, ${this.canvasY}px) scale(${this.zoom})">
+                <svg id="${this.id}-svg" class="flow-connections"></svg>
+            </div>
+            ${this.enableZoomActions ? `<div id="${this.zoomActionsId}" class="zoom-actions"></div>` : ""}
+        `;
+  }
+
+  init() {
+    this.containerEl = this.parentContainer;
+    this.canvasEl = this.container.querySelector(`#${this.canvasId}`);
+    this.svgEl = this.container.querySelector(`#${this.id}-svg`);
+    this.container = this.canvasEl;
+
+    // canvas container drag handler
+    DragHandler.register(this.containerEl, this.redrawCanvasWithXY.bind(this));
+
+    // passive: false to allow preventDefault to be called. It is false by default except for Safari.
+    if (this.enableZoomActions) {
+      this.containerEl.addEventListener("wheel", this.onCanvasWheelZoom.bind(this), {
+        passive: false,
+      });
+    }
+
+    // Drop listener for adding new nodes from outside
+    this.containerEl.addEventListener("dragover", (e) => e.preventDefault());
+    this.containerEl.addEventListener("drop", this.onDrop.bind(this));
+
+    // this.zoomInEl = this.containerEl.querySelector(`#${this.id}-zoomin`);
+    // this.zoomOutEl = this.containerEl.querySelector(`#${this.id}-zoomout`);
+    // this.zoomResetEl = this.containerEl.querySelector(`#${this.id}-zoomreset`);
+    // this.zoomInEl.addEventListener("click", this.onZoomAction.bind(this));
+    // this.zoomOutEl.addEventListener("click", this.onZoomAction.bind(this));
+    // this.zoomResetEl.addEventListener("click", this.onZoomAction.bind(this));
+  }
+
+  redrawCanvas() {
+    this.redrawCanvasWithXY(this.canvasX, this.canvasY);
+  }
+
+  redrawCanvasWithXY(x, y) {
+    this.canvasX = x;
+    this.canvasY = y;
+
+    this.canvasEl.style.transform = `translate(${x}px, ${y}px) scale(${this.zoom})`;
+
+    // updating grid size (dot dots)
+    const gridSize = this.gridFactor * this.zoom;
+    this.containerEl.style.backgroundSize = `${gridSize}px ${gridSize}px`;
+    this.containerEl.style.backgroundPosition = `${x}px ${y}px`;
+
+    this.containerEl.style.backgroundImage = `radial-gradient(#c1c1c4 ${1.5 * this.zoom}px, transparent ${1.5 * this.zoom}px)`;
+    // this.zoomChangeUpdate();
+  }
+
+  // handling mouse left click on port in the node
+  onCanvasWheelZoom(e) {
+    e.preventDefault();
+    console.log("FLOW: Wheel on canvas with deltaY: ", e.deltaY);
+
+    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+    const newZoom = Math.max(0.1, Math.min(this.zoom + delta, 3));
+    this.zoom = newZoom;
+    this.redrawCanvas();
+    this.emit("canvas:zoom", {
+      data: {
+        zoom: this.zoom,
+        x: this.canvasX,
+        y: this.canvasY,
+        delta: delta,
+        originalZoom: this.originalZoom,
+      },
+    });
+  }
+
+  onDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      const raw = e.dataTransfer.getData("application/json");
+      if (!raw) return;
+
+      const data = JSON.parse(raw);
+      const rect = this.containerEl.getBoundingClientRect();
+      const x = e.clientX - rect.left - this.canvasX;
+      const y = e.clientY - rect.top - this.canvasY;
+
+      // this.addNode({
+      //     name: data.name,
+      //     inputs: data.inputs,
+      //     outputs: data.outputs,
+      //     x,
+      //     y,
+      //     html: data.html,
+      // });
+      this.emit("node:dropped", { data: { x, y, ...data } });
+      console.debug("FLOW - DROP: ", data, x, y);
+    } catch (err) {
+      console.error("Invalid drop data", err);
+    }
+  }
+}
+
+const NODE_MOVED_EVENT = "node:moved";
+const NODE_DROPPED_EVENT = "node:dropped";
+const NODE_REMOVED_EVENT = "node:removed";
+
+// Connection Events
+const CONNECTION_CREATED_EVENT = "connection:created";
+const CONNECTION_REMOVED_EVENT = "connection:removed";
+const CONNECTION_UPDATED_EVENT = "connection:updated";
+const CONNECTION_CLICKED_EVENT = "connection:clicked";
+
+// eslint-disable-next-line no-unused-vars
+class FlowNode extends EmitterComponent {
+  constructor({ nodeId, inputs = 1, outputs = 1, x = 0, y = 0, html = "", options = {} }) {
+    super({ name: `node-${nodeId}` });
+
+    this.x = x;
+    this.y = y;
+    this.nodeId = nodeId;
+    this.inputs = inputs;
+    this.outputs = outputs;
+    this.contentHtml = html;
+    this.options = options;
+  }
+}
+
+class FlowNodeManager extends EmitterComponent {
+  constructor({ name, canvasContainer, options = {} }) {
+    super({ name: name + "-flow-node-manager" });
+    this.options = options;
+    this.zoom = options.zoom || 1;
+    this.originalZoom = this.zoom;
+
+    this.nodes = {};
+    this.nodeIdCounter = 1;
+    this.nodeWidth = options.nodeWidth || 200;
+    this.nodeHeight = options.nodeHeight || 90;
+    this.selectedNodeId = null;
+    this.canvasContainer = canvasContainer;
+  }
+
+  dropNode(data) {
+    const posX = (data.x - this.nodeWidth / 2) / this.zoom;
+    const posY = (data.y - this.nodeHeight / 2) / this.zoom;
+    this.addNode({ ...data, x: posX, y: posY });
+  }
+
+  addNode({ name, inputs = 1, outputs = 1, x = 0, y = 0, html = "" }) {
+    const id = this.nodeIdCounter++;
+    const node = { id, name, inputs, outputs, x, y, contentHtml: html };
+
+    this.nodes[id] = node;
+    this.renderNode(node);
+    return id;
+  }
+
+  renderNode(node) {
+    const el = document.createElement("div");
+    const inputHtml = `<div class="flow-port" data-type="input" data-node-id="${node.id}" data-index="{{index}}"></div>`;
+    const outputHtml = `<div class="flow-port" data-type="output" data-node-id="${node.id}" data-index="{{index}}"></div>`;
+
+    const nodeHtml = `
+        <div id="node-${node.id}" 
+            data-id="${node.id}" 
+            class="flow-node rounded" 
+            style="top: ${node.y}px; left: ${node.x}px; 
+                    width: ${this.nodeWidth}px; height: fit-content">                        
+            <div class="flow-ports-column flow-ports-in">
+                ${Array.from({ length: node.inputs }, (_, i) => inputHtml.replace("{{index}}", i)).join("\n")}
+            </div>
+            <div class="flow-node-content card w-100">              
+              <div class="card-header">${node.name}</div>
+              <div class="card-body">${node.contentHtml}</div>              
+            </div>            
+            <div class="flow-ports-column flow-ports-out">                
+                ${Array.from({ length: node.outputs }, (_, i) => outputHtml.replace("{{index}}", i)).join("\n")}
+            </div>
+            <button type="button" 
+                data-id="${node.id}"
+                class="btn-danger btn-close node-close border rounded shadow-none m-1" 
+                aria-label="Close">
+            </button>
+        </div>
+        `;
+    el.innerHTML = nodeHtml;
+
+    const nodeEl = el.querySelector(`#node-${node.id}`);
+
+    nodeEl.onclick = (e) => this.onNodeClick(e, node.id);
+    nodeEl.onmousedown = (e) => this.onNodeClick(e, node.id);
+
+    // register drap handler
+    const hl = new DragHandler(
+      nodeEl,
+      this.redrawNodeWithXY.bind(this, node.id),
+      {
+        x: this.nodes[node.id].x,
+        y: this.nodes[node.id].y,
+      },
+      { x: 0, y: 0 },
+      () => this.zoom
+    );
+    hl.registerDragEvent();
+
+    nodeEl
+      .querySelector("button.node-close")
+      .addEventListener("click", (e) => this.removeNode(e, node.id));
+
+    nodeEl.querySelectorAll(".flow-ports-out .flow-port").forEach((port) => {
+      port.onmousedown = (e) => {
+        this.emit("port:connect:start", {
+          nodeId: node.id,
+          portIndex: port.dataset.index,
+          event: e,
+        });
+      };
+    });
+
+    nodeEl.querySelectorAll(".flow-ports-in .flow-port").forEach((port) => {
+      port.onmouseup = (e) => {
+        this.emit("port:connect:end", {
+          nodeId: node.id,
+          portIndex: port.dataset.index,
+          event: e,
+        });
+      };
+    });
+
+    this.nodes[node.id].el = nodeEl;
+    this.canvasContainer.appendChild(nodeEl);
+  }
+
+  reset() {
+    Object.values(this.nodes).forEach((n) => {
+      n.el?.remove();
+    });
+    this.nodes = {};
+    this.nodeIdCounter = 1;
+    this.selectedNodeId = null;
+  }
+
+  redrawNodeWithXY(id, x, y) {
+    this.nodes[id].x = x;
+    this.nodes[id].y = y;
+
+    // https://stackoverflow.com/questions/7108941/css-transform-vs-position
+    // Changing transform will trigger a redraw in compositor layer only for the animated element
+    // (subsequent elements in DOM will not be redrawn). I want DOM to be redraw to make connection attached to the port.
+    // so using position top/left to keep the position intact, not for the animation.
+    // I spent hours to find this out with trial and error.
+    this.nodes[id].el.style.top = `${y}px`;
+    this.nodes[id].el.style.left = `${x}px`;
+
+    // this.updateConnections(id);
+    this.emit(NODE_MOVED_EVENT, { id, x, y });
+  }
+
+  // handling mouse left click on node
+  onNodeClick(e, id) {
+    if (this.selectedNodeId && this.nodes[this.selectedNodeId]) {
+      this.nodes[this.selectedNodeId].el.classList.remove("selected");
+    }
+    this.nodes[id].el.classList.add("selected");
+    this.selectedNodeId = id;
+  }
+
+  removeNode(event, nodeId) {
+    console.debug("FLOW: removing node ", nodeId);
+    event.stopPropagation();
+    const id = parseInt(nodeId);
+
+    this.emit(NODE_REMOVED_EVENT, { id });
+
+    this.nodes[nodeId].el.remove();
+    delete this.nodes[nodeId];
+  }
+}
+
+// eslint-disable-next-line no-unused-vars
+class FlowConnection extends EmitterComponent {
+  constructor({ outNodeId, outPort, inNodeId, inPort, options = {} }) {
+    super({ name: outNodeId + "-" + outPort + "-" + inNodeId + "-" + inPort });
+    this.outNodeId = outNodeId;
+    this.outPort = outPort;
+    this.inNodeId = inNodeId;
+    this.inPort = inPort;
+
+    this.dataID = `${this.outNodeId}:${this.outPort}-${this.inNodeId}:${this.inPort}`;
+
+    this.options = options;
+    this.zoom = options.zoom || 1;
+    this.originalZoom = this.zoom;
+    this.connection = null;
+  }
+}
+
+class FlowConnectionManager extends EmitterComponent {
+  constructor({ name, connectionContainer, nodeManager, options = {} }) {
+    super({ name: name + "-flow-connection-manager", options });
+    this.connectionContainer = connectionContainer;
+    this.nodeManager = nodeManager;
+    this.options = options;
+    this.zoom = options.zoom || 1;
+    this.originalZoom = this.zoom;
+
+    this.nodes = this.nodeManager.nodes;
+    this.nodeIdCounter = 1;
+    this.nodeWidth = options.nodeWidth || 200;
+    this.nodeHeight = options.nodeHeight || 90;
+
+    this.connections = [];
+    this.pathMap = new Map();
+
+    this.tempPath = null;
+    this.badPaths = new Set();
+    this.tempSource = null;
+  }
+
+  addConnection(outNodeId, outPort, inNodeId, inPort) {
+    // if (!this.doMakeConnection(outNodeId, inNodeId)) {
+    //     notification.warning("This connection will create cyclic flow.");
+    //     this.badTempConnection(outNodeId, outPort, inNodeId, inPort);
+    //     this.badConnection = true;
+    //     return false;
+    // }
+
+    // this.badConnection = false;
+    const outId = parseInt(outNodeId);
+    const inId = parseInt(inNodeId);
+    const oPort = parseInt(outPort);
+    const iPort = parseInt(inPort);
+
+    const exists = this.connections.some(
+      (c) =>
+        c.outNodeId === outId && c.outPort === oPort && c.inNodeId === inId && c.inPort === iPort
+    );
+    if (exists) return;
+
+    const connection = { outNodeId: outId, outPort: oPort, inNodeId: inId, inPort: iPort };
+    this.connections.push(connection);
+
+    this.createConnectionPath(connection);
+    this.emit(CONNECTION_CREATED_EVENT, connection);
+    return true;
+  }
+
+  reset() {
+    this.connections = [];
+    this.pathMap.forEach((path) => path.remove());
+    this.pathMap.clear();
+    this.clearTempPath?.();
+  }
+
+  getConnectionKey(conn) {
+    return `${conn.outNodeId}:${conn.outPort}-${conn.inNodeId}:${conn.inPort}`;
+  }
+
+  createConnectionPath(conn) {
+    const key = this.getConnectionKey(conn);
+    const p1 = this.getPortPosition(conn.outNodeId, "output", conn.outPort);
+    const p2 = this.getPortPosition(conn.inNodeId, "input", conn.inPort);
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    const d = this.getBazierPath(p1.x, p1.y, p2.x, p2.y);
+    path.setAttribute("d", d);
+    path.setAttribute("class", "flow-connection-path");
+    path.dataset.id = key;
+
+    path.onclick = (e) => {
+      e.stopPropagation();
+      // this.removePath(path, conn);
+      this.emit(CONNECTION_CLICKED_EVENT, conn);
+    };
+
+    this.connectionContainer.appendChild(path);
+    this.pathMap.set(key, path);
+  }
+
+  updateConnections(nodeId) {
+    const id = parseInt(nodeId);
+    const relevant = this.connections.filter((c) => c.outNodeId === id || c.inNodeId === id);
+
+    relevant.forEach((conn) => {
+      const key = this.getConnectionKey(conn);
+      const path = this.pathMap.get(key);
+      if (!path) return;
+
+      const p1 = this.getPortPosition(conn.outNodeId, "output", conn.outPort);
+      const p2 = this.getPortPosition(conn.inNodeId, "input", conn.inPort);
+      const d = this.getBazierPath(p1.x, p1.y, p2.x, p2.y);
+      path.setAttribute("d", d);
+
+      this.emit(CONNECTION_UPDATED_EVENT, conn);
+    });
+  }
+
+  removeConnection(conn) {
+    const key = this.getConnectionKey(conn);
+    const path = this.pathMap.get(key);
+
+    if (path) {
+      path.remove();
+      this.pathMap.delete(key);
+    }
+
+    this.connections = this.connections.filter((c) => c !== conn);
+    this.emit(CONNECTION_REMOVED_EVENT, conn);
+  }
+
+  removeRelatedConnections(nodeId) {
+    const relevant = this.connections.filter(
+      (c) => c.outNodeId === nodeId || c.inNodeId === nodeId
+    );
+
+    relevant.forEach((conn) => {
+      this.removeConnection(conn);
+    });
+  }
+
+  getPortPosition(nodeId, type, index) {
+    const node = this.nodes[nodeId];
+    if (!node || !node.el) return { x: 0, y: 0 };
+
+    const portEl = node.el.querySelector(`.flow-port[data-type="${type}"][data-index="${index}"]`);
+    if (!portEl) return { x: node.x, y: node.y };
+
+    const portRect = portEl.getBoundingClientRect();
+    const nodeRect = node.el.getBoundingClientRect();
+
+    const offsetX = (portRect.left - nodeRect.left + portRect.width / 2) / this.zoom;
+    const offsetY = (portRect.top - nodeRect.top + portRect.height / 2) / this.zoom;
+
+    return {
+      x: node.x + offsetX,
+      y: node.y + offsetY,
+    };
+  }
+
+  getBazierPath(x1, y1, x2, y2) {
+    const curvature = 0.5;
+    const hx1 = x1 + Math.abs(x2 - x1) * curvature;
+    const hx2 = x2 - Math.abs(x2 - x1) * curvature;
+
+    return `M ${x1} ${y1} C ${hx1} ${y1} ${hx2} ${y2} ${x2} ${y2}`;
+  }
+
+  beginTempConnection(fromNodeId, fromPortIndex) {
+    this.tempSource = { nodeId: fromNodeId, portIndex: fromPortIndex };
+  }
+
+  endTempConnection() {
+    this.tempSource = null;
+    this.clearTempPath();
+  }
+
+  updateTempConnection(mouseX, mouseY) {
+    if (!this.tempSource) return;
+
+    const { nodeId, portIndex } = this.tempSource;
+    const p1 = this.getPortPosition(nodeId, "output", portIndex);
+
+    this.createTempPath(p1, { x: mouseX, y: mouseY });
+  }
+
+  createTempPath(p1, p2) {
+    if (!this.tempPath) {
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("class", "flow-connection-path selected flow-connection-temp");
+      path.style.pointerEvents = "none";
+      this.connectionContainer.appendChild(path);
+      this.tempPath = path;
+    } else {
+      this.clearBadPaths();
+    }
+
+    const d = this.getBazierPath(p1.x, p1.y, p2.x, p2.y);
+    this.tempPath.setAttribute("d", d);
+  }
+
+  // bad connection path (cyclic in DAG) will be cleared on below scenario
+  // 1. drawing new (temp) connection
+  // 2. cancel drawing connection this.keyDownCancelConnection
+  clearTempPath() {
+    if (this.tempPath) {
+      this.tempPath.remove();
+      this.tempPath = null;
+    }
+    this.clearBadPaths();
+  }
+
+  markPathBad(conn) {
+    this.markTempPathBad();
+    this.markExistingPathBad(conn);
+  }
+
+  markTempPathBad() {
+    if (this.tempPath) {
+      this.tempPath.classList.add("flow-connection-path-bad");
+      this.badPaths.add(this.tempPath);
+    }
+  }
+
+  markExistingPathBad(conn) {
+    const key = this.getConnectionKey(conn);
+    const path = this.pathMap.get(key);
+    if (path) {
+      path.classList.add("flow-connection-path-bad");
+      this.badPaths.add(path);
+    }
+  }
+
+  clearBadPaths() {
+    this.badPaths.forEach((path) => {
+      path.classList.remove("flow-connection-path-bad");
+    });
+    this.badPaths.clear();
+  }
+}
+
+class FlowSerializer {
+  export(flow) {
+    const nodeManager = flow.nodeManager;
+    const connectionManager = flow.connectionManager;
+    const canvas = flow.canvas;
+
+    // eslint-disable-next-line no-unused-vars
+    const nodes = Object.values(nodeManager.nodes).map(({ el, node, ...rest }) => ({
+      id: rest.id,
+      name: rest.name,
+      inputs: rest.inputs,
+      outputs: rest.outputs,
+      x: rest.x,
+      y: rest.y,
+      html: rest.html,
+    }));
+
+    const connections = connectionManager.connections.map((c) => ({
+      outNodeId: c.outNodeId,
+      outPort: c.outPort,
+      inNodeId: c.inNodeId,
+      inPort: c.inPort,
+    }));
+
+    return {
+      nodes,
+      connections,
+      zoom: canvas.zoom,
+      canvas: {
+        x: canvas.canvasX,
+        y: canvas.canvasY,
+      },
+    };
+  }
+  import(flow, data) {
+    const { nodeManager, connectionManager, canvas } = flow;
+
+    // 1. Reset canvas
+    const zoom = data.zoom || 1;
+    flow.zoom = zoom;
+    canvas.zoom = zoom;
+    nodeManager.zoom = zoom;
+    connectionManager.zoom = zoom;
+
+    canvas.canvasX = data.canvas?.x || 0;
+    canvas.canvasY = data.canvas?.y || 0;
+    canvas.redrawCanvas();
+
+    // 2. Reset managers
+    nodeManager.reset?.();
+    connectionManager.reset?.();
+
+    // 3. Recreate nodes
+    if (data.nodes) {
+      data.nodes.forEach((n) => {
+        nodeManager.addNode(n);
+      });
+    }
+
+    // 4. Recreate connections (validators already active)
+    if (data.connections) {
+      data.connections.forEach((c) => {
+        flow.addConnection(c.outNodeId, c.outPort, c.inNodeId, c.inPort);
+      });
+    }
+  }
+}
+
+/**
+ * A lightweight Flow/Node editor component inspired by Drawflow, and freeform.
+ * features: zoom, pan, draggable nodes, input/output ports, bezier connections.
+ * @extends EmitterComponent
+ */
+class Flow extends EmitterComponent {
+  /**
+   * @param {Object} options
+   * @param {string} options.name - Unique name for the flow instance.
+   * @param {Object} [options.options] - Configuration options.
+   * @param {number} [options.options.zoom=1] - Initial zoom level.
+   * @param {Object} [options.options.canvas={x:0, y:0}] - Initial pan position.
+   */
+  constructor({ name, options = {}, validators = [], notification = null }) {
+    super({ name });
+
+    this.options = options;
+    this.validators = validators;
+    this.notification = notification;
+    this.serializer = new FlowSerializer();
+    this.zoom = options.zoom || 1;
+    this.originalZoom = this.zoom;
+
+    this.nodes = {}; // { id: { id, x, y, inputs, outputs, data, el } }
+    // this.connections = []; // [ { outputNodeId, outputPort, inputNodeId, inputPort } ]
+    this.nodeIdCounter = 1;
+
+    // DOM References
+    this.canvasEl = null;
+    this.svgEl = null;
+
+    this.nodeManager = null;
+    this.connectionManager = null;
+    this.rafId = null;
+    this.isConnecting = false;
+  }
+
+  /**
+   * Returns component HTML structure.
+   */
+  html() {
+    return "";
+  }
+
+  init() {
+    this.container.classList.add("floxy-flow-container");
+
+    this.canvas = new FlowCanvas({
+      name: this.name + "-canvas",
+      options: this.options,
+    });
+
+    this.canvas.renderInto(this.container);
+
+    this.containerEl = this.container;
+    this.canvasEl = this.canvas.canvasEl;
+    this.svgEl = this.canvas.svgEl;
+
+    this.nodeManager = new FlowNodeManager({
+      name: this.name + "-flow-node-manager",
+      canvasContainer: this.canvasEl,
+      options: this.options,
+    });
+
+    this.connectionManager = new FlowConnectionManager({
+      name: this.name + "-flow-connection-manager",
+      connectionContainer: this.svgEl,
+      nodeManager: this.nodeManager,
+      options: this.options,
+    });
+
+    this.canvas.on("canvas:zoom", ({ data }) => {
+      this.zoom = data.zoom;
+      this.connectionManager.zoom = data.zoom;
+      this.nodeManager.zoom = data.zoom;
+    });
+
+    this.canvas.on("node:dropped", ({ data }) => {
+      console.debug("Node is dropped: ", data);
+      this.emit(NODE_DROPPED_EVENT, data);
+      this.nodeManager.dropNode(data);
+    });
+
+    this.nodeManager.on(NODE_MOVED_EVENT, ({ id, x, y }) => {
+      console.debug("Node is moved: ", id, x, y);
+      this.emit(NODE_MOVED_EVENT, { id, x, y });
+      this.connectionManager.updateConnections(id);
+    });
+
+    this.nodeManager.on(NODE_REMOVED_EVENT, ({ id }) => {
+      console.debug("Node is removed: ", id);
+      this.emit(NODE_REMOVED_EVENT, { id });
+      this.removeNode(id);
+    });
+
+    this.nodeManager.on("port:connect:start", ({ nodeId, portIndex, event }) => {
+      this.mouseDownStartConnection({ dataset: { index: portIndex } }, nodeId, event);
+    });
+
+    this.nodeManager.on("port:connect:end", ({ nodeId, portIndex, event }) => {
+      this.mouseUpCompleteConnection({ dataset: { index: portIndex } }, nodeId, event);
+    });
+
+    this.connectionManager.on(CONNECTION_CREATED_EVENT, (connection) => {
+      console.debug("Connection is created: ", connection);
+      this.emit(CONNECTION_CREATED_EVENT, connection);
+
+      this.validators.forEach((v) =>
+        v.onConnectionAdded?.({
+          outNodeId: connection.outNodeId,
+          inNodeId: connection.inNodeId,
+        })
+      );
+    });
+
+    this.connectionManager.on(CONNECTION_CLICKED_EVENT, (connection) => {
+      console.debug("Connection is clicked: ", connection);
+      this.emit(CONNECTION_CLICKED_EVENT, connection);
+      this.connectionManager.removeConnection(connection);
+    });
+
+    this.connectionManager.on(CONNECTION_REMOVED_EVENT, (connection) => {
+      console.debug("Connection is removed: ", connection);
+      this.emit(CONNECTION_REMOVED_EVENT, connection);
+
+      this.validators.forEach((v) =>
+        v.onConnectionRemoved?.({
+          outNodeId: connection.outNodeId,
+          inNodeId: connection.inNodeId,
+        })
+      );
+    });
+  }
+
+  highlightCycle(stack) {
+    if (!stack || stack.length < 2) return;
+
+    // TODO: need to fix O(n^2) time complexity
+    for (let pos = 0; pos < stack.length - 1; pos++) {
+      const conn = this.connectionManager.connections.find(
+        (c) => c.outNodeId === stack[pos] && c.inNodeId === stack[pos + 1]
+      );
+      if (conn) {
+        this.connectionManager.markPathBad(conn);
+      }
+    }
+  }
+
+  /**
+   * Add a new node to the flow.
+   * @param {Object} params
+   * @param {string} params.name - Title of node.
+   * @param {number} params.inputs - Number of input ports.
+   * @param {number} params.outputs - Number of output ports.
+   * @param {number} params.x - X position.
+   * @param {number} params.y - Y position.
+   * @param {string} params.html - Inner HTML content.
+   * @returns {number} The new node ID.
+   */
+  addNode(params) {
+    return this.nodeManager.addNode(params);
+  }
+
+  mouseDownStartConnection(port, nodeId, event) {
+    console.debug("FLOW: Start connection from port: ", port, "nodeId: ", nodeId);
+    event.stopPropagation();
+    this.isConnecting = true;
+    this.connectionStart = { nodeId, index: port.dataset.index };
+    this.connectionManager.beginTempConnection(nodeId, port.dataset.index);
+    // Use addEventListener instead of window.onmousemove to avoid JSDOM redefinition errors
+    this._drawConnection = (e) => this.mouseMoveDrawConnection(port, nodeId, e);
+    this._cancelConnection = (e) => this.keyDownCancelConnection(e, nodeId);
+    window.addEventListener("mousemove", this._drawConnection);
+    window.addEventListener("keydown", this._cancelConnection);
+
+    this.startRaf(() => {
+      const samePreviousPos =
+        this.connectionStart.prevX == this.connectionStart.x &&
+        this.connectionStart.prevY == this.connectionStart.y;
+      if (this.connectionStart.x && this.connectionStart.y && !samePreviousPos) {
+        this.connectionStart.prevX = this.connectionStart.x;
+        this.connectionStart.prevY = this.connectionStart.y;
+        this.connectionManager.updateTempConnection(this.connectionStart.x, this.connectionStart.y);
+      }
+    });
+  }
+
+  mouseMoveDrawConnection(port, nodeId, event) {
+    if (this.isConnecting) {
+      if (!this._canvasRect) {
+        this._canvasRect = this.canvasEl.getBoundingClientRect();
+      }
+      const rect = this._canvasRect;
+      const x = (event.clientX - rect.left) / this.zoom;
+      const y = (event.clientY - rect.top) / this.zoom;
+
+      // this.connectionManager.updateTempConnection(x, y);
+      this.connectionStart.x = x;
+      this.connectionStart.y = y;
+    }
+  }
+
+  mouseUpCompleteConnection(port, nodeId, event) {
+    if (this.isConnecting) {
+      // Check if dropped on local input port
+      const target = event.target.closest(".flow-port");
+      if (target && target.dataset.type === "input") {
+        const inputNodeId = parseInt(target.dataset.nodeId);
+        const inputIndex = parseInt(target.dataset.index);
+        const connected = this.addConnection(
+          this.connectionStart.nodeId,
+          this.connectionStart.index,
+          inputNodeId,
+          inputIndex,
+          event,
+          nodeId
+        );
+        if (connected) this.connectionManager.endTempConnection();
+      }
+    }
+  }
+
+  addConnection(outNodeId, outPort, inNodeId, inPort, event = null, nodeId = null) {
+    // const connected = this.connectionManager.addConnection(outNodeId, outPort, inNodeId, inPort);
+    // if (event && connected) this.keyDownCancelConnection(event, nodeId);
+    // return connected;
+
+    for (const validator of this.validators) {
+      const result = validator.onConnectionAttempt({ outNodeId, inNodeId });
+      if (!result.valid) {
+        this.notification?.warning(result.message);
+        this.connectionManager.markTempPathBad();
+
+        if (result.stack) {
+          this.highlightCycle(result.stack);
+        }
+        return false;
+      }
+    }
+
+    const created = this.connectionManager.addConnection(outNodeId, outPort, inNodeId, inPort);
+
+    if (created) {
+      this.validators.forEach((v) => v.onConnectionAdded?.({ outNodeId, inNodeId }));
+      if (event) this.keyDownCancelConnection(event, nodeId);
+    }
+
+    return created;
+  }
+
+  // eslint-disable-next-line no-unused-vars
+  keyDownCancelConnection(event, nodeId) {
+    // ESCAPE key pressed
+    if (event.type == "keydown" && event.key !== "Escape" && event.keyCode !== 27) {
+      return;
+    }
+
+    this.isConnecting = false;
+    this.connectionManager.endTempConnection();
+
+    if (this._drawConnection) {
+      window.removeEventListener("mousemove", this._drawConnection);
+      window.removeEventListener("keydown", this._cancelConnection);
+      this._drawConnection = null;
+    }
+  }
+
+  removeNode(nodeId) {
+    this.connectionManager.removeRelatedConnections(nodeId);
+  }
+
+  export() {
+    return this.serializer.export(this);
+  }
+
+  import(data) {
+    this.serializer.import(this, data);
+  }
+
+  startRaf(rafn) {
+    if (this.rafId) return;
+
+    const loop = () => {
+      if (!this.isConnecting) {
+        cancelAnimationFrame(this.rafId);
+        this.rafId = null;
+        this._canvasRect = null;
+        return;
+      }
+
+      // DOM update happens ONLY here
+      rafn();
+      this.rafId = requestAnimationFrame(loop);
+    };
+
+    this.rafId = requestAnimationFrame(loop);
+  }
+
+  destroy() {
+    this.isConnecting = false;
+
+    if (this._drawConnection) {
+      window.removeEventListener("mousemove", this._drawConnection);
+      window.removeEventListener("keydown", this._cancelConnection);
+    }
+
+    cancelAnimationFrame(this.rafId);
+  }
+}
+
+/**
+ * FlowValidator plugin contract
+ */
+/* eslint-disable no-unused-vars */
+class FlowValidator {
+  onConnectionAttempt({ outNodeId, inNodeId }) {
+    return { valid: true };
+  }
+
+  onConnectionAdded({ outNodeId, inNodeId }) {}
+  onConnectionRemoved({ outNodeId, inNodeId }) {}
+}
+
+class DagValidator extends FlowValidator {
+  constructor({ enabled = true } = {}) {
+    super();
+    this.enabled = enabled;
+    this.adjacencyList = {};
+    this.nonCyclicCache = {};
+    this.tempCyclicCache = {};
+    this.tempStackCache = {};
+  }
+
+  onConnectionAttempt({ outNodeId, inNodeId }) {
+    const message = "This connection will create cyclic flow.";
+    if (!this.enabled) return { valid: true };
+
+    const cacheKey = `${outNodeId}->${inNodeId}`;
+
+    if (this.nonCyclicCache[cacheKey] !== undefined) {
+      return { valid: !this.nonCyclicCache[cacheKey] };
+    }
+
+    if (this.tempCyclicCache[cacheKey]) {
+      return { valid: false, stack: this.tempStackCache[cacheKey], message };
+    }
+
+    this.tempStackCache[cacheKey] = [];
+    const stack = this.tempStackCache[cacheKey];
+    const visited = new Set();
+
+    let virtualNeighbors = new Set(this.adjacencyList[outNodeId] || new Set());
+    virtualNeighbors.add(inNodeId);
+
+    visited.add(outNodeId);
+    stack.push(outNodeId);
+
+    for (const neighbor of virtualNeighbors) {
+      if (this.#isCyclic(neighbor, visited, stack)) {
+        this.tempCyclicCache[cacheKey] = true;
+        return { valid: false, stack, message };
+      }
+    }
+
+    return { valid: true };
+  }
+
+  onConnectionAdded({ outNodeId, inNodeId }) {
+    this.#addNodeToAdjacencyList(outNodeId, inNodeId);
+
+    // add to cache only when we make a connection
+    // if the connection is cyclic, connection from the graph can be removed and updated again to create new connection.
+    this.#addConnNonCyclicCache(outNodeId, inNodeId);
+  }
+
+  onConnectionRemoved({ outNodeId, inNodeId }) {
+    const cacheKey = `${outNodeId}->${inNodeId}`;
+    this.adjacencyList[outNodeId]?.delete(inNodeId);
+    delete this.nonCyclicCache[cacheKey];
+
+    // remove all temporary cyclic cache.
+    // This is partial fix for now, as we need to traverse the graph to remove the affected temporary connection cache.
+    // Efficient when no connections are removed to make a DAG.
+    this.tempCyclicCache = {};
+  }
+
+  #addNodeToAdjacencyList(outNodeId, inNodeId) {
+    if (!this.adjacencyList[outNodeId]) this.adjacencyList[outNodeId] = new Set();
+    this.adjacencyList[outNodeId].add(inNodeId);
+  }
+
+  #addConnNonCyclicCache(outNodeId, inNodeId) {
+    const cacheKey = `${outNodeId}->${inNodeId}`;
+    this.nonCyclicCache[cacheKey] = false;
+    delete this.tempStackCache[cacheKey];
+  }
+
+  #isCyclic(node, visited, stack) {
+    if (stack.includes(node)) {
+      // cycle found
+      // adding last node to stack to show the cycle in the UI
+      stack.push(node);
+      return true;
+    }
+    if (visited.has(node)) return false;
+
+    visited.add(node);
+    stack.push(node);
+
+    for (const neighbor of this.adjacencyList[node] || []) {
+      if (this.#isCyclic(neighbor, visited, stack)) return true;
+    }
+
+    stack.pop();
+    return false;
+  }
+}
+
+exports.DagValidator = DagValidator;
+exports.Flow = Flow;
+exports.FlowCanvas = FlowCanvas;
+exports.notification = getInstance;
