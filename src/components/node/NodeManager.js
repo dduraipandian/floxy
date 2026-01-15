@@ -2,7 +2,6 @@ import { EmitterComponent } from "@uiframe/core";
 import { Node } from "./Node.js";
 import { NodeModel } from "./NodeModel.js";
 import { DraggableBehavior } from "./behaviors/DraggableBehavior.js";
-import { NodeView } from "./NodeView.js";
 import { FlowNodeView } from "./views/FlowNodeView.js";
 import * as constants from "./constants.js";
 
@@ -27,7 +26,7 @@ class NodeManager extends EmitterComponent {
   }
 
   dropNode(data) {
-    console.log("drop node", data);
+    console.debug("FLOW: Drop node", data);
     const nodeHeight = data.h ?? 100;
     const nodeWidth = data.w ?? 200;
     const zoom = this.zoomGetter();
@@ -37,12 +36,12 @@ class NodeManager extends EmitterComponent {
   }
 
   addNode(config) {
-    console.log("add node", config);
+    console.debug("FLOW: Add node", config);
 
     const id = this.idCounter++;
 
     const model = new NodeModel({ id, ...config });
-    const view = new NodeView(model, this.View, this.options);
+    const view = new this.View(model, this.options);
 
     const node = new Node({
       model,
@@ -73,7 +72,6 @@ class NodeManager extends EmitterComponent {
   }
 
   propagateEvent(event, instance) {
-    console.log("propagate event", event, instance);
     instance.on(event, (e) => this.emit(event, e));
   }
 
@@ -87,7 +85,6 @@ class NodeManager extends EmitterComponent {
 
   getNode(id) {
     const n = this.nodes.get(id);
-    console.log(n);
     return n;
   }
 }

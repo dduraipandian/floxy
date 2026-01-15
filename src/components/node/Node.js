@@ -15,7 +15,7 @@ class Node extends EmitterComponent {
   }
 
   renderInto(container) {
-    console.log("render node", this.view);
+    console.debug("FLOW: Render node", this.view);
     this.view.renderInto(container);
   }
 

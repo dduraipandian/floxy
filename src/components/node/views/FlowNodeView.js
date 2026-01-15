@@ -1,4 +1,4 @@
-import { BaseNodeView } from "../base.js";
+import { BaseNodeView } from "../NodeView.js";
 import * as constants from "../constants.js";
 
 const DEFAULT_SUPPORTED_BEHAVIORS = [
@@ -86,7 +86,7 @@ class FlowNodeView extends BaseNodeView {
   }
 
   bindEvents() {
-    console.log("bind events");
+    console.debug("FLOW: Bind events", this.name);
     // node click
     this.bindMouseDown();
 
@@ -137,6 +137,7 @@ class FlowNodeView extends BaseNodeView {
   bindInputPorts() {
     this.el.querySelectorAll(".flow-ports-in .flow-port").forEach((port) => {
       port.addEventListener("mouseup", (e) => {
+        console.debug("FLOW: Port connect end", e);
         this.emit(constants.PORT_CONNECT_END_EVENT, {
           nodeId: this.model.id,
           portIndex: port.dataset.index,
@@ -149,7 +150,7 @@ class FlowNodeView extends BaseNodeView {
   bindOutputPorts() {
     this.el.querySelectorAll(".flow-ports-out .flow-port").forEach((port) => {
       port.addEventListener("mousedown", (e) => {
-        console.log("port connect start", e);
+        console.debug("FLOW: Port connect start", e);
         this.emit(constants.PORT_CONNECT_START_EVENT, {
           nodeId: this.model.id,
           portIndex: port.dataset.index,

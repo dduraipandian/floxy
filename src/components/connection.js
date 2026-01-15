@@ -87,7 +87,6 @@ class FlowConnectionManager extends EmitterComponent {
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     const d = this.getBazierPath(p1.x, p1.y, p2.x, p2.y);
 
-    console.log(p1, p2, d);
     path.setAttribute("d", d);
     path.setAttribute("class", "flow-connection-path");
     path.dataset.id = key;

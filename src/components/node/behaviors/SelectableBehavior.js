@@ -9,7 +9,11 @@ class SelectableBehavior extends EmitterComponent {
 
   attach(node) {
     this.node = node;
-    if (!node.view.behaviorSupported(constants.NODE_BEHAVIORS.SELECTABLE)) {
+
+    const supported = node.view.behaviorSupported(constants.NODE_BEHAVIORS.SELECTABLE);
+    console.debug("FLOW: Attach selectable behavior", supported);
+
+    if (!supported) {
       return;
     }
 

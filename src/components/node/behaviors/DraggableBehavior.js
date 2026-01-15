@@ -11,9 +11,10 @@ class DraggableBehavior extends EmitterComponent {
   attach(node) {
     this.node = node;
 
-    console.log("attach draggable behavior", node);
+    const supported = node.view.behaviorSupported(constants.NODE_BEHAVIORS.DRAGGABLE);
+    console.debug("FLOW: Attach draggable behavior", supported, node);
 
-    if (!node.view.behaviorSupported(constants.NODE_BEHAVIORS.DRAGGABLE)) {
+    if (!supported) {
       return;
     }
 

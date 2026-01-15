@@ -1,20 +1,19 @@
 import { EmitterComponent } from "@uiframe/core";
-import { BaseNodeView } from "./base.js";
-import * as constants from "./constants.js";
+import { NodeModel } from "./NodeModel.js";
 
-class NodeView extends EmitterComponent {
-  constructor(model, view, options = {}) {
-    if (view instanceof BaseNodeView) {
-      throw new Error("View must be an instance of BaseNodeView");
+class BaseNodeView extends EmitterComponent {
+  constructor(model, options = {}) {
+    if (!(model instanceof NodeModel)) {
+      throw new Error("Model must be an instance of NodeModel");
     }
     super({ name: `node-view-${model.id}` });
     this.model = model;
-    this.view = new view(model, options);
+    this.options = options;
     this.el = null;
   }
 
   renderInto(container) {
-    this.el = this.view.getNodeElement();
+    this.el = this.getNodeElement();
     this.el.classList.add("floxy-node");
     this.el.dataset.nodeId = this.model.id;
 
@@ -22,27 +21,17 @@ class NodeView extends EmitterComponent {
   }
 
   init() {
-    this.view.render();
-    this.view.bindEvents();
-
-    this.propagateEvent(constants.PORT_CONNECT_START_EVENT, this.view);
-    this.propagateEvent(constants.PORT_CONNECT_END_EVENT, this.view);
-    this.propagateEvent(constants.NODE_REMOVE_EVENT, this.view);
-  }
-
-  render() {
-    this.view.render();
+    this.render();
+    this.bindEvents();
   }
 
   destroy() {
-    this.view.destroy();
+    this.el?.remove();
     this.el = null;
   }
 
   behaviorSupported(name) {
-    return (
-      this.view.supportedBehaviors.includes(name) && this.model.supportedBehaviors.includes(name)
-    );
+    return this.supportedBehaviors.includes(name) && this.model.supportedBehaviors.includes(name);
   }
 
   propagateEvent(event, instance) {
@@ -52,6 +41,18 @@ class NodeView extends EmitterComponent {
   querySelector(selector) {
     return this.el.querySelector(selector);
   }
+
+  getNodeElement() {
+    throw new Error("Method 'getNodeElement()' must be implemented in the subclass");
+  }
+
+  render() {
+    throw new Error("Method 'render()' must be implemented in the subclass");
+  }
+
+  bindEvents() {
+    throw new Error("Method 'bindEvents()' must be implemented in the subclass");
+  }
 }
 
-export { NodeView };
+export { BaseNodeView };
