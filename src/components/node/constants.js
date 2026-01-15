@@ -7,6 +7,6 @@ export const PORT_CONNECT_START_EVENT = "port:connect:start";
 export const PORT_CONNECT_END_EVENT = "port:connect:end";
 
 export const NODE_BEHAVIORS = {
-    SELECTABLE: "selectable",
-    DRAGGABLE: "draggable"
-}
+  SELECTABLE: "selectable",
+  DRAGGABLE: "draggable",
+};

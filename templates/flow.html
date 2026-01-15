@@ -70,7 +70,7 @@
           class="draggable-item"
           draggable="true"
           ondragstart="drag(event)"
-          data-node='{"name": "Start", "inputs": 0, "outputs": 1, "html": "Begin Process"}'
+          data-node='{"name": "Start", "inputs": 0, "outputs": 1, "contentHtml": "Begin Process"}'
         >
           <i class="bi bi-play-circle me-2"></i> Start
         </div>
@@ -79,7 +79,7 @@
           class="draggable-item"
           draggable="true"
           ondragstart="drag(event)"
-          data-node='{"name": "Action", "inputs": 1, "outputs": 1, "html": "Do Something"}'
+          data-node='{"name": "Action", "inputs": 1, "outputs": 1, "contentHtml": "Do Something"}'
         >
           <i class="bi bi-gear me-2"></i> Action
         </div>
@@ -88,7 +88,7 @@
           class="draggable-item"
           draggable="true"
           ondragstart="drag(event)"
-          data-node='{"name": "Condition", "inputs": 1, "outputs": 2, "html": "Yes / No"}'
+          data-node='{"name": "Condition", "inputs": 1, "outputs": 2, "contentHtml": "Yes / No"}'
         >
           <i class="bi bi-question-diamond me-2"></i> Condition
         </div>
@@ -97,7 +97,7 @@
           class="draggable-item"
           draggable="true"
           ondragstart="drag(event)"
-          data-node='{"name": "End", "inputs": 1, "outputs": 0, "html": "Terminate"}'
+          data-node='{"name": "End", "inputs": 1, "outputs": 0, "contentHtml": "Terminate"}'
         >
           <i class="bi bi-stop-circle me-2"></i> End
         </div>
@@ -137,8 +137,10 @@
         outputs: 1,
         x: 100,
         y: 100,
-        html: "Entry Point",
-        data: {}
+        w: 200,
+        h: 100,
+        contentHtml: "Entry Point",
+        data: {},
       });
       const n2 = flow.addNode({
         name: "Process",
@@ -146,8 +148,10 @@
         outputs: 1,
         x: 400,
         y: 100,
-        html: "Validating...",
-        data: {}
+        w: 200,
+        h: 100,
+        contentHtml: "Validating...",
+        data: {},
       });
       flow.addConnection(n1, 0, n2, 0);
 

@@ -44,54 +44,48 @@ graph TD
 ## Component Responsibilities
 
 ### NodeModel
+
 - Holds node state (position, ports, data)
 - Emits state change events
 - Diagram-agnostic
 
 ```ts
-NodeModel
-- id
-- name
-- x, y
-- inputs, outputs
-- data
+(NodeModel - id - name - x, y - inputs, outputs - data);
 ```
 
 ---
 
 ### NodeView
+
 - Responsible **only** for rendering
 - Creates DOM / SVG
 - Emits UI events
 - Never mutates state directly
 
 ```ts
-NodeView
-- mount(container)
-- render()
-- destroy()
+NodeView - mount(container) - render() - destroy();
 ```
 
 ---
 
 ### PortView
+
 - Represents connection points
 - Supports typed and directional ports
 - Enables ER diagrams and workflow constraints
 
 ```ts
-PortView
-- portId
-- direction (input | output)
-- type (data | control | relation)
+PortView - portId - direction(input | output) - type(data | control | relation);
 ```
 
 ---
 
 ### Behaviors
+
 Behaviors attach interaction logic to a node without changing its structure.
 
 Examples:
+
 - Dragging
 - Selection
 - Resizing
@@ -99,14 +93,13 @@ Examples:
 - Grouping
 
 Each behavior:
+
 - Can be attached or removed independently
 - Uses events to communicate
 - Is reusable across node types
 
 ```ts
-Behavior
-- attach(node)
-- detach()
+Behavior - attach(node) - detach();
 ```
 
 ---
@@ -133,15 +126,19 @@ sequenceDiagram
 ## Why This Architecture?
 
 ### Extensible
+
 Add new node types without touching the engine.
 
 ### Performant
+
 Views only re-render when models change.
 
 ### Diagram-Agnostic
+
 Same engine supports workflows, ER diagrams, and freeform canvases.
 
 ### Maintainable
+
 No god classes. Clear separation of concerns.
 
 ---

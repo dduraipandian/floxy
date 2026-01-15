@@ -7,78 +7,89 @@ import { FlowNodeView } from "./views/FlowNodeView.js";
 import * as constants from "./constants.js";
 
 const DEFAULT_VIEW = FlowNodeView;
-const DEFAULT_BEHAVIORS = [
-    DraggableBehavior
-];
+const DEFAULT_BEHAVIORS = [DraggableBehavior];
 
 class NodeManager extends EmitterComponent {
-    constructor({ name, canvasContainer, zoomGetter, View = DEFAULT_VIEW, Behaviors = DEFAULT_BEHAVIORS }) {
-        super({ name: name + "node-manager" });
-        this.canvasContainer = canvasContainer;
-        this.zoomGetter = zoomGetter;
-        this.View = View;
-        this.Behaviors = Behaviors;
-        this.nodes = new WeakMap();
-        this.idCounter = 1;
-    }
+  constructor({
+    name,
+    canvasContainer,
+    zoomGetter,
+    View = DEFAULT_VIEW,
+    Behaviors = DEFAULT_BEHAVIORS,
+  }) {
+    super({ name: name + "node-manager" });
+    this.canvasContainer = canvasContainer;
+    this.zoomGetter = zoomGetter;
+    this.View = View;
+    this.Behaviors = Behaviors;
+    this.nodes = new Map();
+    this.idCounter = 1;
+  }
 
-    dropNode(data) {
-        const zoom = this.zoomGetter();
-        const posX = (data.x - data.w / 2) / zoom;
-        const posY = (data.y - data.h / 2) / zoom;
-        this.addNode({ ...data, x: posX, y: posY });
-    }
+  dropNode(data) {
+    console.log("drop node", data);
+    const nodeHeight = data.h ?? 100;
+    const nodeWidth = data.w ?? 200;
+    const zoom = this.zoomGetter();
+    const posX = (data.x - nodeWidth / 2) / zoom;
+    const posY = (data.y - nodeHeight / 2) / zoom;
+    this.addNode({ ...data, x: posX, y: posY, w: nodeWidth, h: nodeHeight });
+  }
 
-    addNode(config) {
+  addNode(config) {
+    console.log("add node", config);
 
-        console.log("add node", config);
+    const id = this.idCounter++;
 
-        const id = this.idCounter++;
+    const model = new NodeModel({ id, ...config });
+    const view = new NodeView(model, this.View, this.options);
 
-        const model = new NodeModel({ id, ...config });
-        const view = new NodeView(model, this.View, this.options);
+    const node = new Node({
+      model,
+      view,
+      behaviors: [...this.Behaviors.map((b) => new b({ zoomGetter: this.zoomGetter }))],
+    });
 
-        const node = new Node({
-            model,
-            view,
-            behaviors: [
-                ...this.Behaviors.map((b) => new b({ zoomGetter: this.zoomGetter })),
-            ],
-        });
+    // bubble view events upward
+    this.propagateEvent(constants.PORT_CONNECT_START_EVENT, view);
+    this.propagateEvent(constants.PORT_CONNECT_END_EVENT, view);
+    this.propagateEvent(constants.NODE_REMOVE_EVENT, view);
 
-        // bubble view events upward
-        this.propagateEvent(constants.PORT_CONNECT_START_EVENT, view);
-        this.propagateEvent(constants.PORT_CONNECT_END_EVENT, view);
-        this.propagateEvent(constants.NODE_REMOVE_EVENT, view);
+    this.propagateEvent(constants.NODE_MOVED_EVENT, node);
 
-        this.propagateEvent(constants.NODE_MOVED_EVENT, node);
+    node.renderInto(this.canvasContainer);
+    node.init();
+    this.nodes.set(id, node);
 
-        node.renderInto(this.canvasContainer);
-        node.init();
-        this.nodes.set(Symbol(id), node);
+    return id;
+  }
 
-        return id;
-    }
+  removeNode(id) {
+    const node = this.getNode(id);
+    if (!node) return;
 
-    removeNode(id) {
-        const node = this.nodes.get(Symbol(id));
-        if (!node) return;
+    node.destroy();
+    this.nodes.delete(id);
+  }
 
-        node.destroy();
-        this.nodes.delete(Symbol(id));
-    }
+  propagateEvent(event, instance) {
+    console.log("propagate event", event, instance);
+    instance.on(event, (e) => this.emit(event, e));
+  }
 
-    propagateEvent(event, instance) {
-        instance.on(event, (e) => this.emit(event, e));
-    }
+  reset() {
+    Object.values(this.nodes).forEach((n) => {
+      n.destroy();
+    });
+    this.nodes.clear();
+    this.idCounter = 1;
+  }
 
-    reset() {
-        Object.values(this.nodes).forEach((n) => {
-            n.destroy();
-        });
-        this.nodes.clear();
-        this.idCounter = 1;
-    }
+  getNode(id) {
+    const n = this.nodes.get(id);
+    console.log(n);
+    return n;
+  }
 }
 
 export { NodeManager };

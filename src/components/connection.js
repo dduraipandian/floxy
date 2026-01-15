@@ -28,7 +28,6 @@ class FlowConnectionManager extends EmitterComponent {
     this.zoom = options.zoom || 1;
     this.originalZoom = this.zoom;
 
-    this.nodes = this.nodeManager.nodes;
     this.nodeIdCounter = 1;
     this.nodeWidth = options.nodeWidth || 200;
     this.nodeHeight = options.nodeHeight || 90;
@@ -87,6 +86,8 @@ class FlowConnectionManager extends EmitterComponent {
 
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     const d = this.getBazierPath(p1.x, p1.y, p2.x, p2.y);
+
+    console.log(p1, p2, d);
     path.setAttribute("d", d);
     path.setAttribute("class", "flow-connection-path");
     path.dataset.id = key;
@@ -143,14 +144,17 @@ class FlowConnectionManager extends EmitterComponent {
   }
 
   getPortPosition(nodeId, type, index) {
-    const node = this.nodes[nodeId];
-    if (!node || !node.el) return { x: 0, y: 0 };
+    const node = this.nodeManager.getNode(nodeId);
+    if (!node) return { x: 0, y: 0 };
 
-    const portEl = node.el.querySelector(`.flow-port[data-type="${type}"][data-index="${index}"]`);
+    const portEl = node.view.el.querySelector(
+      `.flow-port[data-type="${type}"][data-index="${index}"]`
+    );
+
     if (!portEl) return { x: node.x, y: node.y };
 
     const portRect = portEl.getBoundingClientRect();
-    const nodeRect = node.el.getBoundingClientRect();
+    const nodeRect = node.view.el.getBoundingClientRect();
 
     const offsetX = (portRect.left - nodeRect.left + portRect.width / 2) / this.zoom;
     const offsetY = (portRect.top - nodeRect.top + portRect.height / 2) / this.zoom;
