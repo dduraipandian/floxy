@@ -1,7 +1,7 @@
 import { EmitterComponent } from "@uiframe/core";
 
 import { FlowCanvas } from "./components/canvas.js";
-import { FlowNodeManager } from "./components/node.js";
+import { NodeManager as FlowNodeManager } from "./components/node/NodeManager.js";
 import { FlowConnectionManager } from "./components/connection.js";
 import { FlowSerializer } from "./components/serializer.js";
 import * as Constant from "./components/constants.js";
@@ -64,9 +64,16 @@ class Flow extends EmitterComponent {
     this.canvasEl = this.canvas.canvasEl;
     this.svgEl = this.canvas.svgEl;
 
+    // this.nodeManager = new FlowNodeManager({
+    //   name: this.name + "-flow-node-manager",
+    //   canvasContainer: this.canvasEl,
+    //   options: this.options,
+    // });
+
     this.nodeManager = new FlowNodeManager({
       name: this.name + "-flow-node-manager",
       canvasContainer: this.canvasEl,
+      zoomGetter: () => this.zoom,
       options: this.options,
     });
 
