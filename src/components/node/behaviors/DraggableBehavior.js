@@ -1,29 +1,26 @@
-import { EmitterComponent } from "@uiframe/core";
 import { DragHandler } from "../../utils.js";
+import { BaseNodeBehavior } from "./base.js";
 import * as constants from "../constants.js";
 
-class DraggableBehavior extends EmitterComponent {
+class DraggableBehavior extends BaseNodeBehavior {
   constructor({ zoomGetter }) {
     super({ name: "node-draggable" });
     this.zoomGetter = zoomGetter;
   }
 
+  static get behavior() {
+    return constants.NODE_BEHAVIORS.DRAGGABLE;
+  }
+
   attach(node) {
-    this.node = node;
-
-    const supported = node.view.behaviorSupported(constants.NODE_BEHAVIORS.DRAGGABLE);
-    console.debug("FLOW: Attach draggable behavior", supported, node);
-
-    if (!supported) {
-      return;
-    }
+    const view = node.view;
 
     this.dragHandler = new DragHandler(
-      node.view.el,
+      view.el,
       (x, y) => {
         node.move(x, y);
       },
-      { x: node.model.x, y: node.model.y },
+      { x: node.x, y: node.y },
       { x: 0, y: 0 },
       this.zoomGetter
     );

@@ -21,7 +21,7 @@ class Node extends EmitterComponent {
 
   init() {
     this.view.init();
-    this.behaviors.forEach((b) => b.attach(this));
+    this.behaviors.forEach((b) => b._attach(this));
   }
 
   move(x, y) {

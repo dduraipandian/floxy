@@ -1,28 +1,25 @@
-import { EmitterComponent } from "@uiframe/core";
+import { BaseNodeBehavior } from "./base.js";
 import * as constants from "../constants.js";
 
-class SelectableBehavior extends EmitterComponent {
+class SelectableBehavior extends BaseNodeBehavior {
   constructor() {
     super({ name: "node-selectable" });
     this.selected = false;
   }
 
+  static get behavior() {
+    return constants.NODE_BEHAVIORS.SELECTABLE;
+  }
+
   attach(node) {
-    this.node = node;
-
-    const supported = node.view.behaviorSupported(constants.NODE_BEHAVIORS.SELECTABLE);
-    console.debug("FLOW: Attach selectable behavior", supported);
-
-    if (!supported) {
-      return;
-    }
+    const view = node.view;
 
     this._onPointerDown = (e) => {
       e.stopPropagation();
       this.select();
     };
 
-    node.view.el.addEventListener("mousedown", this._onPointerDown);
+    view.el.addEventListener("mousedown", this._onPointerDown);
   }
 
   select() {
@@ -34,7 +31,9 @@ class SelectableBehavior extends EmitterComponent {
   }
 
   detach() {
-    this.node?.view.el.removeEventListener("mousedown", this._onPointerDown);
+    if (this._onPointerDown && this.node?.view?.el) {
+      this.node.view.el.removeEventListener("mousedown", this._onPointerDown);
+    }
   }
 }
 

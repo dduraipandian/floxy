@@ -7,7 +7,7 @@ const DEFAULT_SUPPORTED_BEHAVIORS = [
 ];
 
 class FlowNodeView extends BaseNodeView {
-  supportedBehaviors = DEFAULT_SUPPORTED_BEHAVIORS;
+  static supportedBehaviors = DEFAULT_SUPPORTED_BEHAVIORS;
 
   constructor(model, options = {}) {
     super(model, options);
@@ -114,10 +114,6 @@ class FlowNodeView extends BaseNodeView {
   destroy() {
     this.el?.remove();
     this.el = null;
-  }
-
-  setSelected(selected) {
-    this.el.classList.toggle("selected", selected);
   }
 
   bindRemoveNode() {
