@@ -2,8 +2,10 @@ import { BaseNodeBehavior } from "./base.js";
 import * as constants from "../constants.js";
 
 class SelectableBehavior extends BaseNodeBehavior {
-  constructor() {
-    super({ name: "node-selectable" });
+  static active = null;
+
+  constructor({ options = {} }) {
+    super({ name: "node-selectable", options });
     this.selected = false;
   }
 
@@ -24,10 +26,22 @@ class SelectableBehavior extends BaseNodeBehavior {
 
   select() {
     if (this.selected) return;
-    this.selected = true;
+    this.clearActive();
 
+    this.selected = true;
     this.node.view.setSelected(true);
     this.node.emit(constants.NODE_SELECTED_EVENT, { id: this.node.model.id });
+    this.constructor.active = this;
+  }
+
+  clearActive() {
+    this.constructor.active?.deselect();
+  }
+
+  deselect() {
+    this.node.view.setSelected(false);
+    this.selectedNode = null;
+    this.selected = false;
   }
 
   detach() {

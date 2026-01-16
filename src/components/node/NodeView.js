@@ -33,7 +33,10 @@ class BaseNodeView extends EmitterComponent {
   }
 
   behaviorSupported(name) {
-    return this.supportedBehaviors.includes(name) && this.model.supportedBehaviors.includes(name);
+    return (
+      this.constructor.supportedBehaviors.includes(name) &&
+      this.model.supportedBehaviors.includes(name)
+    );
   }
 
   propagateEvent(event, instance) {

@@ -2,11 +2,12 @@ import { EmitterComponent } from "@uiframe/core";
 import { Node } from "./Node.js";
 import { NodeModel } from "./NodeModel.js";
 import { DraggableBehavior } from "./behaviors/DraggableBehavior.js";
+import { SelectableBehavior } from "./behaviors/SelectableBehavior.js";
 import { FlowNodeView } from "./views/FlowNodeView.js";
 import * as constants from "./constants.js";
 
 const DEFAULT_VIEW = FlowNodeView;
-const DEFAULT_BEHAVIORS = [DraggableBehavior];
+const DEFAULT_BEHAVIORS = [DraggableBehavior, SelectableBehavior];
 
 class NodeManager extends EmitterComponent {
   constructor({
@@ -46,7 +47,9 @@ class NodeManager extends EmitterComponent {
     const node = new Node({
       model,
       view,
-      behaviors: [...this.Behaviors.map((b) => new b({ zoomGetter: this.zoomGetter }))],
+      behaviors: [
+        ...this.Behaviors.map((b) => new b({ options: { zoomGetter: this.zoomGetter } })),
+      ],
     });
 
     // bubble view events upward

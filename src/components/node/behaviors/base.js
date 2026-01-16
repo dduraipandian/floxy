@@ -1,8 +1,10 @@
 import { EmitterComponent } from "@uiframe/core";
 
 class BaseNodeBehavior extends EmitterComponent {
-  constructor() {
+  // eslint-disable-next-line no-unused-vars
+  constructor({ name, options = {} }) {
     super({ name: "node-base-behavior" });
+    this.options = options;
   }
 
   static get behavior() {
