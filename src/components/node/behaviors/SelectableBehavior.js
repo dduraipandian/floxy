@@ -26,7 +26,7 @@ class SelectableBehavior extends BaseNodeBehavior {
 
   select() {
     if (this.selected) return;
-    this.clearActive();
+    this.constructor.active?.deselect();
 
     this.selected = true;
     this.node.view.setSelected(true);
