@@ -5,12 +5,12 @@ class SelectableBehavior extends BaseNodeBehavior {
   static active = null;
 
   constructor({ options = {} }) {
-    super({ name: "node-selectable", options });
+    super({ options });
     this.selected = false;
   }
 
   static get behavior() {
-    return constants.NODE_BEHAVIORS.SELECTABLE;
+    return constants.DEFAULT_NODE_BEHAVIORS.SELECTABLE;
   }
 
   attach(node) {
@@ -29,8 +29,7 @@ class SelectableBehavior extends BaseNodeBehavior {
     this.constructor.active?.deselect();
 
     this.selected = true;
-    this.node.view.setSelected(true);
-    this.node.emit(constants.NODE_SELECTED_EVENT, { id: this.node.model.id });
+    this.node.select();
     this.constructor.active = this;
   }
 
@@ -39,8 +38,8 @@ class SelectableBehavior extends BaseNodeBehavior {
   }
 
   deselect() {
-    this.node.view.setSelected(false);
-    this.selectedNode = null;
+    this.node.deselect();
+    this.constructor.active = null;
     this.selected = false;
   }
 

@@ -23,7 +23,6 @@ class BaseNodeView extends EmitterComponent {
   }
 
   init() {
-    this.render();
     this.bindEvents();
   }
 
@@ -33,10 +32,7 @@ class BaseNodeView extends EmitterComponent {
   }
 
   behaviorSupported(name) {
-    return (
-      this.constructor.supportedBehaviors.includes(name) &&
-      this.model.supportedBehaviors.includes(name)
-    );
+    return this.constructor.supportedBehaviors.includes(name);
   }
 
   propagateEvent(event, instance) {
@@ -51,12 +47,19 @@ class BaseNodeView extends EmitterComponent {
     this.el.classList.toggle("selected", selected);
   }
 
-  getNodeElement() {
-    throw new Error("Method 'getNodeElement()' must be implemented in the subclass");
+  move() {
+    // https://stackoverflow.com/questions/7108941/css-transform-vs-position
+    // Changing transform will trigger a redraw in compositor layer only for the animated element
+    // (subsequent elements in DOM will not be redrawn). I want DOM to be redraw to make connection attached to the port.
+    // so using position top/left to keep the position intact, not for the animation.
+    // I spent hours to find this out with trial and error.
+
+    this.el.style.top = `${this.model.y}px`;
+    this.el.style.left = `${this.model.x}px`;
   }
 
-  render() {
-    throw new Error("Method 'render()' must be implemented in the subclass");
+  getNodeElement() {
+    throw new Error("Method 'getNodeElement()' must be implemented in the subclass");
   }
 
   bindEvents() {

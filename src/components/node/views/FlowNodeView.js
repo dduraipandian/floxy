@@ -2,8 +2,8 @@ import { BaseNodeView } from "../NodeView.js";
 import * as constants from "../constants.js";
 
 const DEFAULT_SUPPORTED_BEHAVIORS = [
-  constants.NODE_BEHAVIORS.SELECTABLE,
-  constants.NODE_BEHAVIORS.DRAGGABLE,
+  constants.DEFAULT_NODE_BEHAVIORS.SELECTABLE,
+  constants.DEFAULT_NODE_BEHAVIORS.DRAGGABLE,
 ];
 
 class FlowNodeView extends BaseNodeView {
@@ -98,22 +98,6 @@ class FlowNodeView extends BaseNodeView {
 
     // input ports
     this.bindInputPorts();
-  }
-
-  render() {
-    // https://stackoverflow.com/questions/7108941/css-transform-vs-position
-    // Changing transform will trigger a redraw in compositor layer only for the animated element
-    // (subsequent elements in DOM will not be redrawn). I want DOM to be redraw to make connection attached to the port.
-    // so using position top/left to keep the position intact, not for the animation.
-    // I spent hours to find this out with trial and error.
-
-    this.el.style.top = `${this.model.y}px`;
-    this.el.style.left = `${this.model.x}px`;
-  }
-
-  destroy() {
-    this.el?.remove();
-    this.el = null;
   }
 
   bindRemoveNode() {

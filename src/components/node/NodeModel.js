@@ -2,8 +2,8 @@ import { EmitterComponent } from "@uiframe/core";
 import * as constants from "./constants.js";
 
 const DEFAULT_SUPPORTED_BEHAVIORS = [
-  constants.NODE_BEHAVIORS.SELECTABLE,
-  constants.NODE_BEHAVIORS.DRAGGABLE,
+  constants.DEFAULT_NODE_BEHAVIORS.SELECTABLE,
+  constants.DEFAULT_NODE_BEHAVIORS.DRAGGABLE,
 ];
 
 class NodeModel extends EmitterComponent {

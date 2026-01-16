@@ -3,17 +3,17 @@ import { BaseNodeBehavior } from "./base.js";
 import * as constants from "../constants.js";
 
 class DraggableBehavior extends BaseNodeBehavior {
-  // eslint-disable-next-line no-unused-vars
   constructor({ options = {} }) {
-    super({ name: "node-draggable" });
+    super({ options });
     this.zoomGetter = this.options.zoomGetter;
   }
 
   static get behavior() {
-    return constants.NODE_BEHAVIORS.DRAGGABLE;
+    return constants.DEFAULT_NODE_BEHAVIORS.DRAGGABLE;
   }
 
   attach(node) {
+    typeof node.view.move === "function";
     const view = node.view;
 
     this.dragHandler = new DragHandler(

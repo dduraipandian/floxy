@@ -2,9 +2,10 @@ import { EmitterComponent } from "@uiframe/core";
 import * as constants from "./constants.js";
 
 class Node extends EmitterComponent {
-  constructor({ model, view, behaviors = [] }) {
+  constructor({ model, view, behaviors = new Set() }) {
     super({ name: `node-${model.id}` });
 
+    this.id = model.id;
     this.model = model;
     this.view = view;
     this.behaviors = behaviors;
@@ -12,6 +13,18 @@ class Node extends EmitterComponent {
 
   html() {
     return "";
+  }
+
+  setBehaviors(behaviors) {
+    this.behaviors = behaviors;
+  }
+
+  addBehavior(behavior) {
+    this.behaviors.add(behavior);
+  }
+
+  removeBehavior(behavior) {
+    this.behaviors.delete(behavior);
   }
 
   renderInto(container) {
@@ -26,7 +39,7 @@ class Node extends EmitterComponent {
 
   move(x, y) {
     this.model.move(x, y);
-    this.view.render();
+    this.view.move();
     this.emit(constants.NODE_MOVED_EVENT, { id: this.model.id, x, y });
   }
 
@@ -41,6 +54,16 @@ class Node extends EmitterComponent {
 
   get y() {
     return this.model.y;
+  }
+
+  select() {
+    this.view.setSelected(true);
+    this.emit(constants.NODE_SELECTED_EVENT, { id: this.model.id });
+  }
+
+  deselect() {
+    this.view.setSelected(false);
+    this.emit(constants.NODE_DESELECTED_EVENT, { id: this.model.id });
   }
 }
 

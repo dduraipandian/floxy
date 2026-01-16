@@ -1,29 +1,32 @@
 import { EmitterComponent } from "@uiframe/core";
 import { Node } from "./Node.js";
 import { NodeModel } from "./NodeModel.js";
-import { DraggableBehavior } from "./behaviors/DraggableBehavior.js";
-import { SelectableBehavior } from "./behaviors/SelectableBehavior.js";
 import { FlowNodeView } from "./views/FlowNodeView.js";
+import { BehaviorRegistry } from "./behaviors/BehaviorRegistry.js";
+import { DefaultBehaviorResolver } from "./DefaultBehaviorResolver.js";
 import * as constants from "./constants.js";
-
-const DEFAULT_VIEW = FlowNodeView;
-const DEFAULT_BEHAVIORS = [DraggableBehavior, SelectableBehavior];
 
 class NodeManager extends EmitterComponent {
   constructor({
     name,
     canvasContainer,
     zoomGetter,
-    View = DEFAULT_VIEW,
-    Behaviors = DEFAULT_BEHAVIORS,
+    View = FlowNodeView,
+    BehaviorRegistryCls = BehaviorRegistry,
+    BehaviorResolverCls = DefaultBehaviorResolver,
   }) {
     super({ name: name + "node-manager" });
     this.canvasContainer = canvasContainer;
     this.zoomGetter = zoomGetter;
     this.View = View;
-    this.Behaviors = Behaviors;
     this.nodes = new Map();
     this.idCounter = 1;
+
+    this.BehaviorRegistryCls = BehaviorRegistryCls;
+    this.BehaviorResolverCls = BehaviorResolverCls;
+
+    this.behaviorResolver = new this.BehaviorResolverCls({ registry: this.BehaviorRegistryCls });
+    this.behaviors = [];
   }
 
   dropNode(data) {
@@ -38,19 +41,24 @@ class NodeManager extends EmitterComponent {
 
   addNode(config) {
     console.debug("FLOW: Add node", config);
+    const node = this.#createNode(config);
 
+    node.renderInto(this.canvasContainer);
+    node.init();
+
+    this.nodes.set(node.id, node);
+    return node.id;
+  }
+
+  #createNode(config) {
     const id = this.idCounter++;
-
     const model = new NodeModel({ id, ...config });
     const view = new this.View(model, this.options);
+    const node = new Node({ model, view });
 
-    const node = new Node({
-      model,
-      view,
-      behaviors: [
-        ...this.Behaviors.map((b) => new b({ options: { zoomGetter: this.zoomGetter } })),
-      ],
-    });
+    const behaviors = this.behaviorResolver.resolve(node, { zoomGetter: this.zoomGetter });
+    console.debug("FLOW: Node behaviors", node, behaviors);
+    node.setBehaviors(behaviors);
 
     // bubble view events upward
     this.propagateEvent(constants.PORT_CONNECT_START_EVENT, view);
@@ -59,11 +67,7 @@ class NodeManager extends EmitterComponent {
 
     this.propagateEvent(constants.NODE_MOVED_EVENT, node);
 
-    node.renderInto(this.canvasContainer);
-    node.init();
-    this.nodes.set(id, node);
-
-    return id;
+    return node;
   }
 
   removeNode(id) {

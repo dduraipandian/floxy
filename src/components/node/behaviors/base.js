@@ -1,10 +1,9 @@
-import { EmitterComponent } from "@uiframe/core";
+import { BehaviorRegistry } from "./BehaviorRegistry.js";
 
-class BaseNodeBehavior extends EmitterComponent {
-  // eslint-disable-next-line no-unused-vars
-  constructor({ name, options = {} }) {
-    super({ name: "node-base-behavior" });
+class BaseNodeBehavior {
+  constructor({ options = {} }) {
     this.options = options;
+    BehaviorRegistry.register(this.constructor);
   }
 
   static get behavior() {
