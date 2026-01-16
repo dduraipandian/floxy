@@ -97,7 +97,6 @@ class Flow extends EmitterComponent {
     });
 
     this.nodeManager.on(Constant.NODE_MOVED_EVENT, ({ id, x, y }) => {
-      console.debug("Node is moved: ", id, x, y);
       this.emit(Constant.NODE_MOVED_EVENT, { id, x, y });
       this.connectionManager.updateConnections(id);
     });
@@ -109,10 +108,12 @@ class Flow extends EmitterComponent {
     });
 
     this.nodeManager.on("port:connect:start", ({ nodeId, portIndex, event }) => {
+      console.debug("Port connect start: ", nodeId, portIndex, event);
       this.mouseDownStartConnection({ dataset: { index: portIndex } }, nodeId, event);
     });
 
     this.nodeManager.on("port:connect:end", ({ nodeId, portIndex, event }) => {
+      console.debug("Port connect end: ", nodeId, portIndex, event);
       this.mouseUpCompleteConnection({ dataset: { index: portIndex } }, nodeId, event);
     });
 
