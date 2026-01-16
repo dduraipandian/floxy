@@ -9,6 +9,7 @@ class Node extends EmitterComponent {
     this.model = model;
     this.view = view;
     this.behaviors = behaviors;
+    this.destroyed = false;
   }
 
   html() {
@@ -45,7 +46,12 @@ class Node extends EmitterComponent {
 
   destroy() {
     this.behaviors.forEach((b) => b.detach?.());
+    this.behaviors.clear();
     this.view.destroy();
+    this.view = null;
+    this.behaviors = null;
+    this.model = null;
+    this.destroyed = true;
   }
 
   get x() {

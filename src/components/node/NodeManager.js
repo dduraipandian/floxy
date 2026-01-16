@@ -63,19 +63,25 @@ class NodeManager extends EmitterComponent {
     // bubble view events upward
     this.propagateEvent(constants.PORT_CONNECT_START_EVENT, view);
     this.propagateEvent(constants.PORT_CONNECT_END_EVENT, view);
-    this.propagateEvent(constants.NODE_REMOVE_EVENT, view);
+
+    this.propagateEvent(constants.NODE_SELECTED_EVENT, view);
+    this.propagateEvent(constants.NODE_DESELECTED_EVENT, view);
 
     this.propagateEvent(constants.NODE_MOVED_EVENT, node);
+
+    view.on(constants.NODE_REMOVED_EVENT, (e) => this.removeNode(e.id));
 
     return node;
   }
 
   removeNode(id) {
-    const node = this.getNode(id);
+    let node = this.getNode(id);
     if (!node) return;
 
     node.destroy();
     this.nodes.delete(id);
+    this.emit(constants.NODE_REMOVED_EVENT, { id });
+    node = null;
   }
 
   propagateEvent(event, instance) {

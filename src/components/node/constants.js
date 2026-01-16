@@ -1,4 +1,4 @@
-export const NODE_REMOVE_EVENT = "node:remove";
+export const NODE_REMOVED_EVENT = "node:removed";
 export const NODE_POINTER_DOWN_EVENT = "node:pointer:down";
 export const NODE_MOVED_EVENT = "node:moved";
 export const NODE_SELECTED_EVENT = "node:selected";

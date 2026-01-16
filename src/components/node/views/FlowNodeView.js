@@ -104,7 +104,7 @@ class FlowNodeView extends BaseNodeView {
     // close button
     this.el.querySelector(".node-close")?.addEventListener("click", (e) => {
       e.stopPropagation();
-      this.emit(constants.NODE_REMOVE_EVENT, { id: this.model.id });
+      this.emit(constants.NODE_REMOVED_EVENT, { id: this.model.id });
     });
   }
 

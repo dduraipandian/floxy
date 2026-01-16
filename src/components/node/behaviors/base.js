@@ -1,4 +1,5 @@
 import { BehaviorRegistry } from "./BehaviorRegistry.js";
+import * as constants from "../constants.js";
 
 class BaseNodeBehavior {
   constructor({ options = {} }) {
@@ -23,6 +24,7 @@ class BaseNodeBehavior {
       return;
     }
     this.attach(node);
+    node.on(constants.NODE_REMOVED_EVENT, this.destroy);
   }
 
   // eslint-disable-next-line no-unused-vars
@@ -33,6 +35,8 @@ class BaseNodeBehavior {
   detach() {
     throw new Error("Method 'detach()' must be implemented in the subclass");
   }
+
+  destroy() {}
 }
 
 export { BaseNodeBehavior };

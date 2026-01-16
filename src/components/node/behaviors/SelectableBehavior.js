@@ -33,12 +33,10 @@ class SelectableBehavior extends BaseNodeBehavior {
     this.constructor.active = this;
   }
 
-  clearActive() {
-    this.constructor.active?.deselect();
-  }
-
   deselect() {
-    this.node.deselect();
+    if (!this.node.destroyed) {
+      this.node.deselect();
+    }
     this.constructor.active = null;
     this.selected = false;
   }
