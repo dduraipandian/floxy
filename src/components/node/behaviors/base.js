@@ -1,5 +1,5 @@
 import { BehaviorRegistry } from "./BehaviorRegistry.js";
-import * as constants from "../constants.js";
+import * as constants from "../../constants.js";
 
 class BaseNodeBehavior {
   constructor({ options = {} }) {
@@ -36,7 +36,7 @@ class BaseNodeBehavior {
     throw new Error("Method 'detach()' must be implemented in the subclass");
   }
 
-  destroy() {}
+  destroy() { }
 }
 
 export { BaseNodeBehavior };

@@ -1,5 +1,5 @@
 import { EmitterComponent } from "@uiframe/core";
-import * as constants from "./constants.js";
+import * as constants from "../constants.js";
 
 class Node extends EmitterComponent {
   constructor({ model, view, behaviors = new Set() }) {

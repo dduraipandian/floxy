@@ -4,7 +4,7 @@ import { NodeModel } from "./NodeModel.js";
 import { FlowNodeView } from "./views/FlowNodeView.js";
 import { BehaviorRegistry } from "./behaviors/BehaviorRegistry.js";
 import { DefaultBehaviorResolver } from "./DefaultBehaviorResolver.js";
-import * as constants from "./constants.js";
+import * as constants from "../constants.js";
 
 class NodeManager extends EmitterComponent {
   constructor({
@@ -53,10 +53,10 @@ class NodeManager extends EmitterComponent {
   #createNode(config) {
     const id = this.idCounter++;
     const model = new NodeModel({ id, ...config });
-    const view = new this.View(model, this.options);
+    const view = new this.View(model, { ...this.options, zoomGetter: this.zoomGetter });
     const node = new Node({ model, view });
 
-    const behaviors = this.behaviorResolver.resolve(node, { zoomGetter: this.zoomGetter });
+    const behaviors = this.behaviorResolver.resolve(node);
     console.debug("FLOW: Node behaviors", node, behaviors);
     node.setBehaviors(behaviors);
 

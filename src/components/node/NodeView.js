@@ -12,6 +12,8 @@ class BaseNodeView extends EmitterComponent {
     this.model = model;
     this.options = options;
     this.el = null;
+
+    this.zoomGetter = options.zoomGetter || (() => this.options.zoom ?? 1);
   }
 
   renderInto(container) {
@@ -56,6 +58,27 @@ class BaseNodeView extends EmitterComponent {
 
     this.el.style.top = `${this.model.y}px`;
     this.el.style.left = `${this.model.x}px`;
+  }
+
+  getPortPosition({ type, index }) {
+    if (!this.el) return null;
+
+    const portEl = this.el.querySelector(`.flow-port[data-type="${type}"][data-index="${index}"]`);
+
+    if (!portEl) return null;
+
+    const nodeRect = this.el.getBoundingClientRect();
+    const portRect = portEl.getBoundingClientRect();
+
+    const zoom = typeof this.zoomGetter === "function" ? this.zoomGetter() : 1;
+
+    const x = (portRect.left - nodeRect.left + portRect.width / 2) / zoom;
+    const y = (portRect.top - nodeRect.top + portRect.height / 2) / zoom;
+
+    return {
+      x: this.model.x + x,
+      y: this.model.y + y,
+    };
   }
 
   getNodeElement() {

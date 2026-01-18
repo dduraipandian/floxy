@@ -1,11 +1,10 @@
 import { DragHandler } from "../../utils.js";
 import { BaseNodeBehavior } from "./base.js";
-import * as constants from "../constants.js";
+import * as constants from "../../constants.js";
 
 class DraggableBehavior extends BaseNodeBehavior {
   constructor({ options = {} }) {
     super({ options });
-    this.zoomGetter = this.options.zoomGetter;
   }
 
   static get behavior() {
@@ -23,7 +22,7 @@ class DraggableBehavior extends BaseNodeBehavior {
       },
       { x: node.x, y: node.y },
       { x: 0, y: 0 },
-      this.zoomGetter
+      node.view.zoomGetter
     );
 
     this.dragHandler.registerDragEvent();

@@ -1,5 +1,5 @@
 import { BaseNodeBehavior } from "./base.js";
-import * as constants from "../constants.js";
+import * as constants from "../../constants.js";
 
 class SelectableBehavior extends BaseNodeBehavior {
   static active = null;

@@ -1,5 +1,5 @@
 import { EmitterComponent } from "@uiframe/core";
-import * as constants from "./constants.js";
+import * as constants from "../constants.js";
 
 const DEFAULT_SUPPORTED_BEHAVIORS = [
   constants.DEFAULT_NODE_BEHAVIORS.SELECTABLE,
