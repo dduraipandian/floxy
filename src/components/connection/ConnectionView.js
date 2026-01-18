@@ -43,6 +43,7 @@ class ConnectionView extends EmitterComponent {
         this.parentContainer.appendChild(this.path);
         this.container = this.path;
 
+        this.initShadowPath();
         this.bindEvents();
 
         if (this.startMarker) {
@@ -54,6 +55,18 @@ class ConnectionView extends EmitterComponent {
             this.adjustEnd = true;
             this.path.setAttribute("marker-end", "url(#arrow-end)");
         }
+    }
+
+    initShadowPath() {
+        this.shadowPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+        this.shadowPath.classList.add("flow-connection-path");
+        this.shadowPath.style.stroke = "transparent";
+        this.shadowPath.style.strokeWidth = 18;
+        this.shadowPath.style.fill = "none";
+        this.shadowPath.style.pointerEvents = "stroke";
+
+        this.parentContainer.appendChild(this.shadowPath);
     }
 
     applyStyle() {
@@ -150,6 +163,7 @@ class ConnectionView extends EmitterComponent {
         }
 
         this.path.setAttribute("d", d);
+        this.shadowPath.setAttribute("d", d);
         this.applyStyle();
     }
 
@@ -171,15 +185,29 @@ class ConnectionView extends EmitterComponent {
 
     destroy() {
         this.path?.remove();
+        this.shadowPath?.remove();
         this.path = null;
+        this.shadowPath = null;
     }
 
     bindEvents() {
         this.bindSelect();
+        this.bindShadowSelect();
     }
 
     bindSelect() {
         this.path.addEventListener("mousedown", (e) => {
+            e.stopPropagation();
+            this.emit(constants.CONNECTION_CLICKED_EVENT, this.model.id);
+        });
+    }
+    bindShadowSelect() {
+        const addStyleClass = this.addStyleClass.bind(this);
+        const removeStyleClass = this.removeStyleClass.bind(this);
+        this.shadowPath.addEventListener('mouseover', e => addStyleClass("path-hover"));
+        this.shadowPath.addEventListener('mouseout', e => removeStyleClass("path-hover"));
+
+        this.shadowPath.addEventListener("mousedown", (e) => {
             e.stopPropagation();
             this.emit(constants.CONNECTION_CLICKED_EVENT, this.model.id);
         });

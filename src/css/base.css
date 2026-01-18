@@ -126,7 +126,7 @@
       pointer-events: stroke;
       transition: stroke 0.2s;
 
-      &:hover {
+      &:hover, &.path-hover {
         stroke: var(--bs-primary);
         stroke-width: 3px;
         cursor: pointer;
@@ -134,12 +134,26 @@
 
       &.selected {
         stroke: var(--bs-primary);
+        stroke-width: 3px;
+        cursor: pointer;
       }
       &.flow-connection-path-bad {
         stroke: var(--bs-danger);
-      }
+        stroke-width: 3px;
+        cursor: pointer;
+      }      
     }
   }
 }
 
+.flow-connection-path.animated {
+  stroke-dasharray: 6, 4;
+  animation: flow 1s linear infinite;
+}
+
+@keyframes flow {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
 /* END: FLOW COMPONENT */
