@@ -1,6 +1,8 @@
 import { EmitterComponent } from "@uiframe/core";
 import { DragHandler } from "./utils.js";
 
+import * as constants from "./constants.js";
+
 /**
  * Manages the state and logical operations of a Flow.
  * Adheres to SRP by only handling data and logical transformations.
@@ -89,7 +91,7 @@ class FlowCanvas extends EmitterComponent {
     const newZoom = Math.max(0.1, Math.min(this.zoom + delta, 3));
     this.zoom = newZoom;
     this.redrawCanvas();
-    this.emit("canvas:zoom", {
+    this.emit(constants.CANVAS_ZOOM_EVENT, {
       data: {
         zoom: this.zoom,
         x: this.canvasX,
@@ -121,7 +123,7 @@ class FlowCanvas extends EmitterComponent {
       //     y,
       //     html: data.html,
       // });
-      this.emit("node:dropped", { data: { x, y, ...data } });
+      this.emit(constants.NODE_DROPPED_EVENT, { data: { x, y, ...data } });
       console.debug("FLOW - DROP: ", data, x, y);
     } catch (err) {
       console.error("Invalid drop data", err);
