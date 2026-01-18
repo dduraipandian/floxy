@@ -121,7 +121,7 @@
       // Initialize Flow
       const flow = new floxy.Flow({
         name: "MyFlow",
-        options: { zoom: 0.8 },
+        options: { zoom: 0.8, pathType: "orthogonal" },
         notification: uiframe.notification({ name: "floxy" }),
         validators: validators,
       });

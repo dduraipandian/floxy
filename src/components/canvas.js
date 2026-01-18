@@ -3,6 +3,35 @@ import { DragHandler } from "./utils.js";
 
 import * as constants from "./constants.js";
 
+
+function ensureArrowMarkers(svg) {
+  if (svg.querySelector("#arrow-end")) return;
+
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+
+  const makeMarker = (id, pathD) => {
+    const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+    marker.setAttribute("id", id);
+    marker.setAttribute("markerWidth", "10");
+    marker.setAttribute("markerHeight", "9");
+    marker.setAttribute("refX", "10");
+    marker.setAttribute("refY", "3.5");
+    marker.setAttribute("orient", "auto");
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", pathD);
+    path.setAttribute("fill", "currentColor");
+
+    marker.appendChild(path);
+    return marker;
+  };
+
+  defs.appendChild(makeMarker("arrow-end", "M 0 0 L 10 3.5 L 0 7 Z"));
+  defs.appendChild(makeMarker("arrow-start", "M 10 0 L 0 3.5 L 10 7 Z"));
+
+  svg.appendChild(defs);
+}
+
 /**
  * Manages the state and logical operations of a Flow.
  * Adheres to SRP by only handling data and logical transformations.
@@ -61,6 +90,8 @@ class FlowCanvas extends EmitterComponent {
     // this.zoomInEl.addEventListener("click", this.onZoomAction.bind(this));
     // this.zoomOutEl.addEventListener("click", this.onZoomAction.bind(this));
     // this.zoomResetEl.addEventListener("click", this.onZoomAction.bind(this));
+
+    ensureArrowMarkers(this.svgEl);
   }
 
   redrawCanvas() {

@@ -8,6 +8,7 @@ class ConnectionModel extends EmitterComponent {
         inNodeId,
         inPort,
         data = {},
+        pathType = "bezier",
     }) {
         super({ name: `connection-${id}` });
 
@@ -16,9 +17,15 @@ class ConnectionModel extends EmitterComponent {
         this.outPort = outPort;
         this.inNodeId = inNodeId;
         this.inPort = inPort;
+        this.pathType = pathType;
         this.data = data;
 
-        this.selected = false;
+        this.style = {
+            width: 2,
+            dash: null, // e.g. "5,5"
+            animated: true,
+            ...data.style,
+        };
     }
 
     get source() {
@@ -33,6 +40,10 @@ class ConnectionModel extends EmitterComponent {
             nodeId: this.inNodeId,
             portIndex: this.inPort,
         }
+    }
+
+    get arrows() {
+        return this.style?.arrows ?? {};
     }
 }
 

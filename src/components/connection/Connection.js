@@ -90,7 +90,6 @@ class Connection extends EmitterComponent {
     }
 
     destroy() {
-        this.view.path?.remove();
         this.view.destroy();
         this.view = null;
         this.model = null;
@@ -100,6 +99,11 @@ class Connection extends EmitterComponent {
 
     clearBadPath() {
         this.view.removeStyleClass("flow-connection-path-bad")
+    }
+
+    setPathStyle(pathType) {
+        this.model.pathType = pathType;
+        this.view.updatePath();
     }
 }
 

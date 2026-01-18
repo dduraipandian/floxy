@@ -18,6 +18,13 @@ export const CONNECTION_REMOVED_EVENT = "connection:removed";
 export const CONNECTION_UPDATED_EVENT = "connection:updated";
 export const CONNECTION_CLICKED_EVENT = "connection:clicked";
 
+export const CONNECTION_PATH_TYPES = {
+  BEZIER: "bezier",
+  STRAIGHT: "straight",
+  ORTHOGONAL: "orthogonal",
+  STEP: "step",
+};
+
 export const DEFAULT_NODE_BEHAVIORS = {
   SELECTABLE: "selectable",
   DRAGGABLE: "draggable",
