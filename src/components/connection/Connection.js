@@ -86,7 +86,8 @@ class Connection extends EmitterComponent {
     }
 
     markBadPath() {
-        this.view.addStyleClass("flow-connection-path-bad");
+        this.model.style.markBad(true);
+        this.view.applyStyle();
     }
 
     destroy() {
@@ -98,7 +99,8 @@ class Connection extends EmitterComponent {
     }
 
     clearBadPath() {
-        this.view.removeStyleClass("flow-connection-path-bad")
+        this.model.style.markBad(false);
+        this.view.applyStyle();
     }
 
     setPathStyle(pathType) {

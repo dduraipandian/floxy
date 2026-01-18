@@ -132,7 +132,7 @@
         cursor: pointer;
       }
 
-      &.selected {
+      &.selected, &.flow-connection-temp {
         stroke: var(--bs-primary);
         stroke-width: 3px;
         cursor: pointer;

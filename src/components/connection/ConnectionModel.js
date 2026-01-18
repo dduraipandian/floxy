@@ -1,4 +1,5 @@
 import { EmitterComponent } from "@uiframe/core";
+import { ConnectionStyle } from "./ConnectionStyle.js";
 
 class ConnectionModel extends EmitterComponent {
     constructor({
@@ -26,6 +27,7 @@ class ConnectionModel extends EmitterComponent {
             animated: true,
             ...data.style,
         };
+        this.style = new ConnectionStyle(this.style);
     }
 
     get source() {
@@ -43,7 +45,7 @@ class ConnectionModel extends EmitterComponent {
     }
 
     get arrows() {
-        return this.style?.arrows ?? {};
+        return this.style.arrows;
     }
 }
 

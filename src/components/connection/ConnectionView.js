@@ -30,9 +30,6 @@ class ConnectionView extends EmitterComponent {
     }
 
     init() {
-        this.endMarker = this.model.arrows?.end ?? this.endMarker;
-        this.startMarker = this.model.arrows?.start ?? this.startMarker;
-
         this.path = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "path"
@@ -45,6 +42,18 @@ class ConnectionView extends EmitterComponent {
 
         this.initShadowPath();
         this.bindEvents();
+
+        this.applyArrows();
+    }
+
+    applyArrows() {
+        const arrows = this.model.arrows || {};
+
+        this.endMarker = arrows.end ?? this.endMarker;
+        this.startMarker = arrows.start ?? this.startMarker;
+
+        this.path.removeAttribute("marker-start");
+        this.path.removeAttribute("marker-end");
 
         if (this.startMarker) {
             this.adjustStart = true;
@@ -70,18 +79,7 @@ class ConnectionView extends EmitterComponent {
     }
 
     applyStyle() {
-        const s = this.model.style;
-
-        if (s.stroke) this.path.style.stroke = s.stroke;
-        if (s.width) this.path.style.strokeWidth = s.width;
-
-        if (s.dash) {
-            this.path.style.strokeDasharray = s.dash;
-        } else {
-            this.path.style.strokeDasharray = "";
-        }
-
-        this.path.classList.toggle("animated", !!s.animated);
+        this.model.style.applyTo(this.path);
     }
 
     #getAdjustedPoints(p1, p2) {
@@ -124,8 +122,12 @@ class ConnectionView extends EmitterComponent {
     }
 
     updateTempPath(p1, p2) {
-        this.addStyleClass("flow-connection-temp");
-        this.addStyleClass("selected");
+        // this.addStyleClass("flow-connection-temp");
+        // this.addStyleClass("selected");
+
+        this.model.style.markTemp(true);
+        this.model.style.markTemp(true);
+
         this.path.style.pointerEvents = "none";
         this.#update(p1, p2);
     }
@@ -164,7 +166,9 @@ class ConnectionView extends EmitterComponent {
 
         this.path.setAttribute("d", d);
         this.shadowPath.setAttribute("d", d);
+
         this.applyStyle();
+        this.applyArrows();
     }
 
     addStyleClass(className) {
@@ -202,10 +206,14 @@ class ConnectionView extends EmitterComponent {
         });
     }
     bindShadowSelect() {
-        const addStyleClass = this.addStyleClass.bind(this);
-        const removeStyleClass = this.removeStyleClass.bind(this);
-        this.shadowPath.addEventListener('mouseover', e => addStyleClass("path-hover"));
-        this.shadowPath.addEventListener('mouseout', e => removeStyleClass("path-hover"));
+        this.shadowPath.addEventListener('mouseover', () => {
+            this.model.style.markHover(true);
+            this.applyStyle();
+        });
+        this.shadowPath.addEventListener('mouseout', () => {
+            this.model.style.markHover(false);
+            this.applyStyle();
+        });
 
         this.shadowPath.addEventListener("mousedown", (e) => {
             e.stopPropagation();
@@ -242,7 +250,7 @@ class ConnectionView extends EmitterComponent {
     }
 
     _orthogonal_v2(p1, p2, dir1 = "right", dir2 = "left") {
-        const GAP = 30;
+        const GAP = 60;
 
         let points = [{ ...p1 }];
 
