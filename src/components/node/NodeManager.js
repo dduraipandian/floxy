@@ -1,8 +1,9 @@
 import { EmitterComponent } from "@uiframe/core";
 import { Node } from "./Node.js";
 import { NodeModel } from "./NodeModel.js";
-import { FlowNodeView } from "./views/FlowNodeView.js";
 import { BehaviorRegistry } from "./behaviors/BehaviorRegistry.js";
+import { nodeViewRegistry } from "./NodeViewRegistry.js";
+import { DefaultView } from "./views/packages/workflow/DefaultView.js";
 import { DefaultBehaviorResolver } from "./DefaultBehaviorResolver.js";
 import * as constants from "../constants.js";
 
@@ -11,7 +12,8 @@ class NodeManager extends EmitterComponent {
     name,
     canvasContainer,
     zoomGetter,
-    View = FlowNodeView,
+    View = DefaultView,
+    viewRegistry = nodeViewRegistry,
     BehaviorRegistryCls = BehaviorRegistry,
     BehaviorResolverCls = DefaultBehaviorResolver,
   }) {
@@ -19,6 +21,7 @@ class NodeManager extends EmitterComponent {
     this.canvasContainer = canvasContainer;
     this.zoomGetter = zoomGetter;
     this.View = View;
+    this.viewRegistry = viewRegistry;
     this.nodes = new Map();
     this.idCounter = 1;
 
@@ -53,7 +56,8 @@ class NodeManager extends EmitterComponent {
   #createNode(config) {
     const id = this.idCounter++;
     const model = new NodeModel({ id, ...config });
-    const view = new this.View(model, { ...this.options, zoomGetter: this.zoomGetter });
+    const ViewClass = this.viewRegistry.get(model.type, model.name) ?? this.View;
+    const view = new ViewClass(model, { ...this.options, zoomGetter: this.zoomGetter });
     const node = new Node({ model, view });
 
     const behaviors = this.behaviorResolver.resolve(node);

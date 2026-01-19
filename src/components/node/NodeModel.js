@@ -10,6 +10,7 @@ class NodeModel extends EmitterComponent {
   constructor({
     id,
     name,
+    type = "default",
     inputs = 1,
     outputs = 1,
     x = 0,
@@ -24,6 +25,7 @@ class NodeModel extends EmitterComponent {
 
     this.id = id;
     this.name = name;
+    this.type = type;
     this.inputs = inputs;
     this.outputs = outputs;
     this.x = x;

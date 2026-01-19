@@ -1,12 +1,12 @@
-import { BaseNodeView } from "../NodeView.js";
-import * as constants from "../../constants.js";
+import { BaseNodeView } from "../../../NodeView.js";
+import * as constants from "../../../../constants.js";
 
 const DEFAULT_SUPPORTED_BEHAVIORS = [
   constants.DEFAULT_NODE_BEHAVIORS.SELECTABLE,
   constants.DEFAULT_NODE_BEHAVIORS.DRAGGABLE,
 ];
 
-class FlowNodeView extends BaseNodeView {
+class DefaultView extends BaseNodeView {
   static supportedBehaviors = DEFAULT_SUPPORTED_BEHAVIORS;
 
   constructor(model, options = {}) {
@@ -15,7 +15,7 @@ class FlowNodeView extends BaseNodeView {
   }
 
   static get name() {
-    return "flow-node-view";
+    return "default-node-view";
   }
 
   getNodeElement() {
@@ -29,4 +29,4 @@ class FlowNodeView extends BaseNodeView {
   }
 }
 
-export { FlowNodeView };
+export { DefaultView };
