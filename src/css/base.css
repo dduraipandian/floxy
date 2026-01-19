@@ -63,6 +63,7 @@
         font-size: 0.75rem;
         display: none;
         border: var(--bs-border-width) var(--bs-border-style) #212529 !important;
+        z-index: 10;
       }
 
       /* Ports - functional layout */

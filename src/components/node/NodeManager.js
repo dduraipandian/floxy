@@ -56,7 +56,8 @@ class NodeManager extends EmitterComponent {
   #createNode(config) {
     const id = this.idCounter++;
     const model = new NodeModel({ id, ...config });
-    const ViewClass = this.viewRegistry.get(model.type, model.name) ?? this.View;
+    console.log(this.viewRegistry, model);
+    const ViewClass = this.viewRegistry.get(model.nodeType, model.nodeName) ?? this.View;
     const view = new ViewClass(model, { ...this.options, zoomGetter: this.zoomGetter });
     const node = new Node({ model, view });
 
