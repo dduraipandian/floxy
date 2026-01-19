@@ -27,8 +27,8 @@ pathRegistry.register("orthogonal", ({
     let lx = Math.abs(p1.x - p2.x);
     if (bottom) {
         if (right) {
-            lines.push(`v ${hy}`); // relative vertical line
-            lines.push(`h ${lx - GAP}`); // relative horizontal line
+            lines.push(`v ${hy}`);          // relative vertical line
+            lines.push(`h ${lx - GAP}`);    // relative horizontal line
         } else {
             let hy1 = (hy - targetBounds?.height ?? 0) * .8;
             let hy2 = hy - hy1;
@@ -55,31 +55,5 @@ pathRegistry.register("orthogonal", ({
             lines.push(`L ${p2.x} ${p2.y}`); // relative vertical line       
         }
     }
-    // if (targetBounds) {
-
-    //     if (pxg + bufferCrossing >= p2.x) {
-    //         lines.push(`v ${hy}`); // relative vertical line
-    //         lines.push(`h ${hx - GAP}`); // relative horizontal line
-    //     }
-    //     if (pxg + bufferCrossing >= p2.x) { // source node is right of target node
-    //         let hy1 = (hy - targetBounds.height) * .8;
-    //         let hx1 = hx + (GAP * 2);
-
-    //         let hy2 = hy - hy1;
-    //         if (p1.y > p2.y) { // target node is above source node            
-    //             hy2 = -1 * hy2;
-    //         }
-
-    //         hx1 = -1 * hx1;
-    //         lines.push(`v ${hy1}`); // relative vertical line
-    //         lines.push(`h ${hx1}`); // relative horizontal line
-    //         lines.push(`v ${hy2}`); // relative vertical line
-    //         lines.push(`L ${p2.x} ${p2.y}`); // relative vertical line                    
-    //     } else {
-    //         lines.push(`v ${hy}`); // relative vertical line
-    //         lines.push(`h ${hx - GAP}`); // relative horizontal line
-    //     }
-    //     return lines.join(" ");
-    // }
     return lines.join(" ");
 });

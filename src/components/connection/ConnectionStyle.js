@@ -12,7 +12,7 @@ class ConnectionStyle {
         this.width = style.width ?? 2;
         this.dash = style.dash ?? null;
         this.animated = !!style.animated;
-        this.path = style.path ?? "adv_orthogonal";
+        this.path = style.path ?? "orthogonal";
 
         if (!pathRegistry.has(this.path)) {
             console.warn(`Path ${this.path} not found. Defaulting to bezier.`);
