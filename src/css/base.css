@@ -60,7 +60,7 @@
       .node-close {
         right: 0;
         position: absolute;
-        font-size: 0.5rem;
+        font-size: 0.75rem;
         display: none;
         border: var(--bs-border-width) var(--bs-border-style) #212529 !important;
       }
@@ -74,14 +74,20 @@
         width: 0;
         position: relative;
         z-index: 2;
-        overflow: visible;
+        overflow: visible;        
 
-        &.flow-ports-out {
+        &.flow-ports-output {
           left: -2px;
+          margin-left: auto;
+
+          .flow-port {
+            background: var(--bs-tertiary-color);
+          }
         }
 
-        &.flow-ports-in {
+        &.flow-ports-input {
           left: 2px;
+          margin-right: auto;
         }
 
         .flow-port {
@@ -97,7 +103,7 @@
         }
 
         .flow-port:hover {
-          transform: scale(1.5);
+          transform: scale(2);
           --bs-focus-ring-width: 1px;
           box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0)
             var(--bs-focus-ring-blur, 0) var(--bs-focus-ring-width) var(--bs-focus-ring-color);

@@ -34,7 +34,6 @@ class Node extends EmitterComponent {
   }
 
   init() {
-    this.view.init();
     this.behaviors.forEach((b) => b._attach(this));
   }
 

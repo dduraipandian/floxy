@@ -1,31 +1,84 @@
 import { EmitterComponent } from "@uiframe/core";
 import { NodeModel } from "./NodeModel.js";
+import * as constants from "../constants.js";
+
+const DEFAULT_SUPPORTED_BEHAVIORS = [
+  constants.DEFAULT_NODE_BEHAVIORS.SELECTABLE,
+  constants.DEFAULT_NODE_BEHAVIORS.DRAGGABLE,
+];
 
 class BaseNodeView extends EmitterComponent {
-  static supportedBehaviors = [];
+  static supportedBehaviors = DEFAULT_SUPPORTED_BEHAVIORS;
 
   constructor(model, options = {}) {
     if (!(model instanceof NodeModel)) {
       throw new Error("Model must be an instance of NodeModel");
     }
-    super({ name: `node-view-${model.id}` });
+    super({ name: `node-${model.id}` });
     this.model = model;
     this.options = options;
     this.el = null;
 
+    this.contentId = `content-${model.id}`;
     this.zoomGetter = options.zoomGetter || (() => this.options.zoom ?? 1);
+    this._content = null;
   }
 
-  renderInto(container) {
-    this.el = this.getNodeElement();
-    this.el.classList.add("floxy-node");
-    this.el.dataset.nodeId = this.model.id;
+  static get name() {
+    return "flow-node-view";
+  }
 
-    container.appendChild(this.el);
+  html() {
+    const id = this.model.id;
+    const name = this.model.name;
+    const x = this.model.x;
+    const y = this.model.y;
+    const data = this.model.data | {};
+
+    const nodeWidth = this.model.w;
+    this._content = this.getNodeElement();
+
+    if (typeof this._content == "string") {
+      return this._content;
+    }
+    return ""    
   }
 
   init() {
+    this.el = this.container;
+    this.updateContainerAttributes();
+    if (this._content) {
+      if (typeof this._content === "string") {
+        this.el.innerHTML = this._content;
+      } else {
+        this.el.appendChild(this._content);
+      }
+    }
+    this.createAllPorts()
+    this._bindEvents();
     this.bindEvents();
+  }
+
+  updateContainerAttributes() {
+    this.container.dataset.id = "node-" + this.model.id;
+    this.container.dataset.name = this.model.name;
+    this.container.dataset.data = JSON.stringify(this.model.data);
+    this.container.style.top = `${this.model.y}px`;
+    this.container.style.left = `${this.model.x}px`;
+    this.container.style.width = `${this.model.w}px`;
+    this.container.style.height = "fit-content";
+    this.container.style.position = "absolute";
+    this.container.classList.add("flow-node");
+  }
+
+  createAllPorts() {
+    const inputPorts = this.createPorts({ type: "input", count: this.model.inputs });
+    const outputPorts = this.createPorts({ type: "output", count: this.model.outputs });
+    const close = this.createClose();
+
+    this.el.prepend(inputPorts)
+    this.el.appendChild(outputPorts);
+    this.el.appendChild(close);
   }
 
   destroy() {
@@ -93,14 +146,87 @@ class BaseNodeView extends EmitterComponent {
     };
   }
 
+  createPorts({ type, count }) {
+    const portContainer = document.createElement("div");
+    portContainer.className = `flow-ports-column flow-ports-${type}`;
 
-  getNodeElement() {
-    throw new Error("Method 'getNodeElement()' must be implemented in the subclass");
+    for (let i = 0; i < count; i++) {
+      const port = document.createElement("div");
+      port.className = "flow-port";
+      port.dataset.type = type;
+      port.dataset.index = i;
+      port.dataset.nodeId = this.model.id;
+      portContainer.appendChild(port);
+    }
+
+    return portContainer;
   }
 
-  bindEvents() {
-    throw new Error("Method 'bindEvents()' must be implemented in the subclass");
+  createClose() {
+    const close = document.createElement("button");
+    close.className = "btn-danger btn-close node-close border rounded shadow-none m-1";
+    close.dataset.nodeId = this.model.id;
+    close.setAttribute("aria-label", "Close");
+    return close;
   }
+
+  _bindEvents() {
+    console.debug("FLOW: Bind events", this.name);
+    // node click
+    this.bindMouseDown();
+
+    // close button
+    this.bindRemoveNode();
+
+    // output ports
+    this.bindOutputPorts();
+
+    // input ports
+    this.bindInputPorts();
+  }
+
+  bindRemoveNode() {
+    // close button
+    this.el.querySelector(".node-close")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.emit(constants.NODE_REMOVED_EVENT, { id: this.model.id });
+    });
+  }
+
+  bindMouseDown() {
+    this.el.addEventListener("mousedown", (e) => {
+      this.emit(constants.NODE_POINTER_DOWN_EVENT, { event: e });
+    });
+  }
+
+  bindInputPorts() {
+    this.el.querySelectorAll(".flow-ports-input .flow-port").forEach((port) => {
+      port.addEventListener("mouseup", (e) => {
+        console.debug("FLOW: Port connect end", e);
+        this.emit(constants.PORT_CONNECT_END_EVENT, {
+          nodeId: this.model.id,
+          portIndex: port.dataset.index,
+          event: e,
+        });
+      });
+    });
+  }
+
+  bindOutputPorts() {
+    this.el.querySelectorAll(".flow-ports-output .flow-port").forEach((port) => {
+      port.addEventListener("mousedown", (e) => {
+        console.debug("FLOW: Port connect start", e);
+        this.emit(constants.PORT_CONNECT_START_EVENT, {
+          nodeId: this.model.id,
+          portIndex: port.dataset.index,
+          event: e,
+        });
+      });
+    });
+  }
+
+  getNodeElement() { }
+  bindEvents() { }
 }
 
 export { BaseNodeView };
