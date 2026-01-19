@@ -4,6 +4,11 @@ import { DraggableBehavior } from "./src/components/node/behaviors/DraggableBeha
 import { SelectableBehavior } from "./src/components/node/behaviors/SelectableBehavior.js";
 import { BehaviorRegistry } from "./src/components/node/behaviors/BehaviorRegistry.js";
 
+// to register all paths
+import { pathRegistry } from "./src/components/connection/paths/index.js";
+
+console.log(pathRegistry);
+
 BehaviorRegistry.register(DraggableBehavior);
 BehaviorRegistry.register(SelectableBehavior);
 

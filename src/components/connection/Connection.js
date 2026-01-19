@@ -65,7 +65,11 @@ class Connection extends EmitterComponent {
         const targetNode = this.nodeManager.getNode(
             this.model.target.nodeId
         );
-        this.view.update(sourceNode, targetNode);
+        const meta = {
+            sourceBounds: sourceNode.view.getBounds(),
+            targetBounds: targetNode.view.getBounds(),
+        }
+        this.view.update(sourceNode, targetNode, meta);
     }
 
     updateWithXY(x, y) {
@@ -82,7 +86,11 @@ class Connection extends EmitterComponent {
 
         const p2 = { x, y };
 
-        this.view.updateTempPath(p1, p2);
+        const meta = {
+            sourceBounds: sourceNode.view.getBounds()
+        }
+
+        this.view.updateTempPath(p1, p2, meta);
     }
 
     markBadPath() {

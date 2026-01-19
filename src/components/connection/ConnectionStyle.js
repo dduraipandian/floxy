@@ -1,3 +1,5 @@
+import { pathRegistry } from "./paths/index.js";
+
 var domStyle = window.getComputedStyle(document.body)
 
 class ConnectionStyle {
@@ -10,6 +12,12 @@ class ConnectionStyle {
         this.width = style.width ?? 2;
         this.dash = style.dash ?? null;
         this.animated = !!style.animated;
+        this.path = style.path ?? "adv_orthogonal";
+
+        if (!pathRegistry.has(this.path)) {
+            console.warn(`Path ${this.path} not found. Defaulting to bezier.`);
+            this.path = "bezier";
+        }
 
         this.arrows = {
             start: style.arrows?.start ?? false,

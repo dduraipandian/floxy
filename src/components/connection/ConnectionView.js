@@ -1,4 +1,5 @@
 import { EmitterComponent } from "@uiframe/core";
+import { pathRegistry } from "./paths/PathRegistry.js";
 
 import * as constants from "../constants.js";
 
@@ -103,7 +104,7 @@ class ConnectionView extends EmitterComponent {
         return { p1: adjustedP1, p2: adjustedP2 };
     }
 
-    update(source, target) {
+    update(source, target, meta = {}) {
         if (!source || !target) return;
 
         const p1 = source.view.getPortPosition({
@@ -118,53 +119,40 @@ class ConnectionView extends EmitterComponent {
 
         if (!p1 || !p2) return;
 
-        this.#update(p1, p2);
+        this.#update(p1, p2, meta);
     }
 
-    updateTempPath(p1, p2) {
-        // this.addStyleClass("flow-connection-temp");
-        // this.addStyleClass("selected");
-
-        this.model.style.markTemp(true);
+    updateTempPath(p1, p2, meta = {}) {
         this.model.style.markTemp(true);
 
         this.path.style.pointerEvents = "none";
-        this.#update(p1, p2);
+        this.#update(p1, p2, meta);
     }
 
-    #update(p1, p2) {
+    #update(p1, p2, meta = {}) {
         const adjustedPoints = this.#getAdjustedPoints(p1, p2);
-        this.updatePath(adjustedPoints.p1, adjustedPoints.p2);
+        this.updatePath(adjustedPoints.p1, adjustedPoints.p2, meta);
     }
 
     updatePath(p1, p2, meta = {}) {
-        const type = this.model.pathType || "bezier";
+        const type = this.model.style.path ?? "bezier";
         this.#p1 = p1 ?? this.#p1;
         this.#p2 = p2 ?? this.#p2;
 
-        const dir1 = meta.sourceDir || "right";
-        const dir2 = meta.targetDir || "left";
+        const fn = pathRegistry.get(type);
 
-        let d;
-        switch (type) {
-            case "straight":
-                d = this._straight(p1, p2);
-                break;
-
-            case "orthogonal":
-                d = this._orthogonal_v2(p1, p2, dir1, dir2);
-                break;
-
-            case "step":
-                d = this._step_v2(p1, p2, dir1);
-                break;
-
-            case "bezier":
-            default:
-                d = this._bezier(p1, p2);
-        }
+        const d = fn({
+            p1: this.#p1,
+            p2: this.#p2,
+            ...meta,
+            zoom: this.options.zoom,
+        });
 
         this.path.setAttribute("d", d);
+        this.path.setAttribute("p1x", p1.x);
+        this.path.setAttribute("p1y", p1.y);
+        this.path.setAttribute("p2x", p2.x);
+        this.path.setAttribute("p2y", p2.y);
         this.shadowPath.setAttribute("d", d);
 
         this.applyStyle();
@@ -177,14 +165,6 @@ class ConnectionView extends EmitterComponent {
 
     removeStyleClass(className) {
         this.path.classList.remove(className);
-    }
-
-    _bezier(p1, p2) {
-        const curvature = 0.5;
-        const hx1 = p1.x + Math.abs(p2.x - p1.x) * curvature;
-        const hx2 = p2.x - Math.abs(p2.x - p1.x) * curvature;
-
-        return `M ${p1.x} ${p1.y} C ${hx1} ${p1.y} ${hx2} ${p2.y} ${p2.x} ${p2.y}`;
     }
 
     destroy() {
@@ -221,61 +201,6 @@ class ConnectionView extends EmitterComponent {
         });
     }
 
-    _straight(p1, p2) {
-        return `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
-    }
-
-    _orthogonal(p1, p2) {
-        const midX = (p1.x + p2.x) / 2;
-
-        return `
-            M ${p1.x} ${p1.y}
-            L ${midX} ${p1.y}
-            L ${midX} ${p2.y}
-            L ${p2.x} ${p2.y}
-        `;
-    }
-
-    _step(p1, p2) {
-        const offset = Math.max(40, Math.abs(p2.x - p1.x) / 2);
-        const x1 = p1.x + offset;
-        const x2 = p2.x - offset;
-
-        return `
-            M ${p1.x} ${p1.y}
-            L ${x1} ${p1.y}
-            L ${x1} ${p2.y}
-            L ${p2.x} ${p2.y}
-        `;
-    }
-
-    _orthogonal_v2(p1, p2, dir1 = "right", dir2 = "left") {
-        const GAP = 60;
-
-        let points = [{ ...p1 }];
-
-        // Horizontal → Vertical
-        if (dir1 === "right" || dir1 === "left") {
-            const dx = dir1 === "right" ? GAP : -GAP;
-            const midX = p1.x + dx;
-
-            points.push({ x: midX, y: p1.y });
-            points.push({ x: midX, y: p2.y });
-        }
-        // Vertical → Horizontal
-        else {
-            const dy = dir1 === "down" ? GAP : -GAP;
-            const midY = p1.y + dy;
-
-            points.push({ x: p1.x, y: midY });
-            points.push({ x: p2.x, y: midY });
-        }
-
-        points.push({ ...p2 });
-
-        return this._polyline(points);
-    }
-
     _polyline(points) {
         return points
             .map((p, i) =>
@@ -283,32 +208,6 @@ class ConnectionView extends EmitterComponent {
             )
             .join(" ");
     }
-
-    _step_v2(p1, p2, dir1 = "right") {
-        const OFFSET = 40;
-
-        let points = [{ ...p1 }];
-
-        if (dir1 === "right") {
-            points.push({ x: p1.x + OFFSET, y: p1.y });
-            points.push({ x: p1.x + OFFSET, y: p2.y });
-        } else if (dir1 === "left") {
-            points.push({ x: p1.x - OFFSET, y: p1.y });
-            points.push({ x: p1.x - OFFSET, y: p2.y });
-        } else if (dir1 === "down") {
-            points.push({ x: p1.x, y: p1.y + OFFSET });
-            points.push({ x: p2.x, y: p1.y + OFFSET });
-        } else {
-            points.push({ x: p1.x, y: p1.y - OFFSET });
-            points.push({ x: p2.x, y: p1.y - OFFSET });
-        }
-
-        points.push({ ...p2 });
-
-        return this._polyline(points);
-    }
-
-
 }
 
 
