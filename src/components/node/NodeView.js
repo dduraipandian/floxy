@@ -81,6 +81,19 @@ class BaseNodeView extends EmitterComponent {
     };
   }
 
+  getBounds() {
+    const el = this.el;
+    return {
+      left: el.offsetLeft,
+      top: el.offsetTop,
+      right: el.offsetLeft + el.offsetWidth,
+      bottom: el.offsetTop + el.offsetHeight,
+      width: el.offsetWidth,
+      height: el.offsetHeight
+    };
+  }
+
+
   getNodeElement() {
     throw new Error("Method 'getNodeElement()' must be implemented in the subclass");
   }
