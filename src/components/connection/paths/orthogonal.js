@@ -32,7 +32,7 @@ pathRegistry.register("orthogonal", ({
             lines.push(`v ${hy}`);          // relative vertical line
             lines.push(`h ${lx - GAP}`);    // relative horizontal line
         } else {
-            let hy1 = (hy - tragetHeight) * .8;
+            let hy1 = (hy - tragetHeight) * .9;
             let hy2 = hy - hy1;
             let lx1 = Math.abs((pxg + bufferCrossing) - p2.x);
 
@@ -47,7 +47,7 @@ pathRegistry.register("orthogonal", ({
             lines.push(`v ${-1 * hy}`); // relative vertical line
             lines.push(`h ${lx - GAP}`); // relative horizontal line
         } else {
-            let hy1 = (hy - tragetHeight) * .8;
+            let hy1 = (hy - tragetHeight) * .9;
             let hy2 = hy - hy1;
             let lx1 = Math.abs((pxg + bufferCrossing) - p2.x);
 
