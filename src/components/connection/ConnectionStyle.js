@@ -6,7 +6,7 @@ class ConnectionStyle {
         this.primaryColor = domStyle.getPropertyValue('--bs-primary')
         this.dangerColor = domStyle.getPropertyValue('--bs-danger')
 
-        this.stroke = style.stroke ?? this.secondaryColor;
+        this.stroke = style.stroke ?? undefined;
         this.width = style.width ?? 2;
         this.dash = style.dash ?? null;
         this.animated = !!style.animated;
@@ -40,19 +40,16 @@ class ConnectionStyle {
     }
 
     applyTo(path) {
-        path.style.stroke = this.stroke;
+        if (this.stroke) path.style.stroke = this.stroke;
         path.style.strokeWidth = this.width;
         path.style.strokeDasharray = this.dash ?? "";
 
         path.classList.toggle("animated", this.animated);
-
-        path.classList.toggle("flow-connection-path-bad", this.bad);
-        path.classList.toggle("path-hover", this.hover);
-        path.classList.toggle("selected", this.selected);
         path.classList.toggle("flow-connection-temp", this.temp);
+        path.classList.toggle("flow-connection-path-bad", this.bad);
+        path.classList.toggle("selected", this.selected);
 
-        if (this.temp) path.style.stroke = this.primaryColor;
-        if (this.bad) path.style.stroke = this.dangerColor;
+        path.classList.toggle("path-hover", this.hover);
     }
 }
 
