@@ -21,8 +21,7 @@ export const CONNECTION_CLICKED_EVENT = "connection:clicked";
 export const CONNECTION_PATH_TYPES = {
   BEZIER: "bezier",
   STRAIGHT: "straight",
-  ORTHOGONAL: "orthogonal",
-  STEP: "step",
+  ORTHOGONAL: "orthogonal"
 };
 
 export const DEFAULT_NODE_BEHAVIORS = {

@@ -4,7 +4,7 @@ import { DragHandler } from "./utils.js";
 import * as constants from "./constants.js";
 
 
-function ensureArrowMarkers(svg) {
+function ensureArrowMarkers(svg, size = 5) {
   if (svg.querySelector("#arrow-end")) return;
 
   const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
@@ -12,10 +12,10 @@ function ensureArrowMarkers(svg) {
   const makeMarker = (id, pathD) => {
     const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
     marker.setAttribute("id", id);
-    marker.setAttribute("markerWidth", "10");
-    marker.setAttribute("markerHeight", "9");
-    marker.setAttribute("refX", "10");
-    marker.setAttribute("refY", "3.5");
+    marker.setAttribute("markerWidth", size);
+    marker.setAttribute("markerHeight", size);
+    marker.setAttribute("refX", size);
+    marker.setAttribute("refY", size / 2);
     marker.setAttribute("orient", "auto");
 
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -26,8 +26,8 @@ function ensureArrowMarkers(svg) {
     return marker;
   };
 
-  defs.appendChild(makeMarker("arrow-end", "M 0 0 L 10 3.5 L 0 7 Z"));
-  defs.appendChild(makeMarker("arrow-start", "M 10 0 L 0 3.5 L 10 7 Z"));
+  defs.appendChild(makeMarker("arrow-end", `M 0 0 L ${size} ${size / 2} L 0 ${size} Z`));
+  defs.appendChild(makeMarker("arrow-start", `M ${size} 0 L 0 ${size / 2} L ${size} ${size} Z`));
 
   svg.appendChild(defs);
 }
@@ -50,6 +50,7 @@ class FlowCanvas extends EmitterComponent {
     this.canvasId = this.id + "-canvas";
     this.containerId = this.id + "-flow-container";
     this.zoomActionsId = this.id + "-zoom-actions";
+    this.arrowMarkerSize = options.arrow_marker_size || 7;
     // this.nodeManager = new FlowNodeManager({ name: this.name + "-flow-node-manager", canvasId: this.canvasId, options });
   }
 
@@ -91,7 +92,7 @@ class FlowCanvas extends EmitterComponent {
     // this.zoomOutEl.addEventListener("click", this.onZoomAction.bind(this));
     // this.zoomResetEl.addEventListener("click", this.onZoomAction.bind(this));
 
-    ensureArrowMarkers(this.svgEl);
+    ensureArrowMarkers(this.svgEl, this.arrowMarkerSize);
   }
 
   redrawCanvas() {

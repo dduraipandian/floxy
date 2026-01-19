@@ -21,7 +21,7 @@ class ConnectionView extends EmitterComponent {
         this.#p2 = null;
         this.adjustEnd = false;
         this.adjustStart = false;
-        this.adjustOffset = 12;
+        this.adjustOffset = 6;
         this.endMarker = true;
         this.startMarker = true;
     }

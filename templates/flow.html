@@ -118,12 +118,15 @@
     <script type="module">
       const validators = [new floxy.DagValidator()];
 
+      const connectionOptions = {
+        pathType: "orthogonal",
+      }
       // Initialize Flow
       const flow = new floxy.Flow({
         name: "MyFlow",
-        options: { zoom: 0.8, pathType: "orthogonal" },
+        options: { zoom: 0.8, connection: connectionOptions },
         notification: uiframe.notification({ name: "floxy" }),
-        validators: validators,
+        validators: validators
       });
       flow.renderInto("flow-wrapper");
 
@@ -146,7 +149,7 @@
         name: "Process",
         inputs: 1,
         outputs: 1,
-        x: 400,
+        x: 500,
         y: 100,
         w: 200,
         h: 100,

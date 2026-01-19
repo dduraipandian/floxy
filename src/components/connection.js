@@ -39,11 +39,11 @@ class FlowConnectionManager extends EmitterComponent {
   }
 
   #createConnection({ id, outNodeId, outPort, inNodeId, inPort, pathType = undefined, isTemp = false }) {
-    const _pathType = pathType ?? this.options.pathType ?? "step";
+    const _pathType = pathType ?? this.options?.connection?.pathType ?? "orthogonal";
 
-    const model = new ConnectionModel({ id, outNodeId, outPort, inNodeId, inPort, pathType: _pathType });
-    const view = new ConnectionView({ model, options: { isTemp: isTemp } });
-    const connection = new Connection({ model, view, nodeManager: this.nodeManager, options: this.options });
+    const model = new ConnectionModel({ id, outNodeId, outPort, inNodeId, inPort, options: { ...this.options?.connection, pathType: _pathType } });
+    const view = new ConnectionView({ model, options: { ...this.options?.connection, isTemp: isTemp } });
+    const connection = new Connection({ model, view, nodeManager: this.nodeManager, options: this.options?.connection });
     connection.renderInto(this.connectionContainer.id);
 
     view.on(constants.CONNECTION_CLICKED_EVENT, id => this.removeConnection(connection));
@@ -101,11 +101,6 @@ class FlowConnectionManager extends EmitterComponent {
       this.tempConnection.destroy();
       this.tempConnection = null;
     }
-  }
-
-  markPathBad(conn) {
-    this.markTempPathBad();
-    this.markPathBad(conn);
   }
 
   markTempPathBad() {

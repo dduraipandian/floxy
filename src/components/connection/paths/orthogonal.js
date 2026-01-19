@@ -8,23 +8,25 @@ pathRegistry.register("orthogonal", ({
     targetDir = "left",
     options = {}
 }) => {
-    const hzDirection = options.direction === "vertical" ? true : false;
+    const verticalDirection = options.direction === "vertical" ? true : false;
     const GAP = options.clearance ?? 60;
-    const bufferCrossing = 60;
+    const bufferCrossing = 40;
 
     const pxg = p1.x + GAP;
     const pyg = p1.y + GAP;
 
     // based on target node position to source node
     // target node is bottom right side.
-    const bottom = hzDirection ? (p2.y > (pyg + bufferCrossing)) : (p2.y > p1.y);
-    const right = hzDirection ? (p2.x > (pxg + bufferCrossing)) : (p2.x > p1.x);
+    const bottom = verticalDirection ? p2.y > (pyg + bufferCrossing) : p2.y + 1 > p1.y;
+    const right = verticalDirection ? p2.x + 1 > p1.x : p2.x > (pxg + bufferCrossing);
 
     const lines = [`M ${p1.x} ${p1.y}`]; // move to source position
     lines.push(`L ${pxg} ${p1.y}`); // create line to source top-right direction
 
     let hy = Math.abs(p2.y - p1.y); // target node is below/above source node
     let lx = Math.abs(p1.x - p2.x);
+
+    console.log("here", bottom, right, p1, p2);
     if (bottom) {
         if (right) {
             lines.push(`v ${hy}`);          // relative vertical line
