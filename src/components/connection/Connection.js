@@ -67,7 +67,7 @@ class Connection extends EmitterComponent {
         );
         const meta = {
             sourceBounds: sourceNode.view.getBounds(),
-            targetBounds: targetNode.view.getBounds(),
+            targetBounds: targetNode?.view.getBounds(),
         }
         this.view.update(sourceNode, targetNode, meta);
     }

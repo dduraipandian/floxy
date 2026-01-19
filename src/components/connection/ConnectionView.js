@@ -24,6 +24,7 @@ class ConnectionView extends EmitterComponent {
         this.adjustOffset = 6;
         this.endMarker = true;
         this.startMarker = true;
+        this.isTemp = options.isTemp ?? false;
     }
 
     html() {
@@ -74,7 +75,10 @@ class ConnectionView extends EmitterComponent {
         this.shadowPath.style.stroke = "transparent";
         this.shadowPath.style.strokeWidth = 18;
         this.shadowPath.style.fill = "none";
-        this.shadowPath.style.pointerEvents = "stroke";
+
+        // shadow path is not required for temp connection.
+        // shadow path stroke width is bigger, as accidental click while drawing connection will be detected and creates issue.
+        this.shadowPath.style.pointerEvents = this.isTemp ? "none" : "stroke";
 
         this.parentContainer.appendChild(this.shadowPath);
     }
@@ -148,12 +152,12 @@ class ConnectionView extends EmitterComponent {
             zoom: this.options.zoom,
         });
 
+        this.shadowPath.setAttribute("d", d);
         this.path.setAttribute("d", d);
         this.path.setAttribute("p1x", p1.x);
         this.path.setAttribute("p1y", p1.y);
         this.path.setAttribute("p2x", p2.x);
         this.path.setAttribute("p2y", p2.y);
-        this.shadowPath.setAttribute("d", d);
 
         this.applyStyle();
         this.applyArrows();
@@ -186,11 +190,13 @@ class ConnectionView extends EmitterComponent {
         });
     }
     bindShadowSelect() {
-        this.shadowPath.addEventListener('mouseover', () => {
+        this.shadowPath.addEventListener('mouseover', (e) => {
+            e.stopPropagation();
             this.model.style.markHover(true);
             this.applyStyle();
         });
-        this.shadowPath.addEventListener('mouseout', () => {
+        this.shadowPath.addEventListener('mouseout', (e) => {
+            e.stopPropagation();
             this.model.style.markHover(false);
             this.applyStyle();
         });

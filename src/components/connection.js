@@ -46,7 +46,9 @@ class FlowConnectionManager extends EmitterComponent {
     const connection = new Connection({ model, view, nodeManager: this.nodeManager, options: this.options?.connection });
     connection.renderInto(this.connectionContainer.id);
 
-    view.on(constants.CONNECTION_CLICKED_EVENT, id => this.removeConnection(connection));
+    view.on(constants.CONNECTION_CLICKED_EVENT, id => {
+      this.removeConnection(connection);
+    });
     return connection;
   }
 

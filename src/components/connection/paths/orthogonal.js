@@ -8,6 +8,7 @@ pathRegistry.register("orthogonal", ({
     targetDir = "left",
     options = {}
 }) => {
+    const tragetHeight = targetBounds?.height || 0;
     const verticalDirection = options.direction === "vertical" ? true : false;
     const GAP = options.clearance ?? 60;
     const bufferCrossing = 40;
@@ -26,13 +27,12 @@ pathRegistry.register("orthogonal", ({
     let hy = Math.abs(p2.y - p1.y); // target node is below/above source node
     let lx = Math.abs(p1.x - p2.x);
 
-    console.log("here", bottom, right, p1, p2);
     if (bottom) {
         if (right) {
             lines.push(`v ${hy}`);          // relative vertical line
             lines.push(`h ${lx - GAP}`);    // relative horizontal line
         } else {
-            let hy1 = (hy - targetBounds?.height ?? 0) * .8;
+            let hy1 = (hy - tragetHeight) * .8;
             let hy2 = hy - hy1;
             let lx1 = Math.abs((pxg + bufferCrossing) - p2.x);
 
@@ -47,7 +47,7 @@ pathRegistry.register("orthogonal", ({
             lines.push(`v ${-1 * hy}`); // relative vertical line
             lines.push(`h ${lx - GAP}`); // relative horizontal line
         } else {
-            let hy1 = (hy - targetBounds?.height ?? 0) * .8;
+            let hy1 = (hy - tragetHeight) * .8;
             let hy2 = hy - hy1;
             let lx1 = Math.abs((pxg + bufferCrossing) - p2.x);
 
