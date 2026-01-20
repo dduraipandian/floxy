@@ -3,6 +3,7 @@ import * as constants from "../../../../constants.js";
 
 const SUPPORTED_BEHAVIORS = [
     constants.DEFAULT_NODE_BEHAVIORS.DRAGGABLE,
+    constants.DEFAULT_NODE_BEHAVIORS.EDITABLE_LABEL,
 ];
 
 class EllipseNodeView extends BaseNodeView {
@@ -37,11 +38,9 @@ class EllipseNodeView extends BaseNodeView {
         svg.appendChild(ellipse);
 
         const content = document.createElement("div");
-        content.style.position = "absolute";
-        content.style.left = "50%";
-        content.style.top = "50%";
-        content.style.transform = "translate(-50%, -50%)";
-        content.textContent = this.model.name ?? "Start";
+        content.classList.add("node-label");
+        content.setAttribute("contenteditable", false);
+        content.textContent = this.model.label;
 
         el.appendChild(svg);
         el.appendChild(content);

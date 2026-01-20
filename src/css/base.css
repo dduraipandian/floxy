@@ -63,7 +63,21 @@
         font-size: 0.75rem;
         display: none;
         border: var(--bs-border-width) var(--bs-border-style) #212529 !important;
-        z-index: 10;
+        z-index: 10;        
+      }
+
+      .node-label {
+        z-index: 2;
+        padding: 6px;
+        display: grid;
+        place-items: center;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+
+        &:focus-visible {
+          outline: none;
+        }
       }
 
       /* Ports - functional layout */

@@ -79,7 +79,7 @@
           class="draggable-item"
           draggable="true"
           ondragstart="drag(event)"
-          data-node='{"name": "Action", "inputs": 1, "outputs": 1, "contentHtml": "Do Something", "nodeType": "workflow", "nodeName": "action"}'
+          data-node='{"name": "Action", "inputs": 1, "outputs": 1, "contentHtml": "Do Something", "nodeType": "workflow", "nodeName": "action", "behaviors": ["draggable", "editable-label"]}'
         >
           <i class="bi bi-gear me-2"></i> Action
         </div>
@@ -169,6 +169,7 @@
     <script>
       function drag(ev) {
         const data = ev.target.getAttribute("data-node");
+        console.log(data);
         ev.dataTransfer.setData("application/json", data);
       }
     </script>

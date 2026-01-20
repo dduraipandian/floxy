@@ -11,6 +11,7 @@ class NodeModel extends EmitterComponent {
     id,
     name,
     nodeName,
+    label,
     nodeType = "default",
     inputs = 1,
     outputs = 1,
@@ -20,7 +21,7 @@ class NodeModel extends EmitterComponent {
     w = 200,
     data = {},
     contentHtml = "",
-    supportedBehaviors = DEFAULT_SUPPORTED_BEHAVIORS,
+    behaviors = DEFAULT_SUPPORTED_BEHAVIORS,
   }) {
     super({ name: `node-model-${id}` });
 
@@ -36,7 +37,9 @@ class NodeModel extends EmitterComponent {
     this.w = w;
     this.data = data;
     this.contentHtml = contentHtml;
-    this.supportedBehaviors = supportedBehaviors;
+    this.supportedBehaviors = behaviors;
+
+    this.label = label ?? this.name;
   }
 
   move(x, y) {

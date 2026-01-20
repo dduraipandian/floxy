@@ -2,6 +2,7 @@ import "./src/css/base.css";
 
 import { DraggableBehavior } from "./src/components/node/behaviors/DraggableBehavior.js";
 import { SelectableBehavior } from "./src/components/node/behaviors/SelectableBehavior.js";
+import { EditableLabelBehavior } from "./src/components/node/behaviors/EditableLabelBehavior.js";
 import { BehaviorRegistry } from "./src/components/node/behaviors/BehaviorRegistry.js";
 
 // to register all paths
@@ -11,6 +12,7 @@ console.log(pathRegistry);
 
 BehaviorRegistry.register(DraggableBehavior);
 BehaviorRegistry.register(SelectableBehavior);
+BehaviorRegistry.register(EditableLabelBehavior);
 
 export { Flow } from "./src/flow.js";
 export { DagValidator } from "./src/components/plugins/dag-validator.js";
