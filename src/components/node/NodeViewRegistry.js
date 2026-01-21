@@ -3,12 +3,13 @@ class NodeViewRegistry {
         this.views = new Map();
     }
 
-    register(type, name, ViewClass) {
-        this.views.set(type + ":" + name, ViewClass);
+    register(ViewClass) {
+        const modelDefaults = ViewClass.modelDefaults;
+        this.views.set(modelDefaults.module + ":" + modelDefaults.group + ":" + modelDefaults.name, ViewClass);
     }
 
-    get(type, name) {
-        return this.views.get(type + ":" + name);
+    get(module, group, name) {
+        return this.views.get(module + ":" + group + ":" + name);
     }
 }
 

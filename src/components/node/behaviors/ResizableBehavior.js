@@ -42,6 +42,10 @@ class ResizableBehavior extends BaseNodeBehavior {
 
         handle.addEventListener("mousedown", onMouseDown);
     }
+
+    detach() {
+        handle.removeEventListener("mousedown", onMouseDown);
+    }
 }
 
 export { ResizableBehavior };

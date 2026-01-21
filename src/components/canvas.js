@@ -139,24 +139,27 @@ class FlowCanvas extends EmitterComponent {
     e.stopPropagation();
 
     try {
-      const raw = e.dataTransfer.getData("application/json");
-      if (!raw) return;
+      const module = e.dataTransfer.getData("module");
+      const group = e.dataTransfer.getData("group");
+      const name = e.dataTransfer.getData("name");
+      const label = e.dataTransfer.getData("label");
+      const data = e.dataTransfer.getData("data");
 
-      const data = JSON.parse(raw);
+      if (!module || !group || !name) return;
+
+      let nodeData;
+      try {
+        nodeData = data ? JSON.parse(data) : {};
+      } catch (err) {
+        console.error("Invalid drop data", err);
+        nodeData = {}
+      }
       const rect = this.containerEl.getBoundingClientRect();
       const x = e.clientX - rect.left - this.canvasX;
       const y = e.clientY - rect.top - this.canvasY;
 
-      // this.addNode({
-      //     name: data.name,
-      //     inputs: data.inputs,
-      //     outputs: data.outputs,
-      //     x,
-      //     y,
-      //     html: data.html,
-      // });
-      this.emit(constants.NODE_DROPPED_EVENT, { data: { x, y, ...data } });
-      console.debug("FLOW - DROP: ", data, x, y);
+      this.emit(constants.NODE_DROPPED_EVENT, { module, group, name, label, x, y, data: nodeData });
+      console.debug("FLOW - DROP: ", module, group, name, label, x, y, nodeData);
     } catch (err) {
       console.error("Invalid drop data", err);
     }

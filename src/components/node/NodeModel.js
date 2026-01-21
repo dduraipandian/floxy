@@ -1,4 +1,3 @@
-import { EmitterComponent } from "@uiframe/core";
 import * as constants from "../constants.js";
 
 const DEFAULT_SUPPORTED_BEHAVIORS = [
@@ -6,13 +5,13 @@ const DEFAULT_SUPPORTED_BEHAVIORS = [
   constants.DEFAULT_NODE_BEHAVIORS.DRAGGABLE,
 ];
 
-class NodeModel extends EmitterComponent {
+class NodeModel {
   constructor({
     id,
     name,
-    nodeName,
     label,
-    nodeType = "default",
+    module = "default",
+    group = "default",
     inputs = 1,
     outputs = 1,
     x = 0,
@@ -20,15 +19,12 @@ class NodeModel extends EmitterComponent {
     h = 100,
     w = 200,
     data = {},
-    contentHtml = "",
-    behaviors = DEFAULT_SUPPORTED_BEHAVIORS,
+    behaviors = DEFAULT_SUPPORTED_BEHAVIORS
   }) {
-    super({ name: `node-model-${id}` });
-
     this.id = id;
+    this.module = module;
+    this.group = group;
     this.name = name;
-    this.nodeName = nodeName ?? this.name.toLowerCase();
-    this.nodeType = nodeType;
     this.inputs = inputs;
     this.outputs = outputs;
     this.x = x;
@@ -36,9 +32,7 @@ class NodeModel extends EmitterComponent {
     this.h = h;
     this.w = w;
     this.data = data;
-    this.contentHtml = contentHtml;
-    this.supportedBehaviors = behaviors;
-
+    this.behaviors = behaviors;
     this.label = label ?? this.name;
   }
 

@@ -32,20 +32,40 @@ class NodeManager extends EmitterComponent {
     this.behaviors = [];
   }
 
-  dropNode(data) {
-    console.debug("FLOW: Drop node", data);
-    const nodeHeight = data.h ?? 100;
-    const nodeWidth = data.w ?? 200;
-    const zoom = this.zoomGetter();
-    const posX = (data.x - nodeWidth / 2) / zoom;
-    const posY = (data.y - nodeHeight / 2) / zoom;
-    this.addNode({ ...data, x: posX, y: posY, w: nodeWidth, h: nodeHeight });
+  dropNode(config) {
+    console.debug("FLOW: Drop node", config);
+    this.addNode({ ...config, isDropped: true });
   }
 
-  addNode(config) {
+  addNode(config, isDropped = false) {
     console.debug("FLOW: Add node", config);
-    const node = this.#createNode(config);
 
+    let ViewClass = this.viewRegistry.get(config.module, config.group, config.name);
+    if (!ViewClass) {
+      console.warn("No nodeview fond for {", config.module, config.group, config.name, "}. Using default view.")
+      ViewClass = this.View
+    }
+    const viewDefaults = ViewClass.modelDefaults;
+
+    if (isDropped) {
+      // dropping node mid point near to pointer
+      const zoom = this.zoomGetter();
+      const nodeHeight = config.h ?? viewDefaults.h ?? 100;
+      const nodeWidth = config.w ?? viewDefaults.w ?? 200;
+      const posX = (config.x - nodeWidth / 2) / zoom;
+      const posY = (config.y - nodeHeight / 2) / zoom;
+      config.x = posX;
+      config.y = posY;
+    }
+
+    Object.keys(viewDefaults).forEach((key) => {
+      const value = config[key];
+      if (value === undefined || value === "undefined") {
+        config[key] = viewDefaults[key];
+      }
+    });
+
+    const node = this.#createNode(config, ViewClass);
     node.renderInto(this.canvasContainer);
     node.init();
 
@@ -53,11 +73,11 @@ class NodeManager extends EmitterComponent {
     return node.id;
   }
 
-  #createNode(config) {
+  #createNode(config, ViewClass) {
     const id = this.idCounter++;
+
     const model = new NodeModel({ id, ...config });
     console.log(this.viewRegistry, model);
-    const ViewClass = this.viewRegistry.get(model.nodeType, model.nodeName) ?? this.View;
     const view = new ViewClass(model, { ...this.options, zoomGetter: this.zoomGetter });
     const node = new Node({ model, view });
 

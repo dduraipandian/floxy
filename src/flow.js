@@ -91,10 +91,10 @@ class Flow extends EmitterComponent {
       this.nodeManager.zoom = data.zoom;
     });
 
-    this.canvas.on(constants.NODE_DROPPED_EVENT, ({ data }) => {
-      console.debug("Node is dropped: ", data);
-      this.emit(constants.NODE_DROPPED_EVENT, data);
-      this.nodeManager.dropNode(data);
+    this.canvas.on(constants.NODE_DROPPED_EVENT, (config) => {
+      console.debug("Node is dropped: ", config);
+      this.emit(constants.NODE_DROPPED_EVENT, config);
+      this.nodeManager.dropNode(config);
     });
 
     this.nodeManager.on(constants.NODE_MOVED_EVENT, ({ id, x, y }) => {

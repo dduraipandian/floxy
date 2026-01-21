@@ -8,7 +8,6 @@ const DEFAULT_SUPPORTED_BEHAVIORS = [
 ];
 
 class BaseNodeView extends EmitterComponent {
-  static supportedBehaviors = DEFAULT_SUPPORTED_BEHAVIORS;
 
   constructor(model, options = {}) {
     if (!(model instanceof NodeModel)) {
@@ -24,8 +23,18 @@ class BaseNodeView extends EmitterComponent {
     this._content = null;
   }
 
-  static get name() {
-    return "flow-node-view";
+  static get modelDefaults() {
+    return {
+      inputs: 1,
+      outputs: 1,
+      w: 200,
+      h: 150,
+      label: "Node",
+      group: "default",
+      module: "default",
+      behaviors: DEFAULT_SUPPORTED_BEHAVIORS,
+      data: {}
+    };
   }
 
   html() {
@@ -62,7 +71,9 @@ class BaseNodeView extends EmitterComponent {
   updateContainerAttributes() {
     this.container.dataset.id = "node-" + this.model.id;
     this.container.dataset.name = this.model.name;
-    this.container.dataset.data = JSON.stringify(this.model.data);
+    this.container.dataset.module = this.model.module;
+    this.container.dataset.group = this.model.group;
+
     this.container.style.top = `${this.model.y}px`;
     this.container.style.left = `${this.model.x}px`;
     this.container.style.width = `${this.model.w}px`;
@@ -87,7 +98,7 @@ class BaseNodeView extends EmitterComponent {
   }
 
   behaviorSupported(name) {
-    return this.constructor.supportedBehaviors.includes(name);
+    return this.model.behaviors.includes(name);
   }
 
   propagateEvent(event, instance) {

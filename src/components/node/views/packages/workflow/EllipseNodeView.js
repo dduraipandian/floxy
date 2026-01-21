@@ -8,17 +8,24 @@ const SUPPORTED_BEHAVIORS = [
 ];
 
 class EllipseNodeView extends BaseNodeView {
-    static supportedBehaviors = SUPPORTED_BEHAVIORS;
-
     constructor(model, options = {}) {
         super(model, options);
         this.ellipse = null;
-        this.w = 200;
-        this.h = 150;
     }
 
-    static get name() {
-        return "workflow-action";
+    static get modelDefaults() {
+        return {
+            inputs: 1,
+            outputs: 1,
+            w: 200,
+            h: 150,
+            label: "Action",
+            module: "diagram",
+            group: "workflow",
+            name: "action",
+            behaviors: SUPPORTED_BEHAVIORS,
+            data: {}
+        };
     }
 
     getNodeElement() {
@@ -60,9 +67,8 @@ class EllipseNodeView extends BaseNodeView {
 
     init() {
         super.init();
-        this.container.style.width = `${this.w}px`;
-        this.container.style.height = `${this.h}px`;
-        this.model.resize(this.w, this.h);
+        this.container.style.width = `${this.model.w}px`;
+        this.container.style.height = `${this.model.h}px`;
         this.resize();
     }
 

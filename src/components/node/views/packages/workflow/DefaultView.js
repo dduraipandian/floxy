@@ -11,7 +11,6 @@ class DefaultView extends BaseNodeView {
 
   constructor(model, options = {}) {
     super(model, options);
-    this.name = "Process Node";
   }
 
   static get name() {
@@ -19,11 +18,9 @@ class DefaultView extends BaseNodeView {
   }
 
   getNodeElement() {
-    const name = this.model.name ?? this.name;
     return `
-        <div class="card w-100">
-            <div class="card-header">${name}</div>
-            <div class="card-body" id="${this.contentId}">${this.model.contentHtml}</div>
+        <div class="card card-header w-100" style="display: grid; place-items: center;">
+            ${this.model.label}
         </div>
     `;
   }
