@@ -40,13 +40,14 @@ class Node extends EmitterComponent {
   move(x, y) {
     this.model.move(x, y);
     this.view.move();
-    this.emit(constants.NODE_MOVED_EVENT, { id: this.model.id, x, y });
+    this.emit(constants.NODE_MOVED_EVENT, { id: this.id, x, y });
   }
 
   onResize(w, h) {
+    const { x, y } = this.model;
     this.model.resize(w, h);
     this.view.resizeNode();
-    this.emit(constants.NODE_RESIZED_EVENT, { id: this.model.id, w, h });
+    this.emit(constants.NODE_UPDATED_EVENT, { id: this.id, x, y, w, h });
   }
 
   destroy() {

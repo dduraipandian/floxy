@@ -8,6 +8,7 @@ export const NODE_MOVED_EVENT = "node:moved";
 export const NODE_SELECTED_EVENT = "node:selected";
 export const NODE_DESELECTED_EVENT = "node:deselected";
 export const NODE_DROPPED_EVENT = "node:dropped";
+export const NODE_UPDATED_EVENT = "node:updated";
 export const NODE_LABEL_UPDATED_EVENT = "node:label:updated";
 export const NODE_RESIZED_EVENT = "node:resized";
 

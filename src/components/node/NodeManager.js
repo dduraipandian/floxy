@@ -93,6 +93,7 @@ class NodeManager extends EmitterComponent {
     this.propagateEvent(constants.NODE_DESELECTED_EVENT, view);
 
     this.propagateEvent(constants.NODE_MOVED_EVENT, node);
+    this.propagateEvent(constants.NODE_UPDATED_EVENT, node);
     this.propagateEvent(constants.NODE_LABEL_UPDATED_EVENT, node);
 
     view.on(constants.NODE_REMOVED_EVENT, (e) => this.removeNode(e.id));

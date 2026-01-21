@@ -34,20 +34,12 @@ class EllipseNodeView extends BaseNodeView {
 
         // SVG shape
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        // svg.setAttribute("viewBox", "0 0 100 60");
-        // svg.setAttribute("width", "100%");
-        // svg.setAttribute("height", "100%");
-        // svg.setAttribute("preserveAspectRatio", "none");
         svg.classList.add("node-shape");
 
         const ellipse = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "ellipse"
         );
-        // ellipse.setAttribute("cx", "50");
-        // ellipse.setAttribute("cy", "30");
-        // ellipse.setAttribute("rx", "48");
-        // ellipse.setAttribute("ry", "28");
         ellipse.setAttribute("stroke", "grey");
         ellipse.setAttribute("fill", "none");
 

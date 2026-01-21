@@ -102,6 +102,11 @@ class Flow extends EmitterComponent {
       this.connectionManager.updateConnections(id);
     });
 
+    this.nodeManager.on(constants.NODE_UPDATED_EVENT, ({ id, x, y, w, h }) => {
+      this.emit(constants.NODE_UPDATED_EVENT, { id, x, y, w, h });
+      this.connectionManager.updateConnections(id);
+    });
+
     this.nodeManager.on(constants.NODE_REMOVED_EVENT, ({ id }) => {
       console.debug("Node is removed: ", id);
       this.emit(constants.NODE_REMOVED_EVENT, { id });

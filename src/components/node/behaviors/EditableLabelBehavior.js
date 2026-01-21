@@ -17,16 +17,18 @@ class EditableLabelBehavior extends BaseNodeBehavior {
     }
 
     attach() {
+        if (!this._el) return;
+
         const _onDblClick = (e) => {
             e.stopPropagation();
-            el.contentEditable = "true";
-            el.focus();
+            this._el.contentEditable = "true";
+            this._el.focus();
             document.execCommand("selectAll", false, null);
         };
 
         const _onBlur = () => {
-            el.contentEditable = "false";
-            this.node.model.label = el.textContent.trim();
+            this._el.contentEditable = "false";
+            this.node.model.label = this._el.textContent.trim();
             this.node.emit(constants.NODE_LABEL_UPDATED_EVENT, {
                 id: this.node.id,
                 label: this.node.model.label,
@@ -36,7 +38,7 @@ class EditableLabelBehavior extends BaseNodeBehavior {
         const _onKeyDown = (e) => {
             if (e.key === "Enter") {
                 e.preventDefault();
-                el.blur();
+                this._el.blur();
             }
         };
 
@@ -50,9 +52,12 @@ class EditableLabelBehavior extends BaseNodeBehavior {
     }
 
     detach() {
-        this._el.removeEventListener("dblclick", this._onDblClick);
-        this._el.removeEventListener("blur", this._onBlur);
-        this._el.removeEventListener("keydown", this._onKeyDown);
+        if (this._el) {
+            this._el.removeEventListener("dblclick", this._onDblClick);
+            this._el.removeEventListener("blur", this._onBlur);
+            this._el.removeEventListener("keydown", this._onKeyDown);
+            this._el = null;
+        }
     }
 }
 
