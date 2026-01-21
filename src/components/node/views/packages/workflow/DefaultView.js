@@ -1,14 +1,6 @@
 import { BaseNodeView } from "../../../NodeView.js";
-import * as constants from "../../../../constants.js";
-
-const DEFAULT_SUPPORTED_BEHAVIORS = [
-  constants.DEFAULT_NODE_BEHAVIORS.SELECTABLE,
-  constants.DEFAULT_NODE_BEHAVIORS.DRAGGABLE,
-];
 
 class DefaultView extends BaseNodeView {
-  static supportedBehaviors = DEFAULT_SUPPORTED_BEHAVIORS;
-
   constructor(model, options = {}) {
     super(model, options);
   }

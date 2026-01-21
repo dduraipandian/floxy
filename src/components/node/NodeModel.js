@@ -1,8 +1,8 @@
 import * as constants from "../constants.js";
 
 const DEFAULT_SUPPORTED_BEHAVIORS = [
-  constants.DEFAULT_NODE_BEHAVIORS.SELECTABLE,
-  constants.DEFAULT_NODE_BEHAVIORS.DRAGGABLE,
+  constants.NODE_CAPABILITIES.SELECTABLE,
+  constants.NODE_CAPABILITIES.MOVABLE,
 ];
 
 class NodeModel {
@@ -19,7 +19,7 @@ class NodeModel {
     h = 100,
     w = 200,
     data = {},
-    behaviors = DEFAULT_SUPPORTED_BEHAVIORS
+    capabilities = DEFAULT_SUPPORTED_BEHAVIORS
   }) {
     this.id = id;
     this.module = module;
@@ -32,7 +32,7 @@ class NodeModel {
     this.h = h;
     this.w = w;
     this.data = data;
-    this.behaviors = behaviors;
+    this.capabilities = capabilities;
     this.label = label ?? this.name;
   }
 

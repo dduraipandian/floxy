@@ -2,11 +2,6 @@ import { EmitterComponent } from "@uiframe/core";
 import { NodeModel } from "./NodeModel.js";
 import * as constants from "../constants.js";
 
-const DEFAULT_SUPPORTED_BEHAVIORS = [
-  constants.DEFAULT_NODE_BEHAVIORS.SELECTABLE,
-  constants.DEFAULT_NODE_BEHAVIORS.DRAGGABLE,
-];
-
 class BaseNodeView extends EmitterComponent {
 
   constructor(model, options = {}) {
@@ -32,7 +27,7 @@ class BaseNodeView extends EmitterComponent {
       label: "Node",
       group: "default",
       module: "default",
-      behaviors: DEFAULT_SUPPORTED_BEHAVIORS,
+      capabilities: constants.DEFAULT_SUPPORTED_CAPABILITIES,
       data: {}
     };
   }
@@ -95,10 +90,6 @@ class BaseNodeView extends EmitterComponent {
   destroy() {
     this.el?.remove();
     this.el = null;
-  }
-
-  behaviorSupported(name) {
-    return this.model.behaviors.includes(name);
   }
 
   propagateEvent(event, instance) {

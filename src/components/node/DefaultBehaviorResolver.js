@@ -6,23 +6,12 @@ class DefaultBehaviorResolver {
   resolve(node, context = {}) {
     const resolved = new Set();
 
-    for (const BehaviorClass of this.registry.getAll()) {
-      // 1. behavior declares its identity
-      const behaviorName = BehaviorClass.behavior;
-
-      // 2. view supports it?
-      if (!node.view.behaviorSupported(behaviorName)) {
-        continue;
+    node.model.capabilities.forEach((capability) => {
+      const BehaviorCls = this.registry.get(capability);
+      if (BehaviorCls) {
+        resolved.add(new BehaviorCls({ node, options: context }));
       }
-
-      // 3. model supports it?
-      if (node.model.supportedBehaviors && !node.model.supportedBehaviors.includes(behaviorName)) {
-        continue;
-      }
-
-      const behavior = new BehaviorClass(context);
-      resolved.add(behavior);
-    }
+    });
 
     return resolved;
   }

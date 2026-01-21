@@ -81,7 +81,7 @@ class NodeManager extends EmitterComponent {
     const view = new ViewClass(model, { ...this.options, zoomGetter: this.zoomGetter });
     const node = new Node({ model, view });
 
-    const behaviors = this.behaviorResolver.resolve(node);
+    const behaviors = this.behaviorResolver.resolve(node, this.options);
     console.debug("FLOW: Node behaviors", node, behaviors);
     node.setBehaviors(behaviors);
 

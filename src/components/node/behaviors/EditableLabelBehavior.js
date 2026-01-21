@@ -3,35 +3,56 @@ import * as constants from "../../constants.js";
 
 class EditableLabelBehavior extends BaseNodeBehavior {
     static get behavior() {
-        return "editable-label";
+        return constants.NODE_CAPABILITIES.EDITABLE_LABEL;
     }
 
-    attach(node) {
-        const el = node.view.el.querySelector(".node-label");
-        if (!el) return;
+    gaurd() {
+        const el = this.node.view.el.querySelector(".node-label");
+        if (!el) {
+            console.warn("Node view does not have label element to support editable label behavior");
+            return false;
+        }
+        this._el = el;
+        return true;
+    }
 
-        el.addEventListener("dblclick", (e) => {
+    attach() {
+        const _onDblClick = (e) => {
             e.stopPropagation();
             el.contentEditable = "true";
             el.focus();
             document.execCommand("selectAll", false, null);
-        });
+        };
 
-        el.addEventListener("blur", () => {
+        const _onBlur = () => {
             el.contentEditable = "false";
-            node.model.label = el.textContent.trim();
-            node.emit(constants.NODE_LABEL_UPDATED_EVENT, {
-                id: node.id,
-                label: node.model.label,
+            this.node.model.label = el.textContent.trim();
+            this.node.emit(constants.NODE_LABEL_UPDATED_EVENT, {
+                id: this.node.id,
+                label: this.node.model.label,
             });
-        });
+        };
 
-        el.addEventListener("keydown", (e) => {
+        const _onKeyDown = (e) => {
             if (e.key === "Enter") {
                 e.preventDefault();
                 el.blur();
             }
-        });
+        };
+
+        this._onDblClick = _onDblClick.bind(this);
+        this._onBlur = _onBlur.bind(this);
+        this._onKeyDown = _onKeyDown.bind(this);
+
+        this._el.addEventListener("dblclick", this._onDblClick);
+        this._el.addEventListener("blur", this._onBlur);
+        this._el.addEventListener("keydown", this._onKeyDown);
+    }
+
+    detach() {
+        this._el.removeEventListener("dblclick", this._onDblClick);
+        this._el.removeEventListener("blur", this._onBlur);
+        this._el.removeEventListener("keydown", this._onKeyDown);
     }
 }
 

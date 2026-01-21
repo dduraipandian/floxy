@@ -1,10 +1,10 @@
 import { BaseNodeView } from "../../../NodeView.js";
 import * as constants from "../../../../constants.js";
 
-const SUPPORTED_BEHAVIORS = [
-    constants.DEFAULT_NODE_BEHAVIORS.DRAGGABLE,
-    constants.DEFAULT_NODE_BEHAVIORS.EDITABLE_LABEL,
-    constants.DEFAULT_NODE_BEHAVIORS.RESIZABLE
+const SUPPORTED_CAPABILITIES = [
+    constants.NODE_CAPABILITIES.MOVABLE,
+    constants.NODE_CAPABILITIES.EDITABLE_LABEL,
+    constants.NODE_CAPABILITIES.RESIZABLE
 ];
 
 class EllipseNodeView extends BaseNodeView {
@@ -23,7 +23,7 @@ class EllipseNodeView extends BaseNodeView {
             module: "diagram",
             group: "workflow",
             name: "action",
-            behaviors: SUPPORTED_BEHAVIORS,
+            capabilities: SUPPORTED_CAPABILITIES,
             data: {}
         };
     }

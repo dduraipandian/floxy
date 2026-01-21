@@ -2,25 +2,27 @@ import { BaseNodeBehavior } from "./base.js";
 import * as constants from "../../constants.js";
 
 class SelectableBehavior extends BaseNodeBehavior {
+  // TODO: this should be removed when multiple nodes can be selected and tabs added.
   static active = null;
 
-  constructor({ options = {} }) {
-    super({ options });
+  constructor({ node, options = {} }) {
+    super({ node, options });
     this.selected = false;
   }
 
   static get behavior() {
-    return constants.DEFAULT_NODE_BEHAVIORS.SELECTABLE;
+    return constants.NODE_CAPABILITIES.SELECTABLE;
   }
 
-  attach(node) {
-    const view = node.view;
+  attach() {
+    const view = this.node.view;
 
-    this._onPointerDown = (e) => {
+    const _onPointerDown = (e) => {
       e.stopPropagation();
       this.select();
     };
 
+    this._onPointerDown = _onPointerDown.bind(this);
     view.el.addEventListener("mousedown", this._onPointerDown);
   }
 

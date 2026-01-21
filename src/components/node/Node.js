@@ -34,7 +34,7 @@ class Node extends EmitterComponent {
   }
 
   init() {
-    this.behaviors.forEach((b) => b._attach(this));
+    this.behaviors.forEach((b) => b._attach());
   }
 
   move(x, y) {
@@ -57,6 +57,10 @@ class Node extends EmitterComponent {
     this.behaviors = null;
     this.model = null;
     this.destroyed = true;
+  }
+
+  isCapabilitySupported(capability) {
+    return this.model.capabilities.includes(capability);
   }
 
   get x() {
