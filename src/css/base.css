@@ -37,6 +37,8 @@
       display: flex;
       z-index: 1;
       cursor: grab;
+      width: 100%;
+      height: 100%;
 
       /* --bs-focus-ring-width: 0.125rem; */
 
@@ -124,7 +126,27 @@
             var(--bs-focus-ring-blur, 0) var(--bs-focus-ring-width) var(--bs-focus-ring-color);
         }
       }
-    }
+
+      .node-shape {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        vector-effect: non-scaling-stroke;
+      }
+
+
+      .resize-handle {
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        right: -5px;
+        bottom: -5px;
+        background: var(--bs-primary);
+        cursor: se-resize;
+        z-index: 20;
+      }
+    }    
   }
 
   /* SVG layer for connections */

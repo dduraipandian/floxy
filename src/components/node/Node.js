@@ -43,6 +43,12 @@ class Node extends EmitterComponent {
     this.emit(constants.NODE_MOVED_EVENT, { id: this.model.id, x, y });
   }
 
+  onResize(w, h) {
+    this.model.resize(w, h);
+    this.view.resizeNode();
+    this.emit(constants.NODE_RESIZED_EVENT, { id: this.model.id, w, h });
+  }
+
   destroy() {
     this.behaviors.forEach((b) => b.detach?.());
     this.behaviors.clear();

@@ -41,7 +41,7 @@ class BaseNodeView extends EmitterComponent {
     if (typeof this._content == "string") {
       return this._content;
     }
-    return ""    
+    return ""
   }
 
   init() {
@@ -223,6 +223,12 @@ class BaseNodeView extends EmitterComponent {
         });
       });
     });
+  }
+
+  resizeNode() {
+    this.el.style.width = `${this.model.w}px`;
+    this.el.style.height = `${this.model.h}px`;
+    this.resize?.();
   }
 
   getNodeElement() { }

@@ -46,6 +46,11 @@ class NodeModel extends EmitterComponent {
     this.x = x;
     this.y = y;
   }
+
+  resize(w, h) {
+    this.w = w;
+    this.h = h;
+  }
 }
 
 export { NodeModel };

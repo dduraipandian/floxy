@@ -9,6 +9,7 @@ export const NODE_SELECTED_EVENT = "node:selected";
 export const NODE_DESELECTED_EVENT = "node:deselected";
 export const NODE_DROPPED_EVENT = "node:dropped";
 export const NODE_LABEL_UPDATED_EVENT = "node:label:updated";
+export const NODE_RESIZED_EVENT = "node:resized";
 
 export const PORT_CONNECT_START_EVENT = "node:port:connect:start";
 export const PORT_CONNECT_END_EVENT = "node:port:connect:end";
@@ -29,4 +30,5 @@ export const DEFAULT_NODE_BEHAVIORS = {
   SELECTABLE: "selectable",
   DRAGGABLE: "draggable",
   EDITABLE_LABEL: "editable-label",
+  RESIZABLE: "resizable"
 };
