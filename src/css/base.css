@@ -51,8 +51,10 @@
         outline: 0;
 
         /* Hard coded focus right as it needs to be persisted */
-        box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0) var(--bs-focus-ring-blur, 0)
-          var(--bs-focus-ring-width) var(--bs-focus-ring-color);
+        box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0) var(--bs-focus-ring-blur, 0) calc(var(--bs-focus-ring-width)/2) var(--bs-focus-ring-color);
+
+        /* border: var(--bs-border-width) var(--bs-border-style) var(--bs-primary) !important; */
+        border-radius: var(--bs-border-radius);
 
         .node-close {
           display: block;
@@ -60,9 +62,10 @@
       }
 
       .node-close {
-        right: 5px;
+        right: 1px;
+        top: 1px;
         position: absolute;
-        font-size: 0.75rem;
+        font-size: 0.65rem;
         display: none;
         border: var(--bs-border-width) var(--bs-border-style) #212529 !important;
         z-index: 10;        
@@ -94,16 +97,14 @@
         overflow: visible;        
 
         &.flow-ports-output {
-          left: -2px;
           margin-left: auto;
 
           .flow-port {
-            background: var(--bs-tertiary-color);
+            background: grey;
           }
         }
 
         &.flow-ports-input {
-          left: 2px;
           margin-right: auto;
         }
 
@@ -122,8 +123,7 @@
         .flow-port:hover {
           transform: scale(2);
           --bs-focus-ring-width: 1px;
-          box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0)
-            var(--bs-focus-ring-blur, 0) var(--bs-focus-ring-width) var(--bs-focus-ring-color);
+          box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0) var(--bs-focus-ring-blur, 0) var(--bs-focus-ring-width) var(--bs-focus-ring-color);
         }
       }
 
