@@ -1,4 +1,5 @@
 import { BaseNodeBehavior } from "./base.js";
+import { DragHandler } from "../../utils.js";
 import * as constants from "../../constants.js";
 
 class ResizableBehavior extends BaseNodeBehavior {
@@ -8,46 +9,32 @@ class ResizableBehavior extends BaseNodeBehavior {
 
     attach() {
         const el = this.node.view.el;
+        const view = this.node.view;
 
-        const handle = document.createElement("div");
-        handle.className = "resize-handle resize-br";
-        el.appendChild(handle);
+        this.handle = document.createElement("div");
+        this.handle.className = "resize-handle resize-br";
+        el.appendChild(this.handle);
 
-        let startX, startY, startW, startH;
+        this.dragHandler = new DragHandler(
+            this.handle,
+            (x, y) => {
+                const w = Math.max(150, x - this.node.x);
+                const h = Math.max(50, y - this.node.y);
+                this.node.onResize(w, h);
+            },
+            { x: this.node.x + this.node.w, y: this.node.y + this.node.h },
+            { x: 0, y: 0 },
+            view.zoomGetter,
+            "nwse-resize",
+            "nwse-resize"
+        );
 
-        const onMouseDown = (e) => {
-            e.stopPropagation();
-            startX = e.clientX;
-            startY = e.clientY;
-            startW = this.node.model.w;
-            startH = this.node.model.h;
-
-            document.addEventListener("mousemove", onMouseMove);
-            document.addEventListener("mouseup", onMouseUp);
-        };
-
-        const onMouseMove = (e) => {
-            const dx = (e.clientX - startX) / this.node.view.zoomGetter();
-            const dy = (e.clientY - startY) / this.node.view.zoomGetter();
-
-            const w = Math.max(80, startW + dx);
-            const h = Math.max(40, startH + dy);
-            this.node.onResize(w, h);
-        };
-
-        const onMouseUp = () => {
-            document.removeEventListener("mousemove", onMouseMove);
-            document.removeEventListener("mouseup", onMouseUp);
-        };
-
-        this._onMouseDown = onMouseDown.bind(this);
-        handle.addEventListener("mousedown", this._onMouseDown);
-        this.handle = handle
+        this.dragHandler.registerDragEvent();
     }
 
     detach() {
-        this.handle?.removeEventListener("mousedown", this._onMouseDown);
         this.handle?.remove();
+        this.dragHandler?.destroy();
     }
 }
 

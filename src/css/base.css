@@ -156,7 +156,7 @@
         right: -5px;
         bottom: -5px;
         background: var(--bs-primary);
-        cursor: se-resize;
+        cursor: nwse-resize;
         z-index: 20;
       }
     }    
