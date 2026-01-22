@@ -16,6 +16,7 @@ class BaseNodeView extends EmitterComponent {
     this.contentId = `content-${model.id}`;
     this.zoomGetter = options.zoomGetter || (() => this.options.zoom ?? 1);
     this._content = null;
+    this.close = null;
   }
 
   static get modelDefaults() {
@@ -82,6 +83,7 @@ class BaseNodeView extends EmitterComponent {
     const outputPorts = this.createPorts({ type: "output", count: this.model.outputs });
     const close = this.createClose();
 
+    this.close = close;
     this.el.prepend(inputPorts)
     this.el.appendChild(outputPorts);
     this.el.appendChild(close);

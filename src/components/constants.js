@@ -40,3 +40,13 @@ export const DEFAULT_SUPPORTED_CAPABILITIES = [
   NODE_CAPABILITIES.EDITABLE_LABEL,
   NODE_CAPABILITIES.RESIZABLE
 ];
+
+export const SVGShapes = [
+  "ellipse",
+  "circle",
+  "rect",
+  "line",
+  "polyline",
+  "polygon",
+  "path"
+]

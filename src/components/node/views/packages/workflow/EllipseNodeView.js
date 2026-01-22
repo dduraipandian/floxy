@@ -1,15 +1,17 @@
-import { BaseNodeView } from "../../../NodeView.js";
+import { SVGNodeView } from "../../../SVGNodeView.js";
 import * as constants from "../../../../constants.js";
 
 const SUPPORTED_CAPABILITIES = [
     constants.NODE_CAPABILITIES.MOVABLE,
     constants.NODE_CAPABILITIES.EDITABLE_LABEL,
-    constants.NODE_CAPABILITIES.RESIZABLE
+    constants.NODE_CAPABILITIES.RESIZABLE,
+    constants.NODE_CAPABILITIES.SELECTABLE
 ];
 
-class EllipseNodeView extends BaseNodeView {
+class EllipseNodeView extends SVGNodeView {
     constructor(model, options = {}) {
         super(model, options);
+        this.shapeName = "ellipse";
         this.ellipse = null;
     }
 
@@ -18,7 +20,7 @@ class EllipseNodeView extends BaseNodeView {
             inputs: 1,
             outputs: 1,
             w: 200,
-            h: 150,
+            h: 100,
             label: "Action",
             module: "diagram",
             group: "workflow",
@@ -28,41 +30,16 @@ class EllipseNodeView extends BaseNodeView {
         };
     }
 
-    getNodeElement() {
-        const el = document.createElement("div");
-        el.className = "flow-node ellipse-node";
-
-        // SVG shape
-        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.classList.add("node-shape");
-
+    createShape() {
         const ellipse = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "ellipse"
         );
-        ellipse.setAttribute("stroke", "grey");
-        ellipse.setAttribute("fill", "none");
-
-        svg.appendChild(ellipse);
-
-        const content = document.createElement("div");
-        content.classList.add("node-label");
-        content.setAttribute("contenteditable", false);
-        content.textContent = this.model.label;
-
-        el.appendChild(svg);
-        el.appendChild(content);
-
         this.ellipse = ellipse;
-        return el;
+        return this.ellipse
     }
 
-    init() {
-        super.init();
-        this.container.style.width = `${this.model.w}px`;
-        this.container.style.height = `${this.model.h}px`;
-        this.resize();
-    }
+    updateShape() { }
 
     resize() {
         const { w, h } = this.model;
