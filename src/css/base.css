@@ -46,6 +46,18 @@
         cursor: grabbing;
       }
 
+      .resize-handle {
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        right: -5px;
+        bottom: -5px;
+        background: var(--bs-primary);
+        cursor: nwse-resize;
+        z-index: 20;
+        display: none;
+      }
+
       &.selected {
         z-index: 10;
         outline: 0;
@@ -57,6 +69,10 @@
         border-radius: var(--bs-border-radius);
 
         .node-close {
+          display: block;
+        }
+        
+        .resize-handle {
           display: block;
         }
       }
@@ -147,18 +163,7 @@
           --bs-focus-ring-width: 1px;
           box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0) var(--bs-focus-ring-blur, 0) var(--bs-focus-ring-width) var(--bs-focus-ring-color);
         }
-      }      
-
-      .resize-handle {
-        position: absolute;
-        width: 5px;
-        height: 5px;
-        right: -5px;
-        bottom: -5px;
-        background: var(--bs-primary);
-        cursor: nwse-resize;
-        z-index: 20;
-      }
+      }            
     }    
   }
 
