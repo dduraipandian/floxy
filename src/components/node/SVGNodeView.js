@@ -49,17 +49,6 @@ class SVGNodeView extends BaseNodeView {
         this.resize();
     }
 
-    setSelected(selected) {
-        this.shape.classList.toggle("selected", selected);
-        if (this.close) {
-            if (selected) {
-                this.close.style.display = "block";
-            } else {
-                this.close.style.display = "none";
-            }
-        }
-    }
-
     createLabel() {
         const content = document.createElement("div");
         content.classList.add("node-label");

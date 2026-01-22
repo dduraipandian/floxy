@@ -1,3 +1,25 @@
+/* === Node Skin (shared by DIV + SVG) === */
+.flow-node {
+  /* Surface */
+  --node-bg: var(--bs-body-bg);
+  --node-border: var(--bs-border-color);
+  --node-border-width: var(--bs-border-width);
+  --node-radius: var(--bs-border-radius);
+
+  --darker-port-color: color-mix(in srgb, var(--node-border), black 20%);
+
+  /* Text */
+  --node-text: var(--bs-body-color);
+
+  /* Focus / selection */
+  --node-focus-color: var(--bs-focus-ring-color);
+  --node-focus-width: calc(var(--bs-focus-ring-width) / 2);
+
+  /* Shadow */
+  --node-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+
 /* START: FLOW COMPONENT */
 /* Flow Container - The stage */
 /* Container must handle overflow and cursor */
@@ -40,7 +62,57 @@
       width: 100%;
       height: 100%;
 
-      /* --bs-focus-ring-width: 0.125rem; */
+      /* DIV-based nodes (Bootstrap card, etc.) */
+      div.node {
+        background: var(--node-bg);
+        color: var(--node-text);
+        border: var(--node-border-width) solid var(--node-border);
+        border-radius: var(--node-radius);
+        box-shadow: var(--node-shadow);
+        width: 100%;
+        height: 100%;
+      }
+
+      &.selected:has(div.node) {
+        z-index: 10;
+        outline: 0;
+
+        box-shadow:
+          var(--bs-focus-ring-x, 0)
+          var(--bs-focus-ring-y, 0)
+          var(--bs-focus-ring-blur, 0)
+          var(--node-focus-width)
+          var(--node-focus-color);
+
+        border-radius: var(--bs-border-radius);
+      }
+
+      /* SVG-based nodes */
+      svg.node {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+
+        .shape {
+          fill: var(--node-bg);
+          stroke: var(--node-border);
+          stroke-width: var(--node-border-width);
+          vector-effect: non-scaling-stroke;            
+        }          
+      }
+
+      &.selected:has(svg.node) {
+        outline: 0;
+        stroke: var(--node-focus-color);
+        stroke-width: var(--node-focus-width);
+      }
+
+      .resize-handle {
+        display: block;
+      }
+
 
       &:active {
         cursor: grabbing;
@@ -56,26 +128,18 @@
         cursor: nwse-resize;
         z-index: 20;
         display: none;
-      }
+      }      
 
+      /* when node is selected, show close and resize handle if class is attached. */
       &.selected {
-        z-index: 10;
-        outline: 0;
-
-        /* Hard coded focus right as it needs to be persisted */
-        box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0) var(--bs-focus-ring-blur, 0) calc(var(--bs-focus-ring-width)/2) var(--bs-focus-ring-color);
-
-        /* border: var(--bs-border-width) var(--bs-border-style) var(--bs-primary) !important; */
-        border-radius: var(--bs-border-radius);
-
         .node-close {
           display: block;
         }
-        
+
         .resize-handle {
           display: block;
         }
-      }
+      }        
 
       .node-close {
         right: 1px;
@@ -95,31 +159,12 @@
         height: 100%;
         width: 100%;
         position: absolute;
+        color: var(--node-text);
+        font-weight: 500;
+        text-align: center;
 
         &:focus-visible {
           outline: none;
-        }
-      }
-
-      svg {
-        &.node {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          vector-effect: non-scaling-stroke;
-        }
-
-        .shape {
-          fill: rgba(33,37,41, 0.03);
-          stroke-width: .5;
-          stroke: grey;
-
-          &.selected {
-            outline: 0;
-            stroke-width: calc(var(--bs-focus-ring-width)/2);
-            stroke: var(--bs-focus-ring-color);
-          }
         }
       }
 
@@ -138,7 +183,7 @@
           margin-left: auto;
 
           .flow-port {
-            background: grey;
+            background: var(--darker-port-color);
           }
         }
 
@@ -149,19 +194,18 @@
         .flow-port {
           width: 10px;
           height: 10px;
-          background: var(--bs-body-bg);
           border-radius: 50%;
           margin: 8px 0;
           z-index: 2;
           cursor: crosshair;
           position: relative;
-          border: var(--bs-border-width) solid var(--bs-border-color);
+          background: var(--node-bg);
+          border: var(--node-border-width) solid var(--node-border);
         }
 
         .flow-port:hover {
-          transform: scale(2);
-          --bs-focus-ring-width: 1px;
-          box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0) var(--bs-focus-ring-blur, 0) var(--bs-focus-ring-width) var(--bs-focus-ring-color);
+          transform: scale(1.5);
+          box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0) var(--bs-focus-ring-blur, 0) 2px var(--node-focus-color);
         }
       }            
     }    

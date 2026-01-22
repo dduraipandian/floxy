@@ -11,8 +11,8 @@ class DefaultView extends BaseNodeView {
 
   getNodeElement() {
     return `
-        <div class="card card-header w-100 node-label" style="display: grid; place-items: center;">
-            ${this.model.label}
+        <div class="node" style="display: grid; place-items: center;">
+            <div class="node-label">${this.model.label}</div>
         </div>
     `;
   }
