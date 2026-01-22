@@ -1,24 +1,59 @@
-/* === Node Skin (shared by DIV + SVG) === */
-.flow-node {
-  /* Surface */
-  --node-bg: var(--bs-body-bg);
-  --node-border: var(--bs-border-color);
-  --node-border-width: var(--bs-border-width);
-  --node-radius: var(--bs-border-radius);
+:root {
+  --floxy-primary-color: #0d6efd;
+  --floxy-secondary-color: #6c757d;
+  --floxy-danger-color: #dc3545;
+  --floxy-warning-color: #ffc107;
+  --floxy-info-color: #0dcaf0;
+  --floxy-light-color: #f8f9fa;
+  --floxy-dark-color: #212529;
 
-  --darker-port-color: color-mix(in srgb, var(--node-border), black 20%);
+  /* Node appearance */
+  --floxy-node-bg: #fff;
+  --floxy-node-border: #dee2e6;
+  --floxy-node-border-width: 1px;
+  --floxy-node-radius: 0.375rem;
+  --floxy-node-border-style: solid;
+  --floxy-node-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);  
 
   /* Text */
-  --node-text: var(--bs-body-color);
+  --floxy-node-text: #212529;
 
   /* Focus / selection */
-  --node-focus-color: var(--bs-focus-ring-color);
-  --node-focus-width: calc(var(--bs-focus-ring-width) / 2);
+  --floxy-node-focus-color: rgba(13, 110, 253, 0.25);
 
-  /* Shadow */
-  --node-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  /* Grid */
+  --floxy-grid-color: #c1c1c4;
+  --floxy-grid-size: 24px;
+  --floxy-grid-dot-radius: 1.4px;
 }
 
+.floxy-flow-container {
+  --node-primary-color: var(--floxy-primary-color);
+  --node-secondary-color: var(--floxy-secondary-color);
+  --node-danger-color: var(--floxy-danger-color);
+  --node-warning-color: var(--floxy-warning-color);
+  --node-info-color: var(--floxy-info-color);
+  --node-light-color: var(--floxy-light-color);
+  --node-dark-color: var(--floxy-dark-color);
+
+  --node-bg: var(--floxy-node-bg);
+  --node-text: var(--floxy-node-text);
+
+  --node-border: var(--floxy-node-border);
+  --node-radius: var(--floxy-node-radius);
+  --node-border-width: var(--floxy-node-border-width);
+  --node-border-style: var(--floxy-node-border-style);
+  --node-shadow: var(--floxy-node-shadow);
+
+  --node-grid-color: var(--floxy-grid-color);
+  --node-grid-size: var(--floxy-grid-size);
+  --node-grid-dot-radius: var(--floxy-grid-dot-radius);
+
+  --node-focus-color: var(--floxy-node-focus-color);
+  --node-focus-width: 0.125rem;
+
+  --node-port-darker-bg: color-mix(in srgb, var(--floxy-node-border), black 20%);    
+}
 
 /* START: FLOW COMPONENT */
 /* Flow Container - The stage */
@@ -30,8 +65,8 @@
   overflow: hidden;
   user-select: none;
   cursor: grab;
-  background-image: radial-gradient(#c1c1c4 1.4px, transparent 1.4px);
-  background-size: 24px 24px;
+  background-image: radial-gradient( var(--node-grid-color) var(--node-grid-dot-radius), transparent var(--node-grid-dot-radius));
+  background-size: var(--node-grid-size) var(--node-grid-size);
 
   &:active {
     cursor: grabbing;
@@ -66,7 +101,7 @@
       div.node {
         background: var(--node-bg);
         color: var(--node-text);
-        border: var(--node-border-width) solid var(--node-border);
+        border: var(--node-border-width) var(--node-border-style) var(--node-border);
         border-radius: var(--node-radius);
         box-shadow: var(--node-shadow);
         width: 100%;
@@ -77,14 +112,8 @@
         z-index: 10;
         outline: 0;
 
-        box-shadow:
-          var(--bs-focus-ring-x, 0)
-          var(--bs-focus-ring-y, 0)
-          var(--bs-focus-ring-blur, 0)
-          var(--node-focus-width)
-          var(--node-focus-color);
-
-        border-radius: var(--bs-border-radius);
+        box-shadow:0 0 0 var(--node-focus-width) var(--node-focus-color);
+        border-radius: var(--node-radius);
       }
 
       /* SVG-based nodes */
@@ -103,7 +132,7 @@
         }          
       }
 
-      &.selected:has(svg.node) {
+      &.selected:has(svg.node) .shape{
         outline: 0;
         stroke: var(--node-focus-color);
         stroke-width: var(--node-focus-width);
@@ -124,7 +153,7 @@
         height: 5px;
         right: -5px;
         bottom: -5px;
-        background: var(--bs-primary);
+        background: var(--node-primary-color);
         cursor: nwse-resize;
         z-index: 20;
         display: none;
@@ -147,7 +176,7 @@
         position: absolute;
         font-size: 0.65rem;
         display: none;
-        border: var(--bs-border-width) var(--bs-border-style) #212529 !important;
+        border: var(--node-border-width) var(--node-border-style) var(--node-text) !important;
         z-index: 10;        
       }
 
@@ -183,7 +212,7 @@
           margin-left: auto;
 
           .flow-port {
-            background: var(--darker-port-color);
+            background: var(--node-port-darker-bg);
           }
         }
 
@@ -205,7 +234,7 @@
 
         .flow-port:hover {
           transform: scale(1.5);
-          box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0) var(--bs-focus-ring-blur, 0) 2px var(--node-focus-color);
+          box-shadow: 0 0 0 2px var(--node-focus-color);
         }
       }            
     }    
@@ -225,25 +254,25 @@
     /* Connection paths */
     .flow-connection-path {
       fill: none;
-      stroke: var(--bs-secondary);
+      stroke: var(--node-secondary-color);
       stroke-width: 2px;
       stroke-linecap: round;
       pointer-events: stroke;
       transition: stroke 0.2s;
 
       &:hover, &.path-hover {
-        stroke: var(--bs-primary);
+        stroke: var(--node-primary-color);
         stroke-width: 3px;
         cursor: pointer;
       }
 
       &.selected, &.flow-connection-temp {
-        stroke: var(--bs-primary);
+        stroke: var(--node-primary-color);
         stroke-width: 3px;
         cursor: pointer;
       }
       &.flow-connection-path-bad {
-        stroke: var(--bs-danger);
+        stroke: var(--node-danger-color);
         stroke-width: 3px;
         cursor: pointer;
       }      

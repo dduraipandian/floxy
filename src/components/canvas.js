@@ -110,7 +110,7 @@ class FlowCanvas extends EmitterComponent {
     this.containerEl.style.backgroundSize = `${gridSize}px ${gridSize}px`;
     this.containerEl.style.backgroundPosition = `${x}px ${y}px`;
 
-    this.containerEl.style.backgroundImage = `radial-gradient(#c1c1c4 ${1.5 * this.zoom}px, transparent ${1.5 * this.zoom}px)`;
+    // this.containerEl.style.backgroundImage = `radial-gradient(#c1c1c4 ${1.5 * this.zoom}px, transparent ${1.5 * this.zoom}px)`;
     // this.zoomChangeUpdate();
   }
 
