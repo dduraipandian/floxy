@@ -23,7 +23,7 @@ class BaseNodeView extends EmitterComponent {
       inputs: 1,
       outputs: 1,
       w: 200,
-      h: 150,
+      h: 50,
       label: "Node",
       group: "default",
       module: "default",
@@ -72,7 +72,7 @@ class BaseNodeView extends EmitterComponent {
     this.container.style.top = `${this.model.y}px`;
     this.container.style.left = `${this.model.x}px`;
     this.container.style.width = `${this.model.w}px`;
-    this.container.style.height = "fit-content";
+    this.container.style.height = `${this.model.h}px`;
     this.container.style.position = "absolute";
     this.container.classList.add("flow-node");
   }
