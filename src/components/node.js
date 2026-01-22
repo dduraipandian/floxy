@@ -1,13 +1,13 @@
 import { EmitterComponent } from "@uiframe/core";
-import { Node } from "./Node.js";
-import { NodeModel } from "./NodeModel.js";
-import { BehaviorRegistry } from "./behaviors/BehaviorRegistry.js";
-import { nodeViewRegistry } from "./NodeViewRegistry.js";
-import { DefaultView } from "./views/packages/workflow/DefaultView.js";
-import { DefaultBehaviorResolver } from "./DefaultBehaviorResolver.js";
-import * as constants from "../constants.js";
+import { Node } from "./node/Node.js";
+import { NodeModel } from "./node/NodeModel.js";
+import { BehaviorRegistry } from "./node/behaviors/BehaviorRegistry.js";
+import { nodeViewRegistry } from "./node/NodeViewRegistry.js";
+import { DefaultView } from "./node/views/packages/workflow/DefaultView.js";
+import { DefaultBehaviorResolver } from "./node/DefaultBehaviorResolver.js";
+import * as constants from "./constants.js";
 
-class NodeManager extends EmitterComponent {
+class FlowNodeManager extends EmitterComponent {
   constructor({
     name,
     canvasContainer,
@@ -129,4 +129,4 @@ class NodeManager extends EmitterComponent {
   }
 }
 
-export { NodeManager };
+export { FlowNodeManager };

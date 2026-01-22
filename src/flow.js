@@ -1,7 +1,7 @@
 import { EmitterComponent } from "@uiframe/core";
 
 import { FlowCanvas } from "./components/canvas.js";
-import { NodeManager as FlowNodeManager } from "./components/node/NodeManager.js";
+import { FlowNodeManager } from "./components/node.js";
 import { FlowConnectionManager } from "./components/connection.js";
 import { FlowSerializer } from "./components/serializer.js";
 
