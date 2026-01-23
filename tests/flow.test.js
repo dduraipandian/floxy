@@ -308,12 +308,15 @@ describe("Flow Integration", () => {
     expect(data.nodes.length).toBe(2);
     expect(data.connections.length).toBe(1);
     expect(data.nodes[0].name).toBe("N1");
-    expect(data.connections[0]).toEqual({
-      outNodeId: n1,
-      outPort: 0,
-      inNodeId: n2,
-      inPort: 0,
-    });
+    expect(data.nodes[1].name).toBe("N2");
+    expect(data.nodes[0].x).toBe(100);
+    expect(data.nodes[0].y).toBe(100);
+    expect(data.nodes[1].x).toBe(400);
+    expect(data.nodes[1].y).toBe(100);
+    expect(data.connections[0].outNodeId).toBe(n1);
+    expect(data.connections[0].outPort).toBe(0);
+    expect(data.connections[0].inNodeId).toBe(n2);
+    expect(data.connections[0].inPort).toBe(0);
   });
 
   test("should import flow state correctly", () => {
@@ -330,13 +333,22 @@ describe("Flow Integration", () => {
     flow.import(importData);
 
     expect(flow.zoom).toBe(2);
-    expect(Object.keys(flow.nodeManager.nodes).length).toBe(2);
-    expect(flow.connectionManager.connections.length).toBe(1);
+    expect(flow.nodeManager.size).toBe(2);
+    expect(flow.connectionManager.size).toBe(1);
 
-    const nodeA = flow.nodeManager.nodes[1];
+    const nodeA = flow.nodeManager.getNode(1);
     expect(nodeA.name).toBe("Node A");
+    expect(nodeA.x).toBe(10);
+    expect(nodeA.y).toBe(10);
     expect(container.querySelector("#node-1")).toBeTruthy();
-    expect(container.querySelector("path")).toBeTruthy();
+
+    const nodeB = flow.nodeManager.getNode(2);
+    expect(nodeB.name).toBe("Node B");
+    expect(nodeB.x).toBe(300);
+    expect(nodeB.y).toBe(10);
+    expect(container.querySelector("#node-2")).toBeTruthy();
+
+    expect(container.querySelector("path[id='1:0-2:0']")).toBeTruthy();
 
     expect(flow.canvas.canvasX).toBe(150);
     expect(flow.canvas.canvasY).toBe(50);

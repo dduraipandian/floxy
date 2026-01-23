@@ -130,6 +130,10 @@ class FlowNodeManager extends EmitterComponent {
   getAllNodes() {
     return [...this.nodes.values()];
   }
+
+  get size() {
+    return this.nodes.size;
+  }
 }
 
 export { FlowNodeManager };

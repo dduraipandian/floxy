@@ -5,22 +5,15 @@ class FlowSerializer {
     const canvas = flow.canvas;
 
     // eslint-disable-next-line no-unused-vars
-    const nodes = Object.values(nodeManager.nodes).map(({ el, node, ...rest }) => ({
-      id: rest.id,
-      name: rest.name,
-      inputs: rest.inputs,
-      outputs: rest.outputs,
-      x: rest.x,
-      y: rest.y,
-      html: rest.html,
-    }));
+    const nodes = [];
+    nodeManager.getAllNodes().forEach((node) => {
+      nodes.push(node.model);
+    });
 
-    const connections = connectionManager.connections.map((c) => ({
-      outNodeId: c.outNodeId,
-      outPort: c.outPort,
-      inNodeId: c.inNodeId,
-      inPort: c.inPort,
-    }));
+    const connections = [];
+    connectionManager.getAllConnections().forEach((node) => {
+      connections.push(node.model);
+    });
 
     return {
       nodes,
