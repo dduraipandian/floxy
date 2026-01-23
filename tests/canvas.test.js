@@ -1,4 +1,5 @@
 import { FlowCanvas } from "../src/components/canvas.js";
+import * as Constant from "../src/components/constants.js";
 
 describe("FlowCanvas", () => {
   let container;
@@ -48,7 +49,7 @@ describe("FlowCanvas", () => {
   test("should emit canvas:zoom event on wheel", () => {
     const canvas = new FlowCanvas({ name: "test-canvas" });
     const spy = jest.fn();
-    canvas.on("canvas:zoom", spy);
+    canvas.on(Constant.CANVAS_ZOOM_EVENT, spy);
     canvas.renderInto(container);
 
     const event = new WheelEvent("wheel", { deltaY: 100 });
@@ -61,7 +62,7 @@ describe("FlowCanvas", () => {
   test("should emit node:dropped event on drop", () => {
     const canvas = new FlowCanvas({ name: "test-canvas" });
     const spy = jest.fn();
-    canvas.on("node:dropped", spy);
+    canvas.on(Constant.NODE_DROPPED_EVENT, spy);
     canvas.renderInto(container);
 
     const dropEvent = new MouseEvent("drop", {
@@ -70,18 +71,27 @@ describe("FlowCanvas", () => {
       bubbles: true,
     });
 
-    const nodeData = { name: "Test Node", inputs: 1, outputs: 1 };
+    const nodeData = { some: "data" };
     dropEvent.dataTransfer = {
-      getData: jest.fn((type) => (type === "application/json" ? JSON.stringify(nodeData) : "")),
+      getData: jest.fn((type) => {
+        if (type === "module") return "default";
+        if (type === "group") return "mygroup";
+        if (type === "name") return "Test Node";
+        if (type === "data") return JSON.stringify(nodeData);
+        return "";
+      }),
     };
 
-    container.dispatchEvent(dropEvent);
+    container.querySelector(".flow-canvas").dispatchEvent(dropEvent);
 
     expect(spy).toHaveBeenCalled();
-    const emittedData = spy.mock.calls[0][0].data;
+    const emittedData = spy.mock.calls[0][0];
     expect(emittedData.name).toBe("Test Node");
+    expect(emittedData.module).toBe("default");
+    expect(emittedData.group).toBe("mygroup");
     expect(emittedData.x).toBe(500); // clientX (500) - rect.left (0) - canvasX (0)
     expect(emittedData.y).toBe(500);
+    expect(emittedData.data).toEqual(nodeData);
   });
 
   test("should support canvas panning via redraw", () => {

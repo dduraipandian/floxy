@@ -1,6 +1,17 @@
 import { Flow } from "../src/flow.js";
 import { DagValidator } from "../src/components/plugins/dag-validator.js";
 
+import { DraggableBehavior } from "../src/components/node/behaviors/DraggableBehavior.js";
+import { SelectableBehavior } from "../src/components/node/behaviors/SelectableBehavior.js";
+import { EditableLabelBehavior } from "../src/components/node/behaviors/EditableLabelBehavior.js";
+import { BehaviorRegistry } from "../src/components/node/behaviors/BehaviorRegistry.js";
+import { ResizableBehavior } from "../src/components/node/behaviors/ResizableBehavior.js";
+
+BehaviorRegistry.register(DraggableBehavior);
+BehaviorRegistry.register(SelectableBehavior);
+BehaviorRegistry.register(EditableLabelBehavior);
+BehaviorRegistry.register(ResizableBehavior);
+
 describe("Flow Integration", () => {
   let container;
   let flow;
@@ -51,10 +62,10 @@ describe("Flow Integration", () => {
     const n1 = flow.addNode({ name: "Source" });
     const n2 = flow.addNode({ name: "Target" });
 
-    const success = flow.addConnection(n1, 0, n2, 0);
+    const connection = flow.addConnection(n1, 0, n2, 0);
 
-    expect(success).toBe(true);
-    expect(flow.connectionManager.connections.length).toBe(1);
+    expect(connection.id).toBe(`${n1}:0-${n2}:0`);
+    expect(flow.connectionManager.connections.size).toBe(1);
     expect(container.querySelector("path")).toBeTruthy();
   });
 
@@ -79,8 +90,8 @@ describe("Flow Integration", () => {
     const closeBtn = container.querySelector(`#node-${n1} .node-close`);
     closeBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
-    expect(flow.nodeManager.nodes[n1]).toBeUndefined();
-    expect(flow.connectionManager.connections.length).toBe(0);
+    expect(flow.nodeManager.nodes.get(n1)).toBeUndefined();
+    expect(flow.connectionManager.connections.size).toBe(0);
   });
 
   test("should handle nodes dropped on the canvas", () => {
@@ -90,14 +101,20 @@ describe("Flow Integration", () => {
       bubbles: true,
     });
 
+    // eslint-disable-next-line no-unused-vars
     const nodeData = { name: "Dropped", inputs: 1, outputs: 1 };
     dropEvent.dataTransfer = {
-      getData: jest.fn((type) => (type === "application/json" ? JSON.stringify(nodeData) : "")),
+      getData: jest.fn((type) => {
+        if (type === "module") return "default";
+        if (type === "group") return "mygroup";
+        if (type === "name") return "Dropped";
+        return "";
+      }),
     };
 
     container.querySelector(".floxy-flow-container").dispatchEvent(dropEvent);
 
-    const nodes = Object.values(flow.nodeManager.nodes);
+    const nodes = flow.nodeManager.getAllNodes();
     expect(nodes.some((n) => n.name === "Dropped")).toBe(true);
   });
 
@@ -110,10 +127,10 @@ describe("Flow Integration", () => {
     const n2 = freeFlow.addNode({ name: "N2" });
 
     freeFlow.addConnection(n1, 0, n2, 0);
-    const success = freeFlow.addConnection(n2, 0, n1, 0); // Cycle
+    const connection = freeFlow.addConnection(n2, 0, n1, 0); // Cycle
 
-    expect(success).toBe(true);
-    expect(freeFlow.connectionManager.connections.length).toBe(2);
+    expect(connection.id).toBe(`${n2}:0-${n1}:0`);
+    expect(freeFlow.connectionManager.connections.size).toBe(2);
   });
 
   test("should move node at correct speed when zoomed", async () => {
@@ -125,7 +142,7 @@ describe("Flow Integration", () => {
     const n2 = zoomedFlow.addNode({ name: "N2", x: 400, y: 100, inputs: 1 });
     zoomedFlow.addConnection(n1, 0, n2, 0);
 
-    const path = container.querySelector("path");
+    const path = container.querySelector("path.connection");
     const initialD = path.getAttribute("d");
 
     const nodeEl = container.querySelector(`#node-${n1}`);
@@ -139,8 +156,10 @@ describe("Flow Integration", () => {
     // Wait for internal RAF/timeouts in DragHandler (we simulate delay)
     await new Promise((resolve) => setTimeout(resolve, 20));
 
-    expect(zoomedFlow.nodeManager.nodes[n1].x).toBe(300); // 100 + 100/0.5
-    expect(zoomedFlow.nodeManager.nodes[n1].y).toBe(300);
+    console.log(zoomedFlow.nodeManager.getNode(n1).x);
+
+    expect(zoomedFlow.nodeManager.getNode(n1).x).toBe(300); // 100 + 100/0.5
+    expect(zoomedFlow.nodeManager.getNode(n1).y).toBe(300);
 
     // Verify connection path also moved (integration check)
     const updatedD = path.getAttribute("d");
@@ -162,10 +181,12 @@ describe("Flow Integration", () => {
     expect(flow.isConnecting).toBe(true);
 
     // Move mouse
-    window.dispatchEvent(new MouseEvent("mousemove", { clientX: 100, clientY: 100 }));
+    window.dispatchEvent(new MouseEvent("mousemove", { clientX: 100, clientY: 168 }));
 
     // Wait for RAF
     await new Promise((resolve) => setTimeout(resolve, 1));
+
+    expect(flow.connectionManager.tempConnection).not.toBeNull();
 
     expect(container.querySelector(".flow-connection-temp")).not.toBeNull();
 
@@ -173,15 +194,15 @@ describe("Flow Integration", () => {
     inPort.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
 
     let pathId = "2:0-3:0";
-    let path = flow.svgEl.querySelector(`path[data-id="${pathId}"]`);
+    let path = flow.svgEl.querySelector(`path[id="${pathId}"]`);
     expect(path.classList.contains("flow-connection-path-bad")).toBeTruthy();
 
     let pathId2 = "3:0-4:0";
-    let path2 = flow.svgEl.querySelector(`path[data-id="${pathId2}"]`);
+    let path2 = flow.svgEl.querySelector(`path[id="${pathId2}"]`);
     expect(path2.classList.contains("flow-connection-path-bad")).toBeTruthy();
 
     let pathId3 = "4:0-2:0";
-    let path3 = flow.svgEl.querySelector(`path[data-id="${pathId3}"]`);
+    let path3 = flow.svgEl.querySelector(`path[id="${pathId3}"]`);
     expect(path3).toBeNull();
 
     let path4 = flow.svgEl.querySelector(".flow-connection-temp");
@@ -193,14 +214,14 @@ describe("Flow Integration", () => {
     // Verify connection was cancelled
     expect(flow.isConnecting).toBe(false);
     expect(container.querySelector(".flow-connection-temp")).toBeNull();
-    expect(flow.connectionManager.tempSource).toBeNull();
+    expect(flow.connectionManager.tempConnection).toBeNull();
 
     pathId = "2:0-3:0";
-    path = flow.svgEl.querySelector(`path[data-id="${pathId}"]`);
+    path = flow.svgEl.querySelector(`path[id="${pathId}"]`);
     expect(path.classList.contains("flow-connection-path-bad")).not.toBeTruthy();
 
     pathId2 = "3:0-4:0";
-    path2 = flow.svgEl.querySelector(`path[data-id="${pathId2}"]`);
+    path2 = flow.svgEl.querySelector(`path[id="${pathId2}"]`);
     expect(path2.classList.contains("flow-connection-path-bad")).not.toBeTruthy();
   });
 
@@ -216,7 +237,7 @@ describe("Flow Integration", () => {
     window.dispatchEvent(new KeyboardEvent("keydown", { keyCode: 27, bubbles: true }));
 
     expect(flow.isConnecting).toBe(false);
-    expect(flow.connectionManager.tempSource).toBeNull();
+    expect(flow.connectionManager.tempConnection).toBeNull();
   });
 
   test("should remove connection when clicking on path", () => {
@@ -231,7 +252,7 @@ describe("Flow Integration", () => {
     path.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
     // Verify connection was removed
-    expect(flow.connectionManager.connections.length).toBe(0);
+    expect(flow.connectionManager.size).toBe(0);
     expect(container.querySelector("path.flow-connection-path")).toBeNull();
   });
 
@@ -248,9 +269,10 @@ describe("Flow Integration", () => {
     // End on input
     inPort.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
 
-    expect(flow.connectionManager.connections.length).toBe(1);
-    expect(flow.connectionManager.connections[0].outNodeId).toBe(n1);
-    expect(flow.connectionManager.connections[0].inNodeId).toBe(n2);
+    expect(flow.connectionManager.size).toBe(1);
+    const conn = flow.connectionManager.getConnection(`${n1}:0-${n2}:0`);
+    expect(conn.outNodeId).toBe(n1);
+    expect(conn.inNodeId).toBe(n2);
   });
 
   test("should manually update connections on external triggers", () => {
@@ -258,7 +280,7 @@ describe("Flow Integration", () => {
     const n2 = flow.addNode({ name: "N2", x: 400, y: 100 });
     flow.addConnection(n1, 0, n2, 0);
 
-    const path = container.querySelector("path");
+    const path = container.querySelector("path.connection");
     const initialD = path.getAttribute("d");
 
     // Change mock values to simulate layout shift
@@ -287,12 +309,15 @@ describe("Flow Integration", () => {
     expect(data.nodes.length).toBe(2);
     expect(data.connections.length).toBe(1);
     expect(data.nodes[0].name).toBe("N1");
-    expect(data.connections[0]).toEqual({
-      outNodeId: n1,
-      outPort: 0,
-      inNodeId: n2,
-      inPort: 0,
-    });
+    expect(data.nodes[1].name).toBe("N2");
+    expect(data.nodes[0].x).toBe(100);
+    expect(data.nodes[0].y).toBe(100);
+    expect(data.nodes[1].x).toBe(400);
+    expect(data.nodes[1].y).toBe(100);
+    expect(data.connections[0].outNodeId).toBe(n1);
+    expect(data.connections[0].outPort).toBe(0);
+    expect(data.connections[0].inNodeId).toBe(n2);
+    expect(data.connections[0].inPort).toBe(0);
   });
 
   test("should import flow state correctly", () => {
@@ -309,13 +334,22 @@ describe("Flow Integration", () => {
     flow.import(importData);
 
     expect(flow.zoom).toBe(2);
-    expect(Object.keys(flow.nodeManager.nodes).length).toBe(2);
-    expect(flow.connectionManager.connections.length).toBe(1);
+    expect(flow.nodeManager.size).toBe(2);
+    expect(flow.connectionManager.size).toBe(1);
 
-    const nodeA = flow.nodeManager.nodes[1];
+    const nodeA = flow.nodeManager.getNode(1);
     expect(nodeA.name).toBe("Node A");
+    expect(nodeA.x).toBe(10);
+    expect(nodeA.y).toBe(10);
     expect(container.querySelector("#node-1")).toBeTruthy();
-    expect(container.querySelector("path")).toBeTruthy();
+
+    const nodeB = flow.nodeManager.getNode(2);
+    expect(nodeB.name).toBe("Node B");
+    expect(nodeB.x).toBe(300);
+    expect(nodeB.y).toBe(10);
+    expect(container.querySelector("#node-2")).toBeTruthy();
+
+    expect(container.querySelector("path[id='1:0-2:0']")).toBeTruthy();
 
     expect(flow.canvas.canvasX).toBe(150);
     expect(flow.canvas.canvasY).toBe(50);

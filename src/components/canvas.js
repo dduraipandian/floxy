@@ -1,6 +1,36 @@
 import { EmitterComponent } from "@uiframe/core";
 import { DragHandler } from "./utils.js";
 
+import * as constants from "./constants.js";
+
+function ensureArrowMarkers(svg, size = 5) {
+  if (svg.querySelector("#arrow-end")) return;
+
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+
+  const makeMarker = (id, pathD) => {
+    const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+    marker.setAttribute("id", id);
+    marker.setAttribute("markerWidth", size);
+    marker.setAttribute("markerHeight", size);
+    marker.setAttribute("refX", size);
+    marker.setAttribute("refY", size / 2);
+    marker.setAttribute("orient", "auto");
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", pathD);
+    path.setAttribute("fill", "currentColor");
+
+    marker.appendChild(path);
+    return marker;
+  };
+
+  defs.appendChild(makeMarker("arrow-end", `M 0 0 L ${size} ${size / 2} L 0 ${size} Z`));
+  defs.appendChild(makeMarker("arrow-start", `M ${size} 0 L 0 ${size / 2} L ${size} ${size} Z`));
+
+  svg.appendChild(defs);
+}
+
 /**
  * Manages the state and logical operations of a Flow.
  * Adheres to SRP by only handling data and logical transformations.
@@ -19,6 +49,7 @@ class FlowCanvas extends EmitterComponent {
     this.canvasId = this.id + "-canvas";
     this.containerId = this.id + "-flow-container";
     this.zoomActionsId = this.id + "-zoom-actions";
+    this.arrowMarkerSize = options.arrow_marker_size || 7;
     // this.nodeManager = new FlowNodeManager({ name: this.name + "-flow-node-manager", canvasId: this.canvasId, options });
   }
 
@@ -59,6 +90,8 @@ class FlowCanvas extends EmitterComponent {
     // this.zoomInEl.addEventListener("click", this.onZoomAction.bind(this));
     // this.zoomOutEl.addEventListener("click", this.onZoomAction.bind(this));
     // this.zoomResetEl.addEventListener("click", this.onZoomAction.bind(this));
+
+    ensureArrowMarkers(this.svgEl, this.arrowMarkerSize);
   }
 
   redrawCanvas() {
@@ -76,7 +109,7 @@ class FlowCanvas extends EmitterComponent {
     this.containerEl.style.backgroundSize = `${gridSize}px ${gridSize}px`;
     this.containerEl.style.backgroundPosition = `${x}px ${y}px`;
 
-    this.containerEl.style.backgroundImage = `radial-gradient(#c1c1c4 ${1.5 * this.zoom}px, transparent ${1.5 * this.zoom}px)`;
+    // this.containerEl.style.backgroundImage = `radial-gradient(#c1c1c4 ${1.5 * this.zoom}px, transparent ${1.5 * this.zoom}px)`;
     // this.zoomChangeUpdate();
   }
 
@@ -89,7 +122,7 @@ class FlowCanvas extends EmitterComponent {
     const newZoom = Math.max(0.1, Math.min(this.zoom + delta, 3));
     this.zoom = newZoom;
     this.redrawCanvas();
-    this.emit("canvas:zoom", {
+    this.emit(constants.CANVAS_ZOOM_EVENT, {
       data: {
         zoom: this.zoom,
         x: this.canvasX,
@@ -105,24 +138,27 @@ class FlowCanvas extends EmitterComponent {
     e.stopPropagation();
 
     try {
-      const raw = e.dataTransfer.getData("application/json");
-      if (!raw) return;
+      const module = e.dataTransfer.getData("module");
+      const group = e.dataTransfer.getData("group");
+      const name = e.dataTransfer.getData("name");
+      const label = e.dataTransfer.getData("label");
+      const data = e.dataTransfer.getData("data");
 
-      const data = JSON.parse(raw);
+      if (!module || !group || !name) return;
+
+      let nodeData;
+      try {
+        nodeData = data ? JSON.parse(data) : {};
+      } catch (err) {
+        console.error("Invalid drop data", err);
+        nodeData = {};
+      }
       const rect = this.containerEl.getBoundingClientRect();
       const x = e.clientX - rect.left - this.canvasX;
       const y = e.clientY - rect.top - this.canvasY;
 
-      // this.addNode({
-      //     name: data.name,
-      //     inputs: data.inputs,
-      //     outputs: data.outputs,
-      //     x,
-      //     y,
-      //     html: data.html,
-      // });
-      this.emit("node:dropped", { data: { x, y, ...data } });
-      console.debug("FLOW - DROP: ", data, x, y);
+      this.emit(constants.NODE_DROPPED_EVENT, { module, group, name, label, x, y, data: nodeData });
+      console.debug("FLOW - DROP: ", module, group, name, label, x, y, nodeData);
     } catch (err) {
       console.error("Invalid drop data", err);
     }

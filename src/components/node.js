@@ -1,171 +1,144 @@
 import { EmitterComponent } from "@uiframe/core";
-import { DragHandler } from "./utils.js";
-import * as Constant from "./constants.js";
-
-// eslint-disable-next-line no-unused-vars
-class FlowNode extends EmitterComponent {
-  constructor({ nodeId, inputs = 1, outputs = 1, x = 0, y = 0, html = "", options = {} }) {
-    super({ name: `node-${nodeId}` });
-
-    this.x = x;
-    this.y = y;
-    this.nodeId = nodeId;
-    this.inputs = inputs;
-    this.outputs = outputs;
-    this.contentHtml = html;
-    this.options = options;
-  }
-}
+import { Node } from "./node/Node.js";
+import { NodeModel } from "./node/NodeModel.js";
+import { BehaviorRegistry } from "./node/behaviors/BehaviorRegistry.js";
+import { nodeViewRegistry } from "./node/NodeViewRegistry.js";
+import { DefaultView } from "./node/views/packages/workflow/DefaultView.js";
+import { DefaultBehaviorResolver } from "./node/DefaultBehaviorResolver.js";
+import * as constants from "./constants.js";
 
 class FlowNodeManager extends EmitterComponent {
-  constructor({ name, canvasContainer, options = {} }) {
-    super({ name: name + "-flow-node-manager" });
-    this.options = options;
-    this.zoom = options.zoom || 1;
-    this.originalZoom = this.zoom;
-
-    this.nodes = {};
-    this.nodeIdCounter = 1;
-    this.nodeWidth = options.nodeWidth || 200;
-    this.nodeHeight = options.nodeHeight || 90;
-    this.selectedNodeId = null;
+  constructor({
+    name,
+    canvasContainer,
+    zoomGetter = () => 1,
+    View = DefaultView,
+    viewRegistry = nodeViewRegistry,
+    BehaviorRegistryCls = BehaviorRegistry,
+    BehaviorResolverCls = DefaultBehaviorResolver,
+  }) {
+    super({ name: name + "node-manager" });
     this.canvasContainer = canvasContainer;
+    this.zoomGetter = zoomGetter;
+    this.View = View;
+    this.viewRegistry = viewRegistry;
+    this.nodes = new Map();
+    this.idCounter = 1;
+
+    this.BehaviorRegistryCls = BehaviorRegistryCls;
+    this.BehaviorResolverCls = BehaviorResolverCls;
+
+    this.behaviorResolver = new this.BehaviorResolverCls({ registry: this.BehaviorRegistryCls });
+    this.behaviors = [];
   }
 
-  dropNode(data) {
-    const posX = (data.x - this.nodeWidth / 2) / this.zoom;
-    const posY = (data.y - this.nodeHeight / 2) / this.zoom;
-    this.addNode({ ...data, x: posX, y: posY });
+  dropNode(config) {
+    console.debug("FLOW: Drop node", config);
+    this.addNode(config, true);
   }
 
-  addNode({ name, inputs = 1, outputs = 1, x = 0, y = 0, html = "" }) {
-    const id = this.nodeIdCounter++;
-    const node = { id, name, inputs, outputs, x, y, contentHtml: html };
+  addNode(config, isDropped = false) {
+    console.debug("FLOW: Add node", config);
 
-    this.nodes[id] = node;
-    this.renderNode(node);
-    return id;
-  }
+    let ViewClass = this.viewRegistry.get(config.module, config.group, config.name);
+    if (!ViewClass) {
+      console.warn(
+        "No nodeview fond for {",
+        config.module,
+        config.group,
+        config.name,
+        "}. Using default view."
+      );
+      ViewClass = this.View;
+    }
+    const viewDefaults = ViewClass.modelDefaults;
 
-  renderNode(node) {
-    const el = document.createElement("div");
-    const inputHtml = `<div class="flow-port" data-type="input" data-node-id="${node.id}" data-index="{{index}}"></div>`;
-    const outputHtml = `<div class="flow-port" data-type="output" data-node-id="${node.id}" data-index="{{index}}"></div>`;
+    if (isDropped) {
+      // dropping node mid point near to pointer
+      const zoom = this.zoomGetter();
+      const nodeHeight = config.h ?? viewDefaults.h ?? 100;
+      const nodeWidth = config.w ?? viewDefaults.w ?? 200;
+      const posX = (config.x - nodeWidth / 2) / zoom;
+      const posY = (config.y - nodeHeight / 2) / zoom;
+      config.x = posX;
+      config.y = posY;
+    }
 
-    const nodeHtml = `
-        <div id="node-${node.id}" 
-            data-id="${node.id}" 
-            class="flow-node rounded" 
-            style="top: ${node.y}px; left: ${node.x}px; 
-                    width: ${this.nodeWidth}px; height: fit-content">                        
-            <div class="flow-ports-column flow-ports-in">
-                ${Array.from({ length: node.inputs }, (_, i) => inputHtml.replace("{{index}}", i)).join("\n")}
-            </div>
-            <div class="flow-node-content card w-100">              
-              <div class="card-header">${node.name}</div>
-              <div class="card-body">${node.contentHtml}</div>              
-            </div>            
-            <div class="flow-ports-column flow-ports-out">                
-                ${Array.from({ length: node.outputs }, (_, i) => outputHtml.replace("{{index}}", i)).join("\n")}
-            </div>
-            <button type="button" 
-                data-id="${node.id}"
-                class="btn-danger btn-close node-close border rounded shadow-none m-1" 
-                aria-label="Close">
-            </button>
-        </div>
-        `;
-    el.innerHTML = nodeHtml;
-
-    const nodeEl = el.querySelector(`#node-${node.id}`);
-
-    nodeEl.onclick = (e) => this.onNodeClick(e, node.id);
-    nodeEl.onmousedown = (e) => this.onNodeClick(e, node.id);
-
-    // register drap handler
-    const hl = new DragHandler(
-      nodeEl,
-      this.redrawNodeWithXY.bind(this, node.id),
-      {
-        x: this.nodes[node.id].x,
-        y: this.nodes[node.id].y,
-      },
-      { x: 0, y: 0 },
-      () => this.zoom
-    );
-    hl.registerDragEvent();
-
-    nodeEl
-      .querySelector("button.node-close")
-      .addEventListener("click", (e) => this.removeNode(e, node.id));
-
-    nodeEl.querySelectorAll(".flow-ports-out .flow-port").forEach((port) => {
-      port.onmousedown = (e) => {
-        this.emit("port:connect:start", {
-          nodeId: node.id,
-          portIndex: port.dataset.index,
-          event: e,
-        });
-      };
+    Object.keys(viewDefaults).forEach((key) => {
+      const value = config[key];
+      if (value === undefined || value === "undefined") {
+        config[key] = viewDefaults[key];
+      }
     });
 
-    nodeEl.querySelectorAll(".flow-ports-in .flow-port").forEach((port) => {
-      port.onmouseup = (e) => {
-        this.emit("port:connect:end", {
-          nodeId: node.id,
-          portIndex: port.dataset.index,
-          event: e,
-        });
-      };
-    });
+    const node = this.#createNode(config, ViewClass);
+    node.renderInto(this.canvasContainer);
+    node.init();
 
-    this.nodes[node.id].el = nodeEl;
-    this.canvasContainer.appendChild(nodeEl);
+    this.nodes.set(node.id, node);
+    return node.id;
+  }
+
+  #createNode(config, ViewClass) {
+    const id = this.idCounter++;
+
+    const model = new NodeModel({ id, ...config });
+    const view = new ViewClass(model, { ...this.options, zoomGetter: this.zoomGetter });
+    const node = new Node({ model, view });
+
+    const behaviors = this.behaviorResolver.resolve(node, this.options);
+    console.debug("FLOW: Node behaviors", node, behaviors);
+    node.setBehaviors(behaviors);
+
+    // bubble view events upward
+    this.propagateEvent(constants.PORT_CONNECT_START_EVENT, view);
+    this.propagateEvent(constants.PORT_CONNECT_END_EVENT, view);
+
+    this.propagateEvent(constants.NODE_SELECTED_EVENT, view);
+    this.propagateEvent(constants.NODE_DESELECTED_EVENT, view);
+
+    this.propagateEvent(constants.NODE_MOVED_EVENT, node);
+    this.propagateEvent(constants.NODE_UPDATED_EVENT, node);
+    this.propagateEvent(constants.NODE_LABEL_UPDATED_EVENT, node);
+
+    view.on(constants.NODE_REMOVED_EVENT, (e) => this.removeNode(e.id));
+
+    return node;
+  }
+
+  removeNode(id) {
+    let node = this.getNode(id);
+    if (!node) return;
+
+    node.destroy();
+    this.nodes.delete(id);
+    this.emit(constants.NODE_REMOVED_EVENT, { id });
+    node = null;
+  }
+
+  propagateEvent(event, instance) {
+    instance.on(event, (e) => this.emit(event, e));
   }
 
   reset() {
     Object.values(this.nodes).forEach((n) => {
-      n.el?.remove();
+      n.destroy();
     });
-    this.nodes = {};
-    this.nodeIdCounter = 1;
-    this.selectedNodeId = null;
+    this.nodes.clear();
+    this.idCounter = 1;
   }
 
-  redrawNodeWithXY(id, x, y) {
-    this.nodes[id].x = x;
-    this.nodes[id].y = y;
-
-    // https://stackoverflow.com/questions/7108941/css-transform-vs-position
-    // Changing transform will trigger a redraw in compositor layer only for the animated element
-    // (subsequent elements in DOM will not be redrawn). I want DOM to be redraw to make connection attached to the port.
-    // so using position top/left to keep the position intact, not for the animation.
-    // I spent hours to find this out with trial and error.
-    this.nodes[id].el.style.top = `${y}px`;
-    this.nodes[id].el.style.left = `${x}px`;
-
-    // this.updateConnections(id);
-    this.emit(Constant.NODE_MOVED_EVENT, { id, x, y });
+  getNode(id) {
+    const n = this.nodes.get(id);
+    return n;
   }
 
-  // handling mouse left click on node
-  onNodeClick(e, id) {
-    if (this.selectedNodeId && this.nodes[this.selectedNodeId]) {
-      this.nodes[this.selectedNodeId].el.classList.remove("selected");
-    }
-    this.nodes[id].el.classList.add("selected");
-    this.selectedNodeId = id;
+  getAllNodes() {
+    return [...this.nodes.values()];
   }
 
-  removeNode(event, nodeId) {
-    console.debug("FLOW: removing node ", nodeId);
-    event.stopPropagation();
-    const id = parseInt(nodeId);
-
-    this.emit(Constant.NODE_REMOVED_EVENT, { id });
-
-    this.nodes[nodeId].el.remove();
-    delete this.nodes[nodeId];
+  get size() {
+    return this.nodes.size;
   }
 }
 

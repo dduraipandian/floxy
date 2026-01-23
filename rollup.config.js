@@ -4,12 +4,12 @@ import terser from "@rollup/plugin-terser";
 import postcss from "rollup-plugin-postcss";
 import nesting from "postcss-nesting";
 
-const publishSourceMap = process.env.PUBLISH_SOURCEMAP ?? false;
+const devEnvironment = process.env.DEVELOPMENT ?? false;
 
 const cssPlugin = postcss({
   extract: "floxy.css",
-  minimize: true,
-  sourceMap: publishSourceMap,
+  minimize: !devEnvironment,
+  sourceMap: devEnvironment,
   plugins: [nesting()],
 });
 
@@ -20,19 +20,19 @@ export default {
     {
       file: "dist/index.js",
       format: "cjs",
-      sourcemap: publishSourceMap,
+      sourcemap: devEnvironment,
     },
     {
       file: "dist/index.esm.js",
       format: "esm",
-      sourcemap: publishSourceMap,
+      sourcemap: devEnvironment,
     },
     {
       file: "dist/floxy.min.js",
       format: "iife", // browser-friendly
       name: "floxy", // window.floxy
-      sourcemap: publishSourceMap,
-      plugins: [terser()],
+      sourcemap: devEnvironment,
+      plugins: devEnvironment ? [] : [terser()],
     },
   ],
   plugins: [resolve(), commonjs(), cssPlugin],

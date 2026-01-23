@@ -4,7 +4,9 @@ class DragHandler {
     onMoveHandler,
     initialPosition = { x: 0, y: 0 },
     startDragPosition = { x: 0, y: 0 },
-    zoom = 1
+    zoom = 1,
+    onMoveCursor = "grabbing",
+    onReleaseCursor = "grab"
   ) {
     this.element = element;
     this.onMoveHandler = onMoveHandler;
@@ -18,6 +20,8 @@ class DragHandler {
     this.elementY = this.initialPosition.y;
 
     this.rafId = null;
+    this.onMoveCursor = onMoveCursor;
+    this.onReleaseCursor = onReleaseCursor;
 
     this.MOUSE_RIGHT_CLICK = 2;
   }
@@ -44,7 +48,7 @@ class DragHandler {
     this.isDragging = true;
     this.dragStartPosition = { x: e.clientX, y: e.clientY };
     this.initialPosition = { x: this.elementX, y: this.elementY };
-    this.element.style.cursor = "grabbing";
+    this.element.style.cursor = this.onMoveCursor;
 
     window.addEventListener("mousemove", this.onMove.bind(this));
     window.addEventListener("mouseup", this.onRelease.bind(this));
@@ -78,7 +82,7 @@ class DragHandler {
 
     e.stopPropagation();
     this.isDragging = false;
-    this.element.style.cursor = "grab";
+    this.element.style.cursor = this.onReleaseCursor;
 
     window.removeEventListener("mousemove", this.onMove.bind(this));
     window.removeEventListener("mouseup", this.onRelease.bind(this));

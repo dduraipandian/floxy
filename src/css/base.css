@@ -1,3 +1,60 @@
+:root {
+  --floxy-primary-color: #0d6efd;
+  --floxy-secondary-color: #6c757d;
+  --floxy-danger-color: #dc3545;
+  --floxy-warning-color: #ffc107;
+  --floxy-info-color: #0dcaf0;
+  --floxy-light-color: #f8f9fa;
+  --floxy-dark-color: #212529;
+
+  /* Node appearance */
+  --floxy-node-bg: #fff;
+  --floxy-node-border: #dee2e6;
+  --floxy-node-border-width: 1px;
+  --floxy-node-radius: 0.375rem;
+  --floxy-node-border-style: solid;
+  --floxy-node-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+
+  /* Text */
+  --floxy-node-text: #212529;
+
+  /* Focus / selection */
+  --floxy-node-focus-color: rgba(13, 110, 253, 0.25);
+
+  /* Grid */
+  --floxy-grid-color: #c1c1c4;
+  --floxy-grid-size: 24px;
+  --floxy-grid-dot-radius: 1.4px;
+}
+
+.floxy-flow-container {
+  --node-primary-color: var(--floxy-primary-color);
+  --node-secondary-color: var(--floxy-secondary-color);
+  --node-danger-color: var(--floxy-danger-color);
+  --node-warning-color: var(--floxy-warning-color);
+  --node-info-color: var(--floxy-info-color);
+  --node-light-color: var(--floxy-light-color);
+  --node-dark-color: var(--floxy-dark-color);
+
+  --node-bg: var(--floxy-node-bg);
+  --node-text: var(--floxy-node-text);
+
+  --node-border: var(--floxy-node-border);
+  --node-radius: var(--floxy-node-radius);
+  --node-border-width: var(--floxy-node-border-width);
+  --node-border-style: var(--floxy-node-border-style);
+  --node-shadow: var(--floxy-node-shadow);
+
+  --node-grid-color: var(--floxy-grid-color);
+  --node-grid-size: var(--floxy-grid-size);
+  --node-grid-dot-radius: var(--floxy-grid-dot-radius);
+
+  --node-focus-color: var(--floxy-node-focus-color);
+  --node-focus-width: 0.125rem;
+
+  --node-port-darker-bg: color-mix(in srgb, var(--floxy-node-border), black 20%);
+}
+
 /* START: FLOW COMPONENT */
 /* Flow Container - The stage */
 /* Container must handle overflow and cursor */
@@ -8,8 +65,11 @@
   overflow: hidden;
   user-select: none;
   cursor: grab;
-  background-image: radial-gradient(#c1c1c4 1.4px, transparent 1.4px);
-  background-size: 24px 24px;
+  background-image: radial-gradient(
+    var(--node-grid-color) var(--node-grid-dot-radius),
+    transparent var(--node-grid-dot-radius)
+  );
+  background-size: var(--node-grid-size) var(--node-grid-size);
 
   &:active {
     cursor: grabbing;
@@ -37,32 +97,106 @@
       display: flex;
       z-index: 1;
       cursor: grab;
+      width: 100%;
+      height: 100%;
 
-      /* --bs-focus-ring-width: 0.125rem; */
+      /* DIV-based nodes (Bootstrap card, etc.) */
+      div.node {
+        background: var(--node-bg);
+        color: var(--node-text);
+        border: var(--node-border-width) var(--node-border-style) var(--node-border);
+        border-radius: var(--node-radius);
+        box-shadow: var(--node-shadow);
+        width: 100%;
+        height: 100%;
+      }
+
+      &.selected:has(div.node) {
+        z-index: 10;
+        outline: 0;
+
+        box-shadow: 0 0 0 var(--node-focus-width) var(--node-focus-color);
+        border-radius: var(--node-radius);
+      }
+
+      /* SVG-based nodes */
+      svg.node {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+
+        .shape {
+          fill: var(--node-bg);
+          stroke: var(--node-border);
+          stroke-width: var(--node-border-width);
+          vector-effect: non-scaling-stroke;
+        }
+      }
+
+      &.selected:has(svg.node) .shape {
+        outline: 0;
+        stroke: var(--node-focus-color);
+        stroke-width: var(--node-focus-width);
+      }
+
+      .resize-handle {
+        display: block;
+      }
 
       &:active {
         cursor: grabbing;
       }
 
+      .resize-handle {
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        right: -5px;
+        bottom: -5px;
+        background: var(--node-primary-color);
+        cursor: nwse-resize;
+        z-index: 20;
+        display: none;
+      }
+
+      /* when node is selected, show close and resize handle if class is attached. */
       &.selected {
-        z-index: 10;
-        outline: 0;
-
-        /* Hard coded focus right as it needs to be persisted */
-        box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0) var(--bs-focus-ring-blur, 0)
-          var(--bs-focus-ring-width) var(--bs-focus-ring-color);
-
         .node-close {
+          display: block;
+        }
+
+        .resize-handle {
           display: block;
         }
       }
 
       .node-close {
-        right: 0;
+        right: 1px;
+        top: 1px;
         position: absolute;
-        font-size: 0.5rem;
+        font-size: 0.65rem;
         display: none;
-        border: var(--bs-border-width) var(--bs-border-style) #212529 !important;
+        border: var(--node-border-width) var(--node-border-style) var(--node-text) !important;
+        z-index: 10;
+      }
+
+      .node-label {
+        z-index: 2;
+        padding: 6px;
+        display: grid;
+        place-items: center;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        color: var(--node-text);
+        font-weight: 500;
+        text-align: center;
+
+        &:focus-visible {
+          outline: none;
+        }
       }
 
       /* Ports - functional layout */
@@ -76,31 +210,33 @@
         z-index: 2;
         overflow: visible;
 
-        &.flow-ports-out {
-          left: -2px;
+        &.flow-ports-output {
+          margin-left: auto;
+
+          .flow-port {
+            background: var(--node-port-darker-bg);
+          }
         }
 
-        &.flow-ports-in {
-          left: 2px;
+        &.flow-ports-input {
+          margin-right: auto;
         }
 
         .flow-port {
           width: 10px;
           height: 10px;
-          background: var(--bs-body-bg);
           border-radius: 50%;
           margin: 8px 0;
           z-index: 2;
           cursor: crosshair;
           position: relative;
-          border: var(--bs-border-width) solid var(--bs-border-color);
+          background: var(--node-bg);
+          border: var(--node-border-width) solid var(--node-border);
         }
 
         .flow-port:hover {
           transform: scale(1.5);
-          --bs-focus-ring-width: 1px;
-          box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0)
-            var(--bs-focus-ring-blur, 0) var(--bs-focus-ring-width) var(--bs-focus-ring-color);
+          box-shadow: 0 0 0 2px var(--node-focus-color);
         }
       }
     }
@@ -120,26 +256,45 @@
     /* Connection paths */
     .flow-connection-path {
       fill: none;
-      stroke: var(--bs-secondary);
+      stroke: var(--node-secondary-color);
       stroke-width: 2px;
       stroke-linecap: round;
       pointer-events: stroke;
       transition: stroke 0.2s;
 
-      &:hover {
-        stroke: var(--bs-primary);
+      &:hover,
+      &.path-hover {
+        stroke: var(--node-primary-color);
         stroke-width: 3px;
         cursor: pointer;
       }
 
-      &.selected {
-        stroke: var(--bs-primary);
+      &.selected,
+      &.flow-connection-temp {
+        stroke: var(--node-primary-color);
+        stroke-width: 3px;
+        cursor: pointer;
       }
       &.flow-connection-path-bad {
-        stroke: var(--bs-danger);
+        stroke: var(--node-danger-color);
+        stroke-width: 3px;
+        cursor: pointer;
       }
     }
   }
 }
 
+.flow-connection-path.animated {
+  stroke-dasharray: 6, 4;
+  animation: flow 1s linear infinite;
+}
+
+@keyframes flow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -20;
+  }
+}
 /* END: FLOW COMPONENT */
