@@ -115,7 +115,7 @@ describe("FlowNodeManager", () => {
     expect(nodeEl.style.top).toBe("300px");
   });
 
-  test.only("should calculate port positions correctly with zoom", () => {
+  test("should calculate port positions correctly with zoom", () => {
     // Mock getBoundingClientRect for port mapping
     // This is used by getPortPosition to find offsets within nodes
     Element.prototype.getBoundingClientRect = jest.fn(function () {

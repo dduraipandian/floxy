@@ -126,6 +126,10 @@ class FlowNodeManager extends EmitterComponent {
     const n = this.nodes.get(id);
     return n;
   }
+
+  getAllNodes() {
+    return [...this.nodes.values()];
+  }
 }
 
 export { FlowNodeManager };

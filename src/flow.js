@@ -213,7 +213,7 @@ class Flow extends EmitterComponent {
       const x = (event.clientX - rect.left) / this.zoom;
       const y = (event.clientY - rect.top) / this.zoom;
 
-      // this.connectionManager.updateTempConnection(x, y);
+      this.connectionManager.updateTempConnection(x, y);
       this.connectionStart.x = x;
       this.connectionStart.y = y;
     }
