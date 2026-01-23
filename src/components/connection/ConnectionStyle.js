@@ -70,7 +70,7 @@ class ConnectionStyle {
             path.style.strokeDasharray = "6 4";
             path.style.animation = `flow ${1 / this.speed}s linear infinite`;
         } else {
-            path.style.strokeDasharray = "";
+            path.style.strokeDasharray = this.dash ?? "";
             path.style.animation = "";
         }
     }

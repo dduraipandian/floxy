@@ -64,7 +64,7 @@ describe("Flow Integration", () => {
 
     const connection = flow.addConnection(n1, 0, n2, 0);
 
-    expect(connection.id).toBe(1);
+    expect(connection.id).toBe(`${n1}:0-${n2}:0`);
     expect(flow.connectionManager.connections.size).toBe(1);
     expect(container.querySelector("path")).toBeTruthy();
   });

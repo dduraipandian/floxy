@@ -5,6 +5,7 @@ class BaseNodeBehavior {
   constructor({ node, options = {} }) {
     this.node = node;
     this.options = options;
+    this.attached = false;
   }
 
   static get behavior() {
@@ -21,9 +22,8 @@ class BaseNodeBehavior {
     if (!this.isSupported()) return;
     if (!this.gaurd()) return;
 
-    console.debug("FLOW: Attach behavior", this.constructor.behavior);
-
     this.attach();
+    this.attached = true;
     this.node.on(constants.NODE_REMOVED_EVENT, this.destroy);
   }
 
