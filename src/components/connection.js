@@ -128,7 +128,7 @@ class FlowConnectionManager extends EmitterComponent {
   }
 
   getAllConnections() {
-    return this.connections.values();
+    return [...this.connections.values()];
   }
 }
 
