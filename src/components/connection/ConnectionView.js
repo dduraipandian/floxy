@@ -36,8 +36,9 @@ class ConnectionView extends EmitterComponent {
             "http://www.w3.org/2000/svg",
             "path"
         );
-        this.path.classList.add("flow-connection-path");
-        this.path.dataset.id = this.model.id;
+        this.path.classList.add("flow-connection-path", "connection");
+        this.path.setAttribute("id", this.model.id);
+        this.path.setAttribute("data-id", this.getConnectionKey());
 
         this.parentContainer.appendChild(this.path);
         this.container = this.path;
@@ -46,6 +47,10 @@ class ConnectionView extends EmitterComponent {
         this.bindEvents();
 
         this.applyArrows();
+    }
+
+    getConnectionKey() {
+        return `${this.model.outNodeId}:${this.model.outPort}-${this.model.inNodeId}:${this.model.inPort}`;
     }
 
     applyArrows() {
@@ -71,7 +76,10 @@ class ConnectionView extends EmitterComponent {
     initShadowPath() {
         this.shadowPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
 
-        this.shadowPath.classList.add("flow-connection-path");
+        this.shadowPath.classList.add("flow-connection-path", "shadow-path");
+        this.shadowPath.setAttribute("id", "shadow-" + this.model.id);
+        this.shadowPath.setAttribute("data-id", this.getConnectionKey());
+
         this.shadowPath.style.stroke = "transparent";
         this.shadowPath.style.strokeWidth = 18;
         this.shadowPath.style.fill = "none";
