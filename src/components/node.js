@@ -77,7 +77,6 @@ class FlowNodeManager extends EmitterComponent {
     const id = this.idCounter++;
 
     const model = new NodeModel({ id, ...config });
-    console.log(this.viewRegistry, model);
     const view = new ViewClass(model, { ...this.options, zoomGetter: this.zoomGetter });
     const node = new Node({ model, view });
 

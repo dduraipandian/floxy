@@ -1,5 +1,16 @@
 import { FlowNodeManager } from "../src/components/node.js";
-import * as Constant from "../src/components/constants.js";
+import * as constants from "../src/components/constants.js";
+
+import { DraggableBehavior } from "../src/components/node/behaviors/DraggableBehavior.js";
+import { SelectableBehavior } from "../src/components/node/behaviors/SelectableBehavior.js";
+import { EditableLabelBehavior } from "../src/components/node/behaviors/EditableLabelBehavior.js";
+import { BehaviorRegistry } from "../src/components/node/behaviors/BehaviorRegistry.js";
+import { ResizableBehavior } from "../src/components/node/behaviors/ResizableBehavior.js";
+
+BehaviorRegistry.register(DraggableBehavior);
+BehaviorRegistry.register(SelectableBehavior);
+BehaviorRegistry.register(EditableLabelBehavior);
+BehaviorRegistry.register(ResizableBehavior);
 
 describe("FlowNodeManager", () => {
   let canvasContainer;
@@ -12,8 +23,7 @@ describe("FlowNodeManager", () => {
 
     manager = new FlowNodeManager({
       name: "test-node-manager",
-      canvasContainer: canvasContainer,
-      options: { nodeWidth: 200, nodeHeight: 90 },
+      canvasContainer: canvasContainer
     });
   });
 
@@ -33,7 +43,7 @@ describe("FlowNodeManager", () => {
     expect(nodeEl.style.top).toBe("20px");
   });
 
-  test.only("should drop a node and center it", () => {
+  test("should drop a node and center it", () => {
     manager.zoom = 1;
     manager.dropNode({ x: 500, y: 500, name: "Dropped", module: "default", group: "mygroup", label: "Action" });
     const node = manager.nodes.get(1);
@@ -45,26 +55,28 @@ describe("FlowNodeManager", () => {
   });
 
   test("should handle node selection on click", () => {
-    const id = manager.addNode({ name: "Selectable" });
+    const id = manager.addNode({ name: "Selectable", module: "default", group: "mygroup", label: "Action" });
     const nodeEl = canvasContainer.querySelector(`#node-${id}`);
 
     nodeEl.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
-    expect(nodeEl.classList.contains("selected")).toBe(true);
-    expect(manager.selectedNodeId).toBe(id);
 
-    const id2 = manager.addNode({ name: "Other" });
+    console.log(canvasContainer.innerHTML);
+    expect(nodeEl.classList.contains("selected")).toBe(true);
+    expect(SelectableBehavior.active.node.id).toBe(id);
+
+    const id2 = manager.addNode({ name: "Other", module: "default", group: "mygroup", label: "Action" });
     const nodeEl2 = canvasContainer.querySelector(`#node-${id2}`);
     nodeEl2.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
 
     expect(nodeEl.classList.contains("selected")).toBe(false);
     expect(nodeEl2.classList.contains("selected")).toBe(true);
-    expect(manager.selectedNodeId).toBe(id2);
+    expect(SelectableBehavior.active.node.id).toBe(id2);
   });
 
   test("should remove node and emit event", () => {
     const id = manager.addNode({ name: "Removable" });
     const spy = jest.fn();
-    manager.on(Constant.NODE_REMOVED_EVENT, spy);
+    manager.on(constants.NODE_REMOVED_EVENT, spy);
 
     const closeBtn = canvasContainer.querySelector(`#node-${id} .node-close`);
     closeBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
@@ -76,10 +88,10 @@ describe("FlowNodeManager", () => {
 
   test("should emit port:connect:start on port mousedown", () => {
     const spy = jest.fn();
-    manager.on("port:connect:start", spy);
-    const id = manager.addNode({ name: "Ports", outputs: 1 });
+    manager.on(constants.PORT_CONNECT_START_EVENT, spy);
+    const id = manager.addNode({ name: "Ports", outputs: 1, module: "default", group: "mygroup", label: "Action" });
 
-    const port = canvasContainer.querySelector(".flow-ports-out .flow-port");
+    const port = canvasContainer.querySelector(".flow-ports-output .flow-port");
     port.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
 
     expect(spy).toHaveBeenCalledWith(
@@ -91,11 +103,12 @@ describe("FlowNodeManager", () => {
   });
 
   test("should handle node movement and update styles", () => {
-    const id = manager.addNode({ name: "Moving Node", x: 100, y: 100 });
-    manager.redrawNodeWithXY(id, 200, 300);
+    const id = manager.addNode({ name: "Moving Node", x: 100, y: 100, module: "default", group: "mygroup", label: "Action" });
+    const node = manager.getNode(id);
+    node.move(200, 300);
 
-    expect(manager.nodes[id].x).toBe(200);
-    expect(manager.nodes[id].y).toBe(300);
+    expect(node.x).toBe(200);
+    expect(node.y).toBe(300);
 
     const nodeEl = canvasContainer.querySelector(`#node-${id}`);
     expect(nodeEl.style.left).toBe("200px");
