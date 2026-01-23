@@ -19,18 +19,6 @@ describe("FlowConnectionManager", () => {
     connectionContainer.id = "svg-container";
     canvasContainer.appendChild(connectionContainer);
 
-    // Mock getBoundingClientRect for port mapping
-    // This is used by getPortPosition to find offsets within nodes
-    Element.prototype.getBoundingClientRect = jest.fn(function () {
-      if (this.classList.contains("flow-node")) {
-        return { top: 100, left: 100, width: 200, height: 90 };
-      }
-      if (this.classList.contains("flow-port")) {
-        return { top: 110, left: 290, width: 10, height: 10 }; // Example port position
-      }
-      return { top: 0, left: 0, width: 0, height: 0 };
-    });
-
     nodeManager = new FlowNodeManager({
       name: "test-node-manager",
       canvasContainer: canvasContainer,

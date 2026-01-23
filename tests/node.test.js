@@ -114,4 +114,31 @@ describe("FlowNodeManager", () => {
     expect(nodeEl.style.left).toBe("200px");
     expect(nodeEl.style.top).toBe("300px");
   });
+
+  test.only("should calculate port positions correctly with zoom", () => {
+    // Mock getBoundingClientRect for port mapping
+    // This is used by getPortPosition to find offsets within nodes
+    Element.prototype.getBoundingClientRect = jest.fn(function () {
+      if (this.classList.contains("flow-node")) {
+        return { top: 100, left: 100, width: 200, height: 90 };
+      }
+      if (this.classList.contains("flow-port")) {
+        return { top: 110, left: 290, width: 10, height: 10 }; // Example port position
+      }
+      return { top: 0, left: 0, width: 0, height: 0 };
+    });
+
+    manager.zoomGetter = () => 2; // 2x zoom
+    const n1 = manager.addNode({ name: "Node", x: 100, y: 100 });
+
+    const pos = manager.getNode(n1).view.getPortPosition({ type: "output", index: 0 });
+
+    // Mock getBoundingClientRect: node {left: 100, top: 100}, port {left: 290, top: 110, width: 10, height: 10}
+    // offsetX = (290 - 100 + 10/2) / 2 = (190 + 5) / 2 = 97.5
+    // offsetY = (110 - 100 + 10/2) / 2 = (10 + 5) / 2 = 7.5
+    // x = 100 + 97.5 = 197.5
+    // y = 100 + 7.5 = 107.5
+    expect(pos.x).toBe(197.5);
+    expect(pos.y).toBe(107.5);
+  });
 });

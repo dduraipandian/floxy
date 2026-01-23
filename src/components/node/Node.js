@@ -6,6 +6,7 @@ class Node extends EmitterComponent {
     super({ name: `node-${model.id}` });
 
     this.id = model.id;
+    this.name = model.name;
     this.model = model;
     this.view = view;
     this.behaviors = behaviors;
