@@ -11,7 +11,7 @@ class FlowNodeManager extends EmitterComponent {
   constructor({
     name,
     canvasContainer,
-    zoomGetter,
+    zoomGetter = () => 1,
     View = DefaultView,
     viewRegistry = nodeViewRegistry,
     BehaviorRegistryCls = BehaviorRegistry,
@@ -34,7 +34,7 @@ class FlowNodeManager extends EmitterComponent {
 
   dropNode(config) {
     console.debug("FLOW: Drop node", config);
-    this.addNode({ ...config, isDropped: true });
+    this.addNode(config, true);
   }
 
   addNode(config, isDropped = false) {

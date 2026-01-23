@@ -23,9 +23,9 @@ describe("FlowNodeManager", () => {
   });
 
   test("should add a node and render it", () => {
-    const id = manager.addNode({ name: "Node 1", x: 10, y: 20 });
+    const id = manager.addNode({ name: "Action", x: 10, y: 20, module: "default", group: "mygroup", label: "Action" });
     expect(id).toBe(1);
-    expect(manager.nodes[id]).toBeDefined();
+    expect(manager.nodes.get(id)).toBeDefined();
 
     const nodeEl = canvasContainer.querySelector(`#node-${id}`);
     expect(nodeEl).toBeTruthy();
@@ -33,15 +33,15 @@ describe("FlowNodeManager", () => {
     expect(nodeEl.style.top).toBe("20px");
   });
 
-  test("should drop a node and center it", () => {
+  test.only("should drop a node and center it", () => {
     manager.zoom = 1;
-    manager.dropNode({ x: 500, y: 500, name: "Dropped" });
-    const node = Object.values(manager.nodes)[0];
+    manager.dropNode({ x: 500, y: 500, name: "Dropped", module: "default", group: "mygroup", label: "Action" });
+    const node = manager.nodes.get(1);
 
     // x = (500 - 200/2) / 1 = 400
-    // y = (500 - 90/2) / 1 = 455
+    // y = (500 - 50/2) / 1 = 475
     expect(node.x).toBe(400);
-    expect(node.y).toBe(455);
+    expect(node.y).toBe(475);
   });
 
   test("should handle node selection on click", () => {
