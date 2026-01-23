@@ -8,7 +8,9 @@ pathRegistry.register("orthogonal", ({
     targetDir = "left",
     options = {}
 }) => {
-    const tragetHeight = targetBounds?.height || 0;
+    // TODO: temporary connections get overlapped with target node, as line generation doesn't aware of target node position
+    // fix this later with whole flow context
+    const tragetHeight = targetBounds?.height || 50;
     const verticalDirection = options.direction === "vertical" ? true : false;
     const GAP = options.clearance ?? 60;
     const bufferCrossing = 40;
