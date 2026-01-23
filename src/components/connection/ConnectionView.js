@@ -38,7 +38,6 @@ class ConnectionView extends EmitterComponent {
         );
         this.path.classList.add("flow-connection-path", "connection");
         this.path.setAttribute("id", this.model.id);
-        this.path.setAttribute("data-id", this.getConnectionKey());
 
         this.parentContainer.appendChild(this.path);
         this.container = this.path;
@@ -49,8 +48,8 @@ class ConnectionView extends EmitterComponent {
         this.applyArrows();
     }
 
-    getConnectionKey() {
-        return `${this.model.outNodeId}:${this.model.outPort}-${this.model.inNodeId}:${this.model.inPort}`;
+    static getConnectionKey(outNodeId, outPort, inNodeId, inPort) {
+        return `${outNodeId}:${outPort}-${inNodeId}:${inPort}`;
     }
 
     applyArrows() {
@@ -78,7 +77,6 @@ class ConnectionView extends EmitterComponent {
 
         this.shadowPath.classList.add("flow-connection-path", "shadow-path");
         this.shadowPath.setAttribute("id", "shadow-" + this.model.id);
-        this.shadowPath.setAttribute("data-id", this.getConnectionKey());
 
         this.shadowPath.style.stroke = "transparent";
         this.shadowPath.style.strokeWidth = 18;
@@ -192,7 +190,7 @@ class ConnectionView extends EmitterComponent {
     }
 
     bindSelect() {
-        this.path.addEventListener("mousedown", (e) => {
+        this.path.addEventListener("click", (e) => {
             e.stopPropagation();
             this.emit(constants.CONNECTION_CLICKED_EVENT, this.model.id);
         });
@@ -209,7 +207,7 @@ class ConnectionView extends EmitterComponent {
             this.applyStyle();
         });
 
-        this.shadowPath.addEventListener("mousedown", (e) => {
+        this.shadowPath.addEventListener("click", (e) => {
             e.stopPropagation();
             this.emit(constants.CONNECTION_CLICKED_EVENT, this.model.id);
         });

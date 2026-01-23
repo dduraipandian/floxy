@@ -19,14 +19,13 @@ class FlowConnectionManager extends EmitterComponent {
     this.nodeWidth = options.nodeWidth || 200;
     this.nodeHeight = options.nodeHeight || 90;
 
-    this.connectionIdCounter = 1;
     this.connections = new Map();
     this.tempConnection = null;
     this.badConnections = new Set();
   }
 
   addConnection(outNodeId, outPort, inNodeId, inPort, pathType = undefined) {
-    const id = this.connectionIdCounter++;
+    const id = ConnectionView.getConnectionKey(outNodeId, outPort, inNodeId, inPort);
     const connection = this.#createConnection({ id, outNodeId, outPort, inNodeId, inPort, pathType, isTemp: false });
     this.connections.set(id, connection);
     return connection;
@@ -47,7 +46,7 @@ class FlowConnectionManager extends EmitterComponent {
     connection.renderInto(this.connectionContainer.id);
 
     view.on(constants.CONNECTION_CLICKED_EVENT, id => {
-      this.removeConnection(connection);
+      this.removeConnection(id);
     });
     return connection;
   }
@@ -75,16 +74,17 @@ class FlowConnectionManager extends EmitterComponent {
     this.tempConnection.updateWithXY(mouseX, mouseY);
   }
 
-  removeConnection(conn) {
-    this.emit(constants.CONNECTION_REMOVED_EVENT, conn);
-    this.connections.delete(conn.id);
-    conn.destroy();
+  removeConnection(id) {
+    const conn = this.getConnection(id);
+    this.emit(constants.CONNECTION_REMOVED_EVENT, id);
+    this.connections.delete(id);
+    conn?.destroy();
   }
 
   removeRelatedConnections(nodeId) {
     this.connections.forEach((conn, id) => {
       if (conn.source.nodeId === nodeId || conn.target.nodeId === nodeId) {
-        this.removeConnection(conn);
+        this.removeConnection(id);
       }
     });
   }
@@ -129,6 +129,14 @@ class FlowConnectionManager extends EmitterComponent {
 
   getAllConnections() {
     return [...this.connections.values()];
+  }
+
+  getConnection(id) {
+    return this.connections.get(id);
+  }
+
+  get size() {
+    return this.connections.size;
   }
 }
 
