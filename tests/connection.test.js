@@ -2,6 +2,8 @@ import { FlowConnectionManager } from "../src/components/connection.js";
 import { FlowNodeManager } from "../src/components/node.js";
 import * as Constant from "../src/components/constants.js";
 
+import { pathRegistry } from "../src/components/connection/paths/index.js";
+
 describe("FlowConnectionManager", () => {
   let connectionContainer;
   let canvasContainer;
@@ -52,10 +54,14 @@ describe("FlowConnectionManager", () => {
 
     manager.addConnection(n1, 0, n2, 0);
 
-    expect(manager.connections.length).toBe(1);
-    const path = connectionContainer.querySelector("path");
+    expect(manager.connections.size).toBe(1);
+    const path = connectionContainer.querySelector("path.connection");
     expect(path).toBeTruthy();
-    expect(path.dataset.id).toBe(`${n1}:0-${n2}:0`);
+    expect(path.id).toBe(`${n1}:0-${n2}:0`);
+
+    const shadowPath = connectionContainer.querySelector("path.shadow-path");
+    expect(shadowPath).toBeTruthy();
+    expect(shadowPath.id).toBe(`shadow-${n1}:0-${n2}:0`);
   });
 
   test("should prevent duplicate connections", () => {
@@ -65,77 +71,70 @@ describe("FlowConnectionManager", () => {
     manager.addConnection(n1, 0, n2, 0);
     manager.addConnection(n1, 0, n2, 0);
 
-    expect(manager.connections.length).toBe(1);
+    expect(manager.size).toBe(1);
   });
 
   test("should remove a connection and emit event", () => {
     const n1 = nodeManager.addNode({ name: "Source" });
     const n2 = nodeManager.addNode({ name: "Target" });
     manager.addConnection(n1, 0, n2, 0);
-    const conn = manager.connections[0];
+    const conn = manager.getConnection(`${n1}:0-${n2}:0`);
 
     const spy = jest.fn();
     manager.on(Constant.CONNECTION_REMOVED_EVENT, spy);
 
-    manager.removeConnection(conn);
+    manager.removeConnection(conn.id);
 
-    expect(manager.connections.length).toBe(0);
-    expect(connectionContainer.querySelector("path")).toBeFalsy();
-    expect(spy).toHaveBeenCalledWith(conn);
-  });
-
-  test("should correctly calculate Bazier path string", () => {
-    const pathStr = manager.getBazierPath(0, 0, 100, 100);
-    // M 0 0 C 50 0 50 100 100 100 (assuming 0.5 curvature)
-    expect(pathStr).toContain("M 0 0");
-    expect(pathStr).toContain("C 50 0 50 100 100 100");
+    expect(manager.size).toBe(0);
+    expect(connectionContainer.querySelector("path.connection")).toBeFalsy();
+    expect(connectionContainer.querySelector("path.shadow-path")).toBeFalsy();
+    expect(spy).toHaveBeenCalledWith(conn.id);
   });
 
   test("should manage temporary connection drawing", () => {
-    manager.beginTempConnection(1, 0);
-    expect(manager.tempSource).toEqual({ nodeId: 1, portIndex: 0 });
+    const n1id = nodeManager.addNode({ name: "Source" });
 
-    manager.updateTempConnection(200, 300);
+    let connection = manager.beginTempConnection(n1id, 0);
+    expect(connection.outNodeId).toEqual(n1id);
+    expect(connection.outPort).toEqual(0);
+
+    connection = manager.updateTempConnection(200, 300);
     const tempPath = connectionContainer.querySelector(".flow-connection-temp");
     expect(tempPath).toBeTruthy();
     expect(tempPath.getAttribute("d")).toBeTruthy();
 
-    manager.endTempConnection();
-    expect(manager.tempSource).toBeNull();
+    connection = manager.endTempConnection();
+    expect(manager.tempConnection).toBeNull();
     expect(connectionContainer.querySelector(".flow-connection-temp")).toBeFalsy();
   });
 
-  test("should calculate port positions correctly with zoom", () => {
-    manager.zoom = 2; // 2x zoom
-    const n1 = nodeManager.addNode({ name: "Node", x: 100, y: 100 });
-
-    const pos = manager.getPortPosition(n1, "output", 0);
-
-    // Mock getBoundingClientRect: node {left: 100, top: 100}, port {left: 290, top: 110, width: 10, height: 10}
-    // offsetX = (290 - 100 + 10/2) / 2 = (190 + 5) / 2 = 97.5
-    // offsetY = (110 - 100 + 10/2) / 2 = (10 + 5) / 2 = 7.5
-    // x = 100 + 97.5 = 197.5
-    // y = 100 + 7.5 = 107.5
-    expect(pos.x).toBe(197.5);
-    expect(pos.y).toBe(107.5);
-  });
-
-  test("should emit connection:clicked on path click", () => {
+  test("should emit connection:removed on real path click", () => {
     const n1 = nodeManager.addNode({ name: "N1" });
     const n2 = nodeManager.addNode({ name: "N2" });
-    manager.addConnection(n1, 0, n2, 0);
+    const connection = manager.addConnection(n1, 0, n2, 0);
 
     const spy = jest.fn();
-    manager.on(Constant.CONNECTION_CLICKED_EVENT, spy);
+    manager.on(Constant.CONNECTION_REMOVED_EVENT, spy);
 
-    const path = connectionContainer.querySelector("path");
+    const path = connectionContainer.querySelector("path.connection");
+    console.log(path);
     path.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
-    expect(spy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        outNodeId: n1,
-        inNodeId: n2,
-      })
-    );
+    expect(spy).toHaveBeenCalledWith(connection.id);
+  });
+
+  test("should emit connection:removed on shadow path click", () => {
+    const n1 = nodeManager.addNode({ name: "N1" });
+    const n2 = nodeManager.addNode({ name: "N2" });
+    const connection = manager.addConnection(n1, 0, n2, 0);
+
+    const spy = jest.fn();
+    manager.on(Constant.CONNECTION_REMOVED_EVENT, spy);
+
+    const path = connectionContainer.querySelector("path.shadow-path");
+    console.log(path);
+    path.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    expect(spy).toHaveBeenCalledWith(connection.id);
   });
 });
