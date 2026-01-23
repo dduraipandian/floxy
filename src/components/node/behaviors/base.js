@@ -1,4 +1,3 @@
-import { BehaviorRegistry } from "./BehaviorRegistry.js";
 import * as constants from "../../constants.js";
 
 class BaseNodeBehavior {
@@ -31,7 +30,6 @@ class BaseNodeBehavior {
     return true;
   }
 
-  // eslint-disable-next-line no-unused-vars
   attach() {
     throw new Error("Method 'attach()' must be implemented in the subclass");
   }

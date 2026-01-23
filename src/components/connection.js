@@ -5,7 +5,6 @@ import { Connection } from "./connection/Connection.js";
 
 import * as constants from "./constants.js";
 
-
 class FlowConnectionManager extends EmitterComponent {
   constructor({ name, connectionContainer, nodeManager, options = {} }) {
     super({ name: name + "-flow-connection-manager", options });
@@ -26,26 +25,65 @@ class FlowConnectionManager extends EmitterComponent {
 
   addConnection(outNodeId, outPort, inNodeId, inPort, pathType = undefined) {
     const id = ConnectionView.getConnectionKey(outNodeId, outPort, inNodeId, inPort);
-    const connection = this.#createConnection({ id, outNodeId, outPort, inNodeId, inPort, pathType, isTemp: false });
+    const connection = this.#createConnection({
+      id,
+      outNodeId,
+      outPort,
+      inNodeId,
+      inPort,
+      pathType,
+      isTemp: false,
+    });
     this.connections.set(id, connection);
     return connection;
   }
 
   beginTempConnection(outNodeId, outPort, pathType = undefined) {
-    const connection = this.#createConnection({ id: "temp", outNodeId, outPort, inNodeId: null, inPort: null, pathType, isTemp: true });
+    const connection = this.#createConnection({
+      id: "temp",
+      outNodeId,
+      outPort,
+      inNodeId: null,
+      inPort: null,
+      pathType,
+      isTemp: true,
+    });
     this.tempConnection = connection;
     return connection;
   }
 
-  #createConnection({ id, outNodeId, outPort, inNodeId, inPort, pathType = undefined, isTemp = false }) {
+  #createConnection({
+    id,
+    outNodeId,
+    outPort,
+    inNodeId,
+    inPort,
+    pathType = undefined,
+    isTemp = false,
+  }) {
     const _pathType = pathType ?? this.options?.connection?.pathType ?? "orthogonal";
 
-    const model = new ConnectionModel({ id, outNodeId, outPort, inNodeId, inPort, options: { ...this.options?.connection, pathType: _pathType } });
-    const view = new ConnectionView({ model, options: { ...this.options?.connection, isTemp: isTemp } });
-    const connection = new Connection({ model, view, nodeManager: this.nodeManager, options: this.options?.connection });
+    const model = new ConnectionModel({
+      id,
+      outNodeId,
+      outPort,
+      inNodeId,
+      inPort,
+      options: { ...this.options?.connection, pathType: _pathType },
+    });
+    const view = new ConnectionView({
+      model,
+      options: { ...this.options?.connection, isTemp: isTemp },
+    });
+    const connection = new Connection({
+      model,
+      view,
+      nodeManager: this.nodeManager,
+      options: this.options?.connection,
+    });
     connection.renderInto(this.connectionContainer.id);
 
-    view.on(constants.CONNECTION_CLICKED_EVENT, id => {
+    view.on(constants.CONNECTION_CLICKED_EVENT, (id) => {
       this.removeConnection(id);
     });
     return connection;
@@ -58,9 +96,10 @@ class FlowConnectionManager extends EmitterComponent {
   }
 
   updateConnections(nodeId) {
-    const id = parseInt(nodeId);
+    const _nodeId = parseInt(nodeId);
+    // eslint-disable-next-line no-unused-vars
     this.connections.forEach((conn, id) => {
-      if (conn.source.nodeId === nodeId || conn.target.nodeId === nodeId) {
+      if (conn.source.nodeId === _nodeId || conn.target.nodeId === _nodeId) {
         conn.update();
         this.emit(constants.CONNECTION_UPDATED_EVENT, conn);
       }
@@ -106,7 +145,7 @@ class FlowConnectionManager extends EmitterComponent {
   }
 
   markTempPathBad() {
-    if (!this.tempConnection) return
+    if (!this.tempConnection) return;
 
     this.markPathBad(this.tempConnection);
   }

@@ -42,8 +42,14 @@ class FlowNodeManager extends EmitterComponent {
 
     let ViewClass = this.viewRegistry.get(config.module, config.group, config.name);
     if (!ViewClass) {
-      console.warn("No nodeview fond for {", config.module, config.group, config.name, "}. Using default view.")
-      ViewClass = this.View
+      console.warn(
+        "No nodeview fond for {",
+        config.module,
+        config.group,
+        config.name,
+        "}. Using default view."
+      );
+      ViewClass = this.View;
     }
     const viewDefaults = ViewClass.modelDefaults;
 

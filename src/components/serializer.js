@@ -4,7 +4,6 @@ class FlowSerializer {
     const connectionManager = flow.connectionManager;
     const canvas = flow.canvas;
 
-    // eslint-disable-next-line no-unused-vars
     const nodes = [];
     nodeManager.getAllNodes().forEach((node) => {
       nodes.push(node.model);

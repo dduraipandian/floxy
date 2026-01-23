@@ -23,7 +23,7 @@ describe("FlowNodeManager", () => {
 
     manager = new FlowNodeManager({
       name: "test-node-manager",
-      canvasContainer: canvasContainer
+      canvasContainer: canvasContainer,
     });
   });
 
@@ -33,7 +33,14 @@ describe("FlowNodeManager", () => {
   });
 
   test("should add a node and render it", () => {
-    const id = manager.addNode({ name: "Action", x: 10, y: 20, module: "default", group: "mygroup", label: "Action" });
+    const id = manager.addNode({
+      name: "Action",
+      x: 10,
+      y: 20,
+      module: "default",
+      group: "mygroup",
+      label: "Action",
+    });
     expect(id).toBe(1);
     expect(manager.nodes.get(id)).toBeDefined();
 
@@ -45,7 +52,14 @@ describe("FlowNodeManager", () => {
 
   test("should drop a node and center it", () => {
     manager.zoom = 1;
-    manager.dropNode({ x: 500, y: 500, name: "Dropped", module: "default", group: "mygroup", label: "Action" });
+    manager.dropNode({
+      x: 500,
+      y: 500,
+      name: "Dropped",
+      module: "default",
+      group: "mygroup",
+      label: "Action",
+    });
     const node = manager.nodes.get(1);
 
     // x = (500 - 200/2) / 1 = 400
@@ -55,7 +69,12 @@ describe("FlowNodeManager", () => {
   });
 
   test("should handle node selection on click", () => {
-    const id = manager.addNode({ name: "Selectable", module: "default", group: "mygroup", label: "Action" });
+    const id = manager.addNode({
+      name: "Selectable",
+      module: "default",
+      group: "mygroup",
+      label: "Action",
+    });
     const nodeEl = canvasContainer.querySelector(`#node-${id}`);
 
     nodeEl.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
@@ -64,7 +83,12 @@ describe("FlowNodeManager", () => {
     expect(nodeEl.classList.contains("selected")).toBe(true);
     expect(SelectableBehavior.active.node.id).toBe(id);
 
-    const id2 = manager.addNode({ name: "Other", module: "default", group: "mygroup", label: "Action" });
+    const id2 = manager.addNode({
+      name: "Other",
+      module: "default",
+      group: "mygroup",
+      label: "Action",
+    });
     const nodeEl2 = canvasContainer.querySelector(`#node-${id2}`);
     nodeEl2.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
 
@@ -89,7 +113,13 @@ describe("FlowNodeManager", () => {
   test("should emit port:connect:start on port mousedown", () => {
     const spy = jest.fn();
     manager.on(constants.PORT_CONNECT_START_EVENT, spy);
-    const id = manager.addNode({ name: "Ports", outputs: 1, module: "default", group: "mygroup", label: "Action" });
+    const id = manager.addNode({
+      name: "Ports",
+      outputs: 1,
+      module: "default",
+      group: "mygroup",
+      label: "Action",
+    });
 
     const port = canvasContainer.querySelector(".flow-ports-output .flow-port");
     port.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
@@ -103,7 +133,14 @@ describe("FlowNodeManager", () => {
   });
 
   test("should handle node movement and update styles", () => {
-    const id = manager.addNode({ name: "Moving Node", x: 100, y: 100, module: "default", group: "mygroup", label: "Action" });
+    const id = manager.addNode({
+      name: "Moving Node",
+      x: 100,
+      y: 100,
+      module: "default",
+      group: "mygroup",
+      label: "Action",
+    });
     const node = manager.getNode(id);
     node.move(200, 300);
 

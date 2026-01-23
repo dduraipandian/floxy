@@ -3,7 +3,6 @@ import { NodeModel } from "./NodeModel.js";
 import * as constants from "../constants.js";
 
 class BaseNodeView extends EmitterComponent {
-
   constructor(model, options = {}) {
     if (!(model instanceof NodeModel)) {
       throw new Error("Model must be an instance of NodeModel");
@@ -29,24 +28,17 @@ class BaseNodeView extends EmitterComponent {
       group: "default",
       module: "default",
       capabilities: constants.DEFAULT_SUPPORTED_CAPABILITIES,
-      data: {}
+      data: {},
     };
   }
 
   html() {
-    const id = this.model.id;
-    const name = this.model.name;
-    const x = this.model.x;
-    const y = this.model.y;
-    const data = this.model.data | {};
-
-    const nodeWidth = this.model.w;
     this._content = this.getNodeElement();
 
     if (typeof this._content == "string") {
       return this._content;
     }
-    return ""
+    return "";
   }
 
   init() {
@@ -59,7 +51,7 @@ class BaseNodeView extends EmitterComponent {
         this.el.appendChild(this._content);
       }
     }
-    this.createAllPorts()
+    this.createAllPorts();
     this._bindEvents();
     this.bindEvents();
   }
@@ -84,7 +76,7 @@ class BaseNodeView extends EmitterComponent {
     const close = this.createClose();
 
     this.close = close;
-    this.el.prepend(inputPorts)
+    this.el.prepend(inputPorts);
     this.el.appendChild(outputPorts);
     this.el.appendChild(close);
   }
@@ -146,7 +138,7 @@ class BaseNodeView extends EmitterComponent {
       right: el.offsetLeft + el.offsetWidth,
       bottom: el.offsetTop + el.offsetHeight,
       width: el.offsetWidth,
-      height: el.offsetHeight
+      height: el.offsetHeight,
     };
   }
 
@@ -235,8 +227,8 @@ class BaseNodeView extends EmitterComponent {
     this.resize?.();
   }
 
-  getNodeElement() { }
-  bindEvents() { }
+  getNodeElement() {}
+  bindEvents() {}
 }
 
 export { BaseNodeView };

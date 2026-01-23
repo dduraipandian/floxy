@@ -3,7 +3,6 @@ import { DragHandler } from "./utils.js";
 
 import * as constants from "./constants.js";
 
-
 function ensureArrowMarkers(svg, size = 5) {
   if (svg.querySelector("#arrow-end")) return;
 
@@ -152,7 +151,7 @@ class FlowCanvas extends EmitterComponent {
         nodeData = data ? JSON.parse(data) : {};
       } catch (err) {
         console.error("Invalid drop data", err);
-        nodeData = {}
+        nodeData = {};
       }
       const rect = this.containerEl.getBoundingClientRect();
       const x = e.clientX - rect.left - this.canvasX;

@@ -2,8 +2,6 @@ import { FlowConnectionManager } from "../src/components/connection.js";
 import { FlowNodeManager } from "../src/components/node.js";
 import * as Constant from "../src/components/constants.js";
 
-import { pathRegistry } from "../src/components/connection/paths/index.js";
-
 describe("FlowConnectionManager", () => {
   let connectionContainer;
   let canvasContainer;

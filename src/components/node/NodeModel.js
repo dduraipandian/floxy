@@ -19,7 +19,7 @@ class NodeModel {
     h = 100,
     w = 200,
     data = {},
-    capabilities = DEFAULT_SUPPORTED_BEHAVIORS
+    capabilities = DEFAULT_SUPPORTED_BEHAVIORS,
   }) {
     this.id = id;
     this.module = module;

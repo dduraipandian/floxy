@@ -24,29 +24,21 @@ export const CONNECTION_CLICKED_EVENT = "connection:clicked";
 export const CONNECTION_PATH_TYPES = {
   BEZIER: "bezier",
   STRAIGHT: "straight",
-  ORTHOGONAL: "orthogonal"
+  ORTHOGONAL: "orthogonal",
 };
 
 export const NODE_CAPABILITIES = {
   SELECTABLE: "selectable",
   MOVABLE: "movable",
   EDITABLE_LABEL: "editable-label",
-  RESIZABLE: "resizable"
+  RESIZABLE: "resizable",
 };
 
 export const DEFAULT_SUPPORTED_CAPABILITIES = [
   NODE_CAPABILITIES.SELECTABLE,
   NODE_CAPABILITIES.MOVABLE,
   NODE_CAPABILITIES.EDITABLE_LABEL,
-  NODE_CAPABILITIES.RESIZABLE
+  NODE_CAPABILITIES.RESIZABLE,
 ];
 
-export const SVGShapes = [
-  "ellipse",
-  "circle",
-  "rect",
-  "line",
-  "polyline",
-  "polygon",
-  "path"
-]
+export const SVGShapes = ["ellipse", "circle", "rect", "line", "polyline", "polygon", "path"];

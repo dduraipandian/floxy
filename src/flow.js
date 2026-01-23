@@ -160,7 +160,9 @@ class Flow extends EmitterComponent {
     console.log("FLOW: highlight cycle", stack);
     // TODO: need to fix O(n^2) time complexity
     for (let pos = 0; pos < stack.length - 1; pos++) {
-      const conn = this.connectionManager.getAllConnections().find(c => c.outNodeId === stack[pos] && c.inNodeId === stack[pos + 1]);
+      const conn = this.connectionManager
+        .getAllConnections()
+        .find((c) => c.outNodeId === stack[pos] && c.inNodeId === stack[pos + 1]);
       if (conn) this.connectionManager.markPathBad(conn);
     }
   }

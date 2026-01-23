@@ -19,7 +19,6 @@ BehaviorRegistry.register(ResizableBehavior);
 export { Flow } from "./src/flow.js";
 export { DagValidator } from "./src/components/plugins/dag-validator.js";
 
-
 // register nodes
 import { nodeViewRegistry } from "./src/components/node/NodeViewRegistry.js";
 import { EllipseNodeView } from "./src/components/node/views/packages/workflow/EllipseNodeView.js";

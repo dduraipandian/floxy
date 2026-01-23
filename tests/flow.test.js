@@ -101,6 +101,7 @@ describe("Flow Integration", () => {
       bubbles: true,
     });
 
+    // eslint-disable-next-line no-unused-vars
     const nodeData = { name: "Dropped", inputs: 1, outputs: 1 };
     dropEvent.dataTransfer = {
       getData: jest.fn((type) => {

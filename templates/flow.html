@@ -122,13 +122,13 @@
 
       const connectionOptions = {
         pathType: "orthogonal",
-      }
+      };
       // Initialize Flow
       const flow = new floxy.Flow({
         name: "MyFlow",
         options: { zoom: 0.8, connection: connectionOptions },
         notification: uiframe.notification({ name: "floxy" }),
-        validators: validators
+        validators: validators,
       });
       flow.renderInto("flow-wrapper");
 
@@ -170,9 +170,9 @@
         const group = ev.target.dataset.flowGroup;
         const name = ev.target.dataset.flowName;
         const label = ev.target.dataset.flowLabel;
-        
+
         console.log("module", module, "group", group, "name", name, "label", label);
-        
+
         ev.dataTransfer.setData("module", module);
         ev.dataTransfer.setData("group", group);
         ev.dataTransfer.setData("name", name);
