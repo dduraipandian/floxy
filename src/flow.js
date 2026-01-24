@@ -65,12 +65,6 @@ class Flow extends EmitterComponent {
     this.canvasEl = this.canvas.canvasEl;
     this.svgEl = this.canvas.svgEl;
 
-    // this.nodeManager = new FlowNodeManager({
-    //   name: this.name + "-flow-node-manager",
-    //   canvasContainer: this.canvasEl,
-    //   options: this.options,
-    // });
-
     this.nodeManager = new FlowNodeManager({
       name: this.name + "-flow-node-manager",
       canvasContainer: this.canvasEl,

@@ -21,8 +21,10 @@ export const CONNECTION_REMOVED_EVENT = "connection:removed";
 export const CONNECTION_UPDATED_EVENT = "connection:updated";
 export const CONNECTION_CLICKED_EVENT = "connection:clicked";
 
+export const DEFAULT_CONNECTION_PATH_TYPE = "bezier";
+
 export const CONNECTION_PATH_TYPES = {
-  BEZIER: "bezier",
+  BEZIER: DEFAULT_CONNECTION_PATH_TYPE,
   STRAIGHT: "straight",
   ORTHOGONAL: "orthogonal",
 };

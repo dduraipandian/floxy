@@ -4,20 +4,19 @@ describe("ConnectionStyle", () => {
   test("should initialize with defaults", () => {
     const style = new ConnectionStyle();
     expect(style.width).toBe(2);
-    expect(style.path).toBe("orthogonal");
+    expect(style.path).toBe("bezier");
     expect(style.animated).toBe(false);
     expect(style.arrows.end).toBe(true);
   });
 
   test("should override defaults", () => {
-    const style = new ConnectionStyle({
+    const style = new ConnectionStyle("line", {
       width: 4,
-      path: "bezier",
       animated: true,
       arrows: { end: false, start: true },
     });
     expect(style.width).toBe(4);
-    expect(style.path).toBe("bezier"); // Assuming bezier is registered
+    expect(style.path).toBe("line");
     expect(style.animated).toBe(true);
     expect(style.arrows.end).toBe(false);
     expect(style.arrows.start).toBe(true);
@@ -43,7 +42,7 @@ describe("ConnectionStyle", () => {
   });
 
   test("should apply styles to path element", () => {
-    const style = new ConnectionStyle({ width: 5, stroke: "red", dash: "5 5" });
+    const style = new ConnectionStyle("line", { width: 5, stroke: "red", dash: "5 5" });
     // Use plain object to test logic without JSDOM interference
     const mockPath = {
       style: {},
@@ -66,8 +65,8 @@ describe("ConnectionStyle", () => {
     expect(mockPath.classList.toggle).toHaveBeenCalledWith("selected", false);
   });
 
-  test("should fallback to orthogonal if path not found", () => {
-    const style = new ConnectionStyle({ path: "non-existent" });
-    expect(style.path).toBe("orthogonal");
+  test("should fallback to bezier if path not found", () => {
+    const style = new ConnectionStyle("non-existent");
+    expect(style.path).toBe("bezier");
   });
 });
