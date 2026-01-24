@@ -173,7 +173,7 @@
         position: absolute;
         font-size: 0.65rem;
         display: none;
-        border: var(--floxy-node-border-width) var(--floxy-node-border-style) var(--floxy-node-text) !important;
+        border: 1px solid #212529 !important;
         z-index: 10;
       }
 
@@ -227,7 +227,7 @@
           cursor: crosshair;
           position: relative;
           background: var(--floxy-port-bg);
-          border: var(--floxy-node-border-width) solid var(--floxy-node-border);
+          border: 1px solid var(--floxy-port-border);
         }
 
         .flow-port:hover {
