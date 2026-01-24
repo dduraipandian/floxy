@@ -1,4 +1,5 @@
 :root {
+  /* Brand Colors */
   --floxy-primary-color: #0d6efd;
   --floxy-secondary-color: #6c757d;
   --floxy-danger-color: #dc3545;
@@ -7,52 +8,44 @@
   --floxy-light-color: #f8f9fa;
   --floxy-dark-color: #212529;
 
-  /* Node appearance */
-  --floxy-node-bg: #fff;
+  /* Node Styles */
+  --floxy-node-bg: #ffffff;
+  --floxy-node-text: #24292f;
   --floxy-node-border: #dee2e6;
   --floxy-node-border-width: 1px;
-  --floxy-node-radius: 0.375rem;
   --floxy-node-border-style: solid;
+  --floxy-node-radius: 0.375rem;
+  --floxy-node-padding: 0.5rem;
   --floxy-node-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 
-  /* Text */
-  --floxy-node-text: #212529;
+  /* Label Styles */
+  --floxy-label-color: #212529;
+  --floxy-label-font-size: 1rem;
 
-  /* Focus / selection */
-  --floxy-node-focus-color: var(--floxy-primary-color);
+  /* Focus / Selection */
+  --floxy-node-focus-color: #0d6efd;
+  --floxy-node-focus-width: 2px;
 
-  /* Grid */
+  /* Port Styles */
+  --floxy-port-size: 10px;
+  --floxy-port-color: #6e7781;
+  --floxy-port-bg: #ffffff;
+  --floxy-port-border: #dee2e6;
+  --floxy-port-hover-glow: #0d6efd;
+  --floxy-port-output-bg: #f8f9fa;
+
+  /* Connection Styles */
+  --floxy-conn-color: #0969da;
+  --floxy-conn-width: 2px;
+  --floxy-conn-hover-color: #0d6efd;
+  --floxy-conn-hover-width: 3px;
+  --floxy-conn-bad-color: #dc3545;
+  --floxy-conn-selected-color: #0d6efd;
+
+  /* Grid Styles */
   --floxy-grid-color: #c1c1c4;
   --floxy-grid-size: 24px;
   --floxy-grid-dot-radius: 1.4px;
-}
-
-.floxy-flow-container {
-  --node-primary-color: var(--floxy-primary-color);
-  --node-secondary-color: var(--floxy-secondary-color);
-  --node-danger-color: var(--floxy-danger-color);
-  --node-warning-color: var(--floxy-warning-color);
-  --node-info-color: var(--floxy-info-color);
-  --node-light-color: var(--floxy-light-color);
-  --node-dark-color: var(--floxy-dark-color);
-
-  --node-bg: var(--floxy-node-bg);
-  --node-text: var(--floxy-node-text);
-
-  --node-border: var(--floxy-node-border);
-  --node-radius: var(--floxy-node-radius);
-  --node-border-width: var(--floxy-node-border-width);
-  --node-border-style: var(--floxy-node-border-style);
-  --node-shadow: var(--floxy-node-shadow);
-
-  --node-grid-color: var(--floxy-grid-color);
-  --node-grid-size: var(--floxy-grid-size);
-  --node-grid-dot-radius: var(--floxy-grid-dot-radius);
-
-  --node-focus-color: var(--floxy-node-focus-color);
-  --node-focus-width: 0.063rem;
-
-  --node-port-darker-bg: color-mix(in srgb, var(--floxy-node-border), black 20%);
 }
 
 /* START: FLOW COMPONENT */
@@ -66,10 +59,10 @@
   user-select: none;
   cursor: grab;
   background-image: radial-gradient(
-    var(--node-grid-color) var(--node-grid-dot-radius),
-    transparent var(--node-grid-dot-radius)
+    var(--floxy-grid-color) var(--floxy-grid-dot-radius),
+    transparent var(--floxy-grid-dot-radius)
   );
-  background-size: var(--node-grid-size) var(--node-grid-size);
+  background-size: var(--floxy-grid-size) var(--floxy-grid-size);
 
   &:active {
     cursor: grabbing;
@@ -102,11 +95,12 @@
 
       /* DIV-based nodes (Bootstrap card, etc.) */
       div.node {
-        background: var(--node-bg);
-        color: var(--node-text);
-        border: var(--node-border-width) var(--node-border-style) var(--node-border);
-        border-radius: var(--node-radius);
-        box-shadow: var(--node-shadow);
+        background: var(--floxy-node-bg);
+        color: var(--floxy-label-color);
+        border: var(--floxy-node-border-width) var(--floxy-node-border-style)
+          var(--floxy-node-border);
+        border-radius: var(--floxy-node-radius);
+        box-shadow: var(--floxy-node-shadow);
         width: 100%;
         height: 100%;
       }
@@ -114,9 +108,8 @@
       &.selected:has(div.node) {
         z-index: 10;
         outline: 0;
-
-        box-shadow: 0 0 0 var(--node-focus-width) var(--node-focus-color);
-        border-radius: var(--node-radius);
+        box-shadow: 0 0 0 var(--floxy-node-focus-width) var(--floxy-node-focus-color);
+        border-radius: var(--floxy-node-radius);
       }
 
       /* SVG-based nodes */
@@ -128,17 +121,17 @@
         overflow: visible;
 
         .shape {
-          fill: var(--node-bg);
-          stroke: var(--node-border);
-          stroke-width: var(--node-border-width);
+          fill: var(--floxy-node-bg);
+          stroke: var(--floxy-node-border);
+          stroke-width: var(--floxy-node-border-width);
           vector-effect: non-scaling-stroke;
         }
       }
 
       &.selected:has(svg.node) .shape {
         outline: 0;
-        stroke: var(--node-focus-color);
-        stroke-width: var(--node-focus-width);
+        stroke: var(--floxy-node-focus-color);
+        stroke-width: var(--floxy-node-focus-width);
       }
 
       .resize-handle {
@@ -151,14 +144,15 @@
 
       .resize-handle {
         position: absolute;
-        width: 5px;
-        height: 5px;
+        width: 10px;
+        height: 10px;
         right: -5px;
         bottom: -5px;
-        background: var(--node-primary-color);
+        background: var(--floxy-primary-color);
         cursor: nwse-resize;
         z-index: 20;
         display: none;
+        border-radius: 50%;
       }
 
       /* when node is selected, show close and resize handle if class is attached. */
@@ -178,7 +172,7 @@
         position: absolute;
         font-size: 0.65rem;
         display: none;
-        border: var(--node-border-width) var(--node-border-style) var(--node-text) !important;
+        border: var(--floxy-node-border-width) var(--floxy-node-border-style) var(--floxy-node-text) !important;
         z-index: 10;
       }
 
@@ -190,9 +184,10 @@
         height: 100%;
         width: 100%;
         position: absolute;
-        color: var(--node-text);
+        color: var(--floxy-label-color);
         font-weight: 500;
         text-align: center;
+        font-size: var(--floxy-label-font-size);
 
         &:focus-visible {
           outline: none;
@@ -214,7 +209,7 @@
           margin-left: auto;
 
           .flow-port {
-            background: var(--node-port-darker-bg);
+            background: var(--floxy-port-output-bg);
           }
         }
 
@@ -223,20 +218,20 @@
         }
 
         .flow-port {
-          width: 10px;
-          height: 10px;
+          width: var(--floxy-port-size);
+          height: var(--floxy-port-size);
           border-radius: 50%;
           margin: 8px 0;
           z-index: 2;
           cursor: crosshair;
           position: relative;
-          background: var(--node-bg);
-          border: var(--node-border-width) solid var(--node-border);
+          background: var(--floxy-port-bg);
+          border: var(--floxy-node-border-width) solid var(--floxy-node-border);
         }
 
         .flow-port:hover {
           transform: scale(1.5);
-          box-shadow: 0 0 0 2px var(--node-focus-color);
+          box-shadow: 0 0 0 2px var(--floxy-node-focus-color);
         }
       }
     }
@@ -256,28 +251,28 @@
     /* Connection paths */
     .flow-connection-path {
       fill: none;
-      stroke: var(--node-secondary-color);
-      stroke-width: 2px;
+      stroke: var(--floxy-secondary-color);
+      stroke-width: var(--floxy-conn-width);
       stroke-linecap: round;
       pointer-events: stroke;
       transition: stroke 0.2s;
 
       &:hover,
       &.path-hover {
-        stroke: var(--node-primary-color);
-        stroke-width: 3px;
+        stroke: var(--floxy-primary-color);
+        stroke-width: var(--floxy-conn-hover-width);
         cursor: pointer;
       }
 
       &.selected,
       &.flow-connection-temp {
-        stroke: var(--node-primary-color);
-        stroke-width: 3px;
+        stroke: var(--floxy-primary-color);
+        stroke-width: var(--floxy-conn-hover-width);
         cursor: pointer;
       }
       &.flow-connection-path-bad {
-        stroke: var(--node-danger-color);
-        stroke-width: 3px;
+        stroke: var(--floxy-danger-color);
+        stroke-width: var(--floxy-conn-hover-width);
         cursor: pointer;
       }
     }
