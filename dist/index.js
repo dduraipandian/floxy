@@ -145,6 +145,8 @@ const CONNECTION_REMOVED_EVENT = "connection:removed";
 const CONNECTION_UPDATED_EVENT = "connection:updated";
 const CONNECTION_CLICKED_EVENT = "connection:clicked";
 
+const DEFAULT_CONNECTION_PATH_TYPE = "bezier";
+
 const NODE_CAPABILITIES = {
   SELECTABLE: "selectable",
   MOVABLE: "movable",
@@ -914,7 +916,6 @@ class Node extends EmitterComponent {
   }
 
   renderInto(container) {
-    console.debug("FLOW: Render node", this.view);
     this.view.renderInto(container);
   }
 
@@ -1389,7 +1390,6 @@ class FlowNodeManager extends EmitterComponent {
     const node = new Node({ model, view });
 
     const behaviors = this.behaviorResolver.resolve(node, this.options);
-    console.debug("FLOW: Node behaviors", node, behaviors);
     node.setBehaviors(behaviors);
 
     // bubble view events upward
@@ -1447,7 +1447,7 @@ class FlowNodeManager extends EmitterComponent {
 var domStyle = window.getComputedStyle(document.body);
 
 class ConnectionStyle {
-  constructor(style = {}) {
+  constructor(path, style = {}) {
     this.secondaryColor = domStyle.getPropertyValue("--bs-secondary");
     this.primaryColor = domStyle.getPropertyValue("--bs-primary");
     this.dangerColor = domStyle.getPropertyValue("--bs-danger");
@@ -1456,11 +1456,13 @@ class ConnectionStyle {
     this.width = style.width ?? 2;
     this.dash = style.dash ?? null;
     this.animated = !!style.animated;
-    this.path = style.path ?? "orthogonal";
+    this.path = path ?? DEFAULT_CONNECTION_PATH_TYPE;
 
     if (!pathRegistry.has(this.path)) {
-      console.warn(`Path ${this.path} not found. Defaulting to orthogonal.`);
-      this.path = "orthogonal";
+      console.warn(
+        `Path ${this.path} not found. setting to default path type ${DEFAULT_CONNECTION_PATH_TYPE}.`
+      );
+      this.path = DEFAULT_CONNECTION_PATH_TYPE;
     }
 
     this.arrows = {
@@ -1521,7 +1523,7 @@ class ConnectionStyle {
 }
 
 class ConnectionModel extends EmitterComponent {
-  constructor({ id, outNodeId, outPort, inNodeId, inPort, pathType = "bezier", options = {} }) {
+  constructor({ id, outNodeId, outPort, inNodeId, inPort, options = {} }) {
     super({ name: `connection-${id}` });
 
     this.id = id;
@@ -1529,15 +1531,15 @@ class ConnectionModel extends EmitterComponent {
     this.outPort = outPort;
     this.inNodeId = inNodeId;
     this.inPort = inPort;
-    this.pathType = pathType;
 
+    this.options = options;
     this.style = {
       width: 2,
       dash: null,
-      animated: true,
+      animated: false,
       ...options.style,
     };
-    this.style = new ConnectionStyle(this.style);
+    this.style = new ConnectionStyle(this.pathType, this.style);
   }
 
   get source() {
@@ -1556,6 +1558,10 @@ class ConnectionModel extends EmitterComponent {
 
   get arrows() {
     return this.style.arrows;
+  }
+
+  get pathType() {
+    return this.options.pathType ?? DEFAULT_CONNECTION_PATH_TYPE;
   }
 }
 
@@ -1938,7 +1944,10 @@ class FlowConnectionManager extends EmitterComponent {
     pathType = undefined,
     isTemp = false,
   }) {
-    const _pathType = pathType ?? this.options?.connection?.pathType ?? "orthogonal";
+    const _pathType =
+      pathType ?? this.options?.connection?.path_type ?? DEFAULT_CONNECTION_PATH_TYPE;
+
+    const connectionOptions = { ...this.options?.connection, pathType: _pathType };
 
     const model = new ConnectionModel({
       id,
@@ -1946,17 +1955,17 @@ class FlowConnectionManager extends EmitterComponent {
       outPort,
       inNodeId,
       inPort,
-      options: { ...this.options?.connection, pathType: _pathType },
+      options: connectionOptions,
     });
     const view = new ConnectionView({
       model,
-      options: { ...this.options?.connection, isTemp: isTemp },
+      options: { ...connectionOptions, isTemp: isTemp },
     });
     const connection = new Connection({
       model,
       view,
       nodeManager: this.nodeManager,
-      options: this.options?.connection,
+      options: connectionOptions,
     });
     connection.renderInto(this.connectionContainer.id);
 
@@ -2173,12 +2182,6 @@ class Flow extends EmitterComponent {
     this.containerEl = this.container;
     this.canvasEl = this.canvas.canvasEl;
     this.svgEl = this.canvas.svgEl;
-
-    // this.nodeManager = new FlowNodeManager({
-    //   name: this.name + "-flow-node-manager",
-    //   canvasContainer: this.canvasEl,
-    //   options: this.options,
-    // });
 
     this.nodeManager = new FlowNodeManager({
       name: this.name + "-flow-node-manager",
@@ -2663,8 +2666,6 @@ class EllipseNodeView extends SVGNodeView {
     this.ellipse.setAttribute("ry", ry);
   }
 }
-
-console.log(pathRegistry);
 
 BehaviorRegistry.register(DraggableBehavior);
 BehaviorRegistry.register(SelectableBehavior);
