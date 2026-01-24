@@ -28,6 +28,7 @@
 
   /* Port Styles */
   --floxy-port-size: 10px;
+  --floxy-port-radius: 50%;
   --floxy-port-color: #6e7781;
   --floxy-port-bg: #ffffff;
   --floxy-port-border: #dee2e6;
@@ -220,7 +221,7 @@
         .flow-port {
           width: var(--floxy-port-size);
           height: var(--floxy-port-size);
-          border-radius: 50%;
+          border-radius: var(--floxy-port-radius);
           margin: 8px 0;
           z-index: 2;
           cursor: crosshair;
@@ -251,7 +252,8 @@
     /* Connection paths */
     .flow-connection-path {
       fill: none;
-      stroke: var(--floxy-secondary-color);
+      color: var(--floxy-conn-color);
+      stroke: var(--floxy-conn-color);
       stroke-width: var(--floxy-conn-width);
       stroke-linecap: round;
       pointer-events: stroke;
@@ -259,19 +261,19 @@
 
       &:hover,
       &.path-hover {
-        stroke: var(--floxy-primary-color);
+        stroke: var(--floxy-conn-hover-color);
         stroke-width: var(--floxy-conn-hover-width);
         cursor: pointer;
       }
 
       &.selected,
       &.flow-connection-temp {
-        stroke: var(--floxy-primary-color);
+        stroke: var(--floxy-conn-selected-color);
         stroke-width: var(--floxy-conn-hover-width);
         cursor: pointer;
       }
       &.flow-connection-path-bad {
-        stroke: var(--floxy-danger-color);
+        stroke: var(--floxy-conn-bad-color);
         stroke-width: var(--floxy-conn-hover-width);
         cursor: pointer;
       }
