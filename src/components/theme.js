@@ -7,6 +7,12 @@ class ThemeManager {
 
   setToken(name, value) {
     this.root.style.setProperty(`--floxy-${name}`, value);
+
+    // Auto-update grid image when type changes
+    if (name === "grid-type") {
+      const typeVar = value === "lines" ? "var(--grid-lines)" : "var(--grid-dots)";
+      this.root.style.setProperty("--floxy-grid-image", typeVar);
+    }
   }
 
   setTheme(theme) {
@@ -104,7 +110,16 @@ class ThemeEditor extends EmitterComponent {
       {
         category: "Grid",
         tokens: [
-          { name: "grid-color", label: "Dot Color", type: "color" },
+          {
+            name: "grid-type",
+            label: "Type",
+            type: "select",
+            options: [
+              { label: "Dots", value: "dots" },
+              { label: "Lines", value: "lines" },
+            ],
+          },
+          { name: "grid-color", label: "Color", type: "color" },
           { name: "grid-size", label: "Size", type: "range", min: 10, max: 100, unit: "px" },
           {
             name: "grid-dot-radius",
@@ -113,6 +128,14 @@ class ThemeEditor extends EmitterComponent {
             min: 0.5,
             max: 5,
             step: 0.1,
+            unit: "px",
+          },
+          {
+            name: "grid-line-width",
+            label: "Line Width",
+            type: "range",
+            min: 1,
+            max: 5,
             unit: "px",
           },
         ],
@@ -187,6 +210,8 @@ class ThemeEditor extends EmitterComponent {
       return this.#getColorTokenControl(token);
     } else if (token.type === "range") {
       return this.#getRangeTokenControl(token);
+    } else if (token.type === "select") {
+      return this.#getSelectTokenControl(token);
     }
   }
 
@@ -218,6 +243,24 @@ class ThemeEditor extends EmitterComponent {
       `;
   }
 
+  #getSelectTokenControl(token) {
+    const currentValue = this.manager.getToken(token.name) || token.options[0].value;
+    return `
+        <div class="floxy-token-row">
+          <span class="floxy-token-label">${token.label}</span>
+          <select class="form-select form-select-sm floxy-select-input w-50" data-token="${token.name}" style="font-size: 0.75rem;">
+            ${token.options
+        .map(
+          (opt) => `
+              <option value="${opt.value}" ${currentValue === opt.value ? "selected" : ""}>${opt.label}</option>
+            `
+        )
+        .join("")}
+          </select>
+        </div>
+      `;
+  }
+
   attachEvents() {
     const panel = this.container.querySelector("#floxy-theme-panel");
     const toggle = this.container.querySelector("#floxy-theme-toggle");
@@ -236,7 +279,7 @@ class ThemeEditor extends EmitterComponent {
       panel.classList.remove("open");
     };
 
-    panel.querySelectorAll("input").forEach((input) => {
+    panel.querySelectorAll("input, select").forEach((input) => {
       input.oninput = (e) => {
         const token = e.target.dataset.token;
         const unit = e.target.dataset.unit || "";
