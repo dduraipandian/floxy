@@ -13,8 +13,8 @@ class SVGNodeView extends BaseNodeView {
     return {
       inputs: 1,
       outputs: 1,
-      w: 200,
-      h: 100,
+      w: 250,
+      h: 150,
       label: "SVG",
       module: "default",
       group: "default",

@@ -62,10 +62,10 @@ describe("FlowNodeManager", () => {
     });
     const node = manager.nodes.get(1);
 
-    // x = (500 - 200/2) / 1 = 400
-    // y = (500 - 50/2) / 1 = 475
-    expect(node.x).toBe(400);
-    expect(node.y).toBe(475);
+    // x = (500 - 250/2) / 1 = 375
+    // y = (500 - 70/2) / 1 = 465
+    expect(node.x).toBe(375);
+    expect(node.y).toBe(465);
   });
 
   test("should handle node selection on click", () => {

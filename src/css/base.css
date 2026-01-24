@@ -19,7 +19,7 @@
   --floxy-node-text: #212529;
 
   /* Focus / selection */
-  --floxy-node-focus-color: rgba(13, 110, 253, 0.25);
+  --floxy-node-focus-color: var(--floxy-primary-color);
 
   /* Grid */
   --floxy-grid-color: #c1c1c4;
@@ -50,7 +50,7 @@
   --node-grid-dot-radius: var(--floxy-grid-dot-radius);
 
   --node-focus-color: var(--floxy-node-focus-color);
-  --node-focus-width: 0.125rem;
+  --node-focus-width: 0.063rem;
 
   --node-port-darker-bg: color-mix(in srgb, var(--floxy-node-border), black 20%);
 }
