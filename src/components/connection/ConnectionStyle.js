@@ -1,14 +1,8 @@
 import { pathRegistry } from "./paths/index.js";
 import * as constants from "../constants.js";
 
-var domStyle = window.getComputedStyle(document.body);
-
 class ConnectionStyle {
   constructor(path, style = {}) {
-    this.secondaryColor = domStyle.getPropertyValue("--bs-secondary");
-    this.primaryColor = domStyle.getPropertyValue("--bs-primary");
-    this.dangerColor = domStyle.getPropertyValue("--bs-danger");
-
     this.stroke = style.stroke ?? undefined;
     this.width = style.width ?? 2;
     this.dash = style.dash ?? null;
