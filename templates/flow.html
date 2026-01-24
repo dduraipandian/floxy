@@ -19,6 +19,7 @@
     />
     <link rel="stylesheet" type="text/css" href="../dist/floxy.css" />
     <link rel="stylesheet" type="text/css" href="../src/css/themeeditor.css" />
+    <link rel="stylesheet" type="text/css" href="../src/css/palette.css" />
     <style>
       body {
         height: 100vh;
@@ -30,86 +31,74 @@
         height: 100%;
       }
 
-      #sidebar {
-        width: 250px;
-        background: #fff;
-        border-right: 1px solid #ddd;
-        padding: 1rem;
-        z-index: 10;
-        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
-      }
-
       #flow-wrapper {
         flex-grow: 1;
         position: relative;
         background: #f0f2f5;
       }
-
-      .draggable-item {
-        background: white;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        padding: 10px;
-        margin-bottom: 10px;
-        cursor: grab;
-      }
-
-      .draggable-item:active {
-        cursor: grabbing;
-      }
     </style>
   </head>
 
   <body>
-    <div id="app-layout">
-      <!-- Palette Sidebar -->
-      <div id="sidebar">
-        <h5>Flow Blocks</h5>
-        <p class="text-muted small">Drag blocks to canvas</p>
+    <!-- Palette Sidebar -->
+    <div id="sidebar">
+      <div class="palette-toggle" id="palette-toggle" title="Hide Palette">
+        <i class="bi bi-chevron-left"></i>
+      </div>
+      <h5>Flow Blocks</h5>
+      <p class="text-muted small">Drag blocks to canvas</p>
 
-        <div
-          class="draggable-item"
-          draggable="true"
-          ondragstart="drag(event)"
-          data-flow-label="Start"
-        >
-          <i class="bi bi-play-circle me-2"></i> Start
-        </div>
-
-        <div
-          class="draggable-item"
-          draggable="true"
-          ondragstart="drag(event)"
-          data-flow-module="diagram"
-          data-flow-group="workflow"
-          data-flow-name="action"
-        >
-          <i class="bi bi-gear me-2"></i> Action
-        </div>
-
-        <div
-          class="draggable-item"
-          draggable="true"
-          ondragstart="drag(event)"
-          data-flow-label="Condition"
-        >
-          <i class="bi bi-question-diamond me-2"></i> Condition
-        </div>
-
-        <div
-          class="draggable-item"
-          draggable="true"
-          ondragstart="drag(event)"
-          data-flow-label="Terminate"
-        >
-          <i class="bi bi-stop-circle me-2"></i> End
-        </div>
-
-        <hr />
-        <button class="btn btn-sm btn-outline-primary" onclick="exportData()">Export JSON</button>
-        <button class="btn btn-sm btn-outline-danger" onclick="clearData()">Clear</button>
+      <div
+        class="draggable-item"
+        draggable="true"
+        ondragstart="drag(event)"
+        data-flow-label="Start"
+      >
+        <i class="bi bi-play-circle me-3"></i> Start
       </div>
 
+      <div
+        class="draggable-item"
+        draggable="true"
+        ondragstart="drag(event)"
+        data-flow-module="diagram"
+        data-flow-group="workflow"
+        data-flow-name="action"
+      >
+        <i class="bi bi-gear me-3"></i> Action
+      </div>
+
+      <div
+        class="draggable-item"
+        draggable="true"
+        ondragstart="drag(event)"
+        data-flow-label="Condition"
+      >
+        <i class="bi bi-question-diamond me-3"></i> Condition
+      </div>
+
+      <div
+        class="draggable-item"
+        draggable="true"
+        ondragstart="drag(event)"
+        data-flow-label="Terminate"
+      >
+        <i class="bi bi-stop-circle me-3"></i> End
+      </div>
+
+      <hr />
+      <div class="palette-footer">
+        <button class="btn btn-outline-primary" onclick="exportData()">Export JSON</button>
+        <button class="btn btn-outline-danger" onclick="clearData()">Clear</button>
+      </div>
+    </div>
+
+    <div id="palette-reveal-btn" title="Show Palette">
+      <i class="bi bi-list"></i>
+    </div>
+
+    <!-- Main Content Area -->
+    <div id="app-layout">
       <!-- Flow Canvas Area -->
       <div id="flow-wrapper"></div>
     </div>
@@ -172,6 +161,18 @@
       const themeEditor = new floxy.ThemeEditor({ manager: themeManager });
       // themeEditor.render();
       themeEditor.renderInto("theme-editor-container");
+
+      // Palette Toggle Logic
+      const toggleBtn = document.getElementById("palette-toggle");
+      const revealBtn = document.getElementById("palette-reveal-btn");
+
+      toggleBtn.onclick = () => {
+        document.body.classList.add("palette-closed");
+      };
+
+      revealBtn.onclick = () => {
+        document.body.classList.remove("palette-closed");
+      };
     </script>
     <script>
       function drag(ev) {

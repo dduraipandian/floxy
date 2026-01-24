@@ -1,9 +1,10 @@
 .floxy-theme-editor {
   position: fixed;
-  top: 1rem;
+  top: 0;
   right: -340px;
   width: 320px;
-  max-height: calc(100vh - 2rem);
+  /* max-height: calc(100vh - 2rem); */
+  height: 100%;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
@@ -13,12 +14,22 @@
   flex-direction: column;
   transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: inherit;
-  border-radius: 1.25rem;
+  border-radius: 0;
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .floxy-theme-editor.open {
-  right: 1rem;
+  right: 0;
+}
+
+.floxy-theme-editor.swag {
+  top: 1rem;
+  border-radius: 1.25rem;
+  max-height: calc(100vh - 2rem);
+
+  &.open {
+    right: 1rem;
+  }
 }
 
 .floxy-theme-header {
@@ -129,9 +140,9 @@
 .floxy-toggle-btn {
   position: fixed;
   right: 20px;
-    bottom: 20px;
-    width: 48px;
-    height: 48px;
+  bottom: 20px;
+  width: 48px;
+  height: 48px;
   border-radius: 1.5rem;
   background: #007aff;
   color: #fff;
