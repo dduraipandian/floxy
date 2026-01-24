@@ -61,7 +61,8 @@ class FlowConnectionManager extends EmitterComponent {
     pathType = undefined,
     isTemp = false,
   }) {
-    const _pathType = pathType ?? this.options?.connection?.path_type ?? "orthogonal";
+    const _pathType =
+      pathType ?? this.options?.connection?.path_type ?? constants.DEFAULT_CONNECTION_PATH_TYPE;
 
     const connectionOptions = { ...this.options?.connection, pathType: _pathType };
 

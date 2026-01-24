@@ -122,6 +122,14 @@ describe("FlowConnectionManager", () => {
     expect(spy).toHaveBeenCalledWith(connection.id);
   });
 
+  test("should set default path type", () => {
+    const n1 = nodeManager.addNode({ name: "N1" });
+    const n2 = nodeManager.addNode({ name: "N2" });
+    const connection = manager.addConnection(n1, 0, n2, 0);
+
+    expect(connection.model.pathType).toBe(Constant.DEFAULT_CONNECTION_PATH_TYPE);
+  });
+
   test("should set path type", () => {
     const options = {
       connection: {

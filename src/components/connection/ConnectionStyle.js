@@ -16,7 +16,9 @@ class ConnectionStyle {
     this.path = path ?? constants.DEFAULT_CONNECTION_PATH_TYPE;
 
     if (!pathRegistry.has(this.path)) {
-      console.warn(`Path ${this.path} not found. Defaulting to orthogonal.`);
+      console.warn(
+        `Path ${this.path} not found. setting to default path type ${constants.DEFAULT_CONNECTION_PATH_TYPE}.`
+      );
       this.path = constants.DEFAULT_CONNECTION_PATH_TYPE;
     }
 
