@@ -24,17 +24,12 @@
         overflow: hidden;
       }
 
-      #app-floxy {
+      #app-layout {
         display: flex;
         height: 100%;
       }
 
-      #floxy-diagram, #floxy-diagram {
-        display: flex;
-        height: 100%;
-      }
-
-      #sidebar, .floxy-nodepanel {
+      #sidebar {
         width: 250px;
         background: #fff;
         border-right: 1px solid #ddd;
@@ -43,7 +38,7 @@
         box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
       }
 
-      #flow-wrapper{
+      #flow-wrapper {
         flex-grow: 1;
         position: relative;
         background: #f0f2f5;
@@ -65,7 +60,58 @@
   </head>
 
   <body>
-    <div id="app-floxy"></div>
+    <div id="app-layout">
+      <!-- Palette Sidebar -->
+      <div id="sidebar">
+        <h5>Flow Blocks</h5>
+        <p class="text-muted small">Drag blocks to canvas</p>
+
+        <div
+          class="draggable-item"
+          draggable="true"
+          ondragstart="drag(event)"
+          data-flow-label="Start"
+        >
+          <i class="bi bi-play-circle me-2"></i> Start
+        </div>
+
+        <div
+          class="draggable-item"
+          draggable="true"
+          ondragstart="drag(event)"
+          data-flow-module="diagram"
+          data-flow-group="workflow"
+          data-flow-name="action"
+        >
+          <i class="bi bi-gear me-2"></i> Action
+        </div>
+
+        <div
+          class="draggable-item"
+          draggable="true"
+          ondragstart="drag(event)"
+          data-flow-label="Condition"
+        >
+          <i class="bi bi-question-diamond me-2"></i> Condition
+        </div>
+
+        <div
+          class="draggable-item"
+          draggable="true"
+          ondragstart="drag(event)"
+          data-flow-label="Terminate"
+        >
+          <i class="bi bi-stop-circle me-2"></i> End
+        </div>
+
+        <hr />
+        <button class="btn btn-sm btn-outline-primary" onclick="exportData()">Export JSON</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="clearData()">Clear</button>
+      </div>
+
+      <!-- Flow Canvas Area -->
+      <div id="flow-wrapper"></div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../dist/floxy.min.js"></script>
@@ -78,16 +124,13 @@
         pathType: "orthogonal",
       };
       // Initialize Flow
-      const nodePanel = new floxy.NodePanel({ name: "floxy-nodepanel" , nodeRegistry: floxy.nodeViewRegistry, options: {}});
       const flow = new floxy.Flow({
         name: "MyFlow",
         options: { zoom: 0.8, connection: connectionOptions },
         notification: uiframe.notification({ name: "floxy" }),
         validators: validators,
       });
-
-      const appFloxy = new floxy.Floxy({name: "floxy-diagram", flow: flow, nodePanel: nodePanel});
-      appFloxy.renderInto("app-floxy");
+      flow.renderInto("flow-wrapper");
 
       // Setup global access for drag handlers
       window.flow = flow;
@@ -120,6 +163,21 @@
       window.clearData = () => {
         flow.import({ nodes: [], connections: [] });
       };
+    </script>
+    <script>
+      function drag(ev) {
+        const module = ev.target.dataset.flowModule;
+        const group = ev.target.dataset.flowGroup;
+        const name = ev.target.dataset.flowName;
+        const label = ev.target.dataset.flowLabel;
+
+        console.log("module", module, "group", group, "name", name, "label", label);
+
+        ev.dataTransfer.setData("module", module);
+        ev.dataTransfer.setData("group", group);
+        ev.dataTransfer.setData("name", name);
+        ev.dataTransfer.setData("label", label);
+      }
     </script>
   </body>
 </html>

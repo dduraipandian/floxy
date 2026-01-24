@@ -17,10 +17,14 @@ BehaviorRegistry.register(EditableLabelBehavior);
 BehaviorRegistry.register(ResizableBehavior);
 
 export { Flow } from "./src/flow.js";
+export { Floxy } from "./src/floxy.js";
+export { NodePanel } from "./src/nodepanel.js";
 export { DagValidator } from "./src/components/plugins/dag-validator.js";
 
 // register nodes
 import { nodeViewRegistry } from "./src/components/node/NodeViewRegistry.js";
 import { EllipseNodeView } from "./src/components/node/views/packages/workflow/EllipseNodeView.js";
+import { DefaultView } from "./src/components/node/views/packages/workflow/DefaultView.js";
 
 nodeViewRegistry.register(EllipseNodeView);
+nodeViewRegistry.register(DefaultView);

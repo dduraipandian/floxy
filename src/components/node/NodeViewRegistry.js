@@ -14,6 +14,10 @@ class NodeViewRegistry {
   get(module, group, name) {
     return this.views.get(module + ":" + group + ":" + name);
   }
+
+  values() {
+    return Array.from(this.views.values());
+  }
 }
 
 export const nodeViewRegistry = new NodeViewRegistry();

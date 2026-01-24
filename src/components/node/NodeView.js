@@ -27,6 +27,7 @@ class BaseNodeView extends EmitterComponent {
       label: "Node",
       group: "default",
       module: "default",
+      name: "node",
       capabilities: constants.DEFAULT_SUPPORTED_CAPABILITIES,
       data: {},
     };
@@ -227,8 +228,8 @@ class BaseNodeView extends EmitterComponent {
     this.resize?.();
   }
 
-  getNodeElement() {}
-  bindEvents() {}
+  getNodeElement() { }
+  bindEvents() { }
 }
 
 export { BaseNodeView };
