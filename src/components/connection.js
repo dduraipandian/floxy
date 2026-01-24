@@ -61,7 +61,10 @@ class FlowConnectionManager extends EmitterComponent {
     pathType = undefined,
     isTemp = false,
   }) {
-    const _pathType = pathType ?? this.options?.connection?.pathType ?? "orthogonal";
+    const _pathType =
+      pathType ?? this.options?.connection?.path_type ?? constants.DEFAULT_CONNECTION_PATH_TYPE;
+
+    const connectionOptions = { ...this.options?.connection, pathType: _pathType };
 
     const model = new ConnectionModel({
       id,
@@ -69,17 +72,17 @@ class FlowConnectionManager extends EmitterComponent {
       outPort,
       inNodeId,
       inPort,
-      options: { ...this.options?.connection, pathType: _pathType },
+      options: connectionOptions,
     });
     const view = new ConnectionView({
       model,
-      options: { ...this.options?.connection, isTemp: isTemp },
+      options: { ...connectionOptions, isTemp: isTemp },
     });
     const connection = new Connection({
       model,
       view,
       nodeManager: this.nodeManager,
-      options: this.options?.connection,
+      options: connectionOptions,
     });
     connection.renderInto(this.connectionContainer.id);
 

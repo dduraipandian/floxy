@@ -79,7 +79,6 @@ describe("FlowNodeManager", () => {
 
     nodeEl.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
 
-    console.log(canvasContainer.innerHTML);
     expect(nodeEl.classList.contains("selected")).toBe(true);
     expect(SelectableBehavior.active.node.id).toBe(id);
 

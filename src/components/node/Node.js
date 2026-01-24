@@ -30,7 +30,6 @@ class Node extends EmitterComponent {
   }
 
   renderInto(container) {
-    console.debug("FLOW: Render node", this.view);
     this.view.renderInto(container);
   }
 

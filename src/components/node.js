@@ -87,7 +87,6 @@ class FlowNodeManager extends EmitterComponent {
     const node = new Node({ model, view });
 
     const behaviors = this.behaviorResolver.resolve(node, this.options);
-    console.debug("FLOW: Node behaviors", node, behaviors);
     node.setBehaviors(behaviors);
 
     // bubble view events upward

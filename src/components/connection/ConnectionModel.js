@@ -1,8 +1,9 @@
 import { EmitterComponent } from "@uiframe/core";
 import { ConnectionStyle } from "./ConnectionStyle.js";
+import * as constants from "../constants.js";
 
 class ConnectionModel extends EmitterComponent {
-  constructor({ id, outNodeId, outPort, inNodeId, inPort, pathType = "bezier", options = {} }) {
+  constructor({ id, outNodeId, outPort, inNodeId, inPort, options = {} }) {
     super({ name: `connection-${id}` });
 
     this.id = id;
@@ -10,15 +11,15 @@ class ConnectionModel extends EmitterComponent {
     this.outPort = outPort;
     this.inNodeId = inNodeId;
     this.inPort = inPort;
-    this.pathType = pathType;
 
+    this.options = options;
     this.style = {
       width: 2,
       dash: null,
-      animated: true,
+      animated: false,
       ...options.style,
     };
-    this.style = new ConnectionStyle(this.style);
+    this.style = new ConnectionStyle(this.pathType, this.style);
   }
 
   get source() {
@@ -37,6 +38,10 @@ class ConnectionModel extends EmitterComponent {
 
   get arrows() {
     return this.style.arrows;
+  }
+
+  get pathType() {
+    return this.options.pathType ?? constants.DEFAULT_CONNECTION_PATH_TYPE;
   }
 }
 

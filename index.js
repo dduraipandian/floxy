@@ -7,9 +7,8 @@ import { BehaviorRegistry } from "./src/components/node/behaviors/BehaviorRegist
 import { ResizableBehavior } from "./src/components/node/behaviors/ResizableBehavior.js";
 
 // to register all paths
+// eslint-disable-next-line no-unused-vars
 import { pathRegistry } from "./src/components/connection/paths/index.js";
-
-console.log(pathRegistry);
 
 BehaviorRegistry.register(DraggableBehavior);
 BehaviorRegistry.register(SelectableBehavior);

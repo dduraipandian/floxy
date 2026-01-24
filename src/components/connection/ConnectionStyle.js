@@ -1,9 +1,10 @@
 import { pathRegistry } from "./paths/index.js";
+import * as constants from "../constants.js";
 
 var domStyle = window.getComputedStyle(document.body);
 
 class ConnectionStyle {
-  constructor(style = {}) {
+  constructor(path, style = {}) {
     this.secondaryColor = domStyle.getPropertyValue("--bs-secondary");
     this.primaryColor = domStyle.getPropertyValue("--bs-primary");
     this.dangerColor = domStyle.getPropertyValue("--bs-danger");
@@ -12,11 +13,13 @@ class ConnectionStyle {
     this.width = style.width ?? 2;
     this.dash = style.dash ?? null;
     this.animated = !!style.animated;
-    this.path = style.path ?? "orthogonal";
+    this.path = path ?? constants.DEFAULT_CONNECTION_PATH_TYPE;
 
     if (!pathRegistry.has(this.path)) {
-      console.warn(`Path ${this.path} not found. Defaulting to orthogonal.`);
-      this.path = "orthogonal";
+      console.warn(
+        `Path ${this.path} not found. setting to default path type ${constants.DEFAULT_CONNECTION_PATH_TYPE}.`
+      );
+      this.path = constants.DEFAULT_CONNECTION_PATH_TYPE;
     }
 
     this.arrows = {
