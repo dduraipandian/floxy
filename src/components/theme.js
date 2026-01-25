@@ -11,7 +11,9 @@ class ThemeManager {
     // Auto-update grid image when type changes
     if (name === "grid-type") {
       const typeVar = value === "lines" ? "var(--grid-lines)" : "var(--grid-dots)";
+      const sizeVar = value === "lines" ? "var(--grid-line-size)" : "var(--grid-dot-size)";
       this.root.style.setProperty("--floxy-grid-image", typeVar);
+      this.root.style.setProperty("--floxy-grid-size", sizeVar);
     }
   }
 
@@ -119,8 +121,15 @@ class ThemeEditor extends EmitterComponent {
               { label: "Lines", value: "lines" },
             ],
           },
-          { name: "grid-color", label: "Color", type: "color" },
-          { name: "grid-size", label: "Size", type: "range", min: 10, max: 100, unit: "px" },
+          { name: "grid-dot-color", label: "Dot Color", type: "color" },
+          {
+            name: "grid-dot-size",
+            label: "Dot Size",
+            type: "range",
+            min: 10,
+            max: 100,
+            unit: "px",
+          },
           {
             name: "grid-dot-radius",
             label: "Dot Radius",
@@ -128,6 +137,15 @@ class ThemeEditor extends EmitterComponent {
             min: 0.5,
             max: 5,
             step: 0.1,
+            unit: "px",
+          },
+          { name: "grid-line-color", label: "Line Color", type: "color" },
+          {
+            name: "grid-line-size",
+            label: "Line Size",
+            type: "range",
+            min: 10,
+            max: 100,
             unit: "px",
           },
           {
@@ -249,13 +267,7 @@ class ThemeEditor extends EmitterComponent {
         <div class="floxy-token-row">
           <span class="floxy-token-label">${token.label}</span>
           <select class="form-select form-select-sm floxy-select-input w-50" data-token="${token.name}" style="font-size: 0.75rem;">
-            ${token.options
-        .map(
-          (opt) => `
-              <option value="${opt.value}" ${currentValue === opt.value ? "selected" : ""}>${opt.label}</option>
-            `
-        )
-        .join("")}
+            ${token.options.map((opt) => `<option value="${opt.value}" ${currentValue === opt.value ? "selected" : ""}>${opt.label}</option>`).join("")}
           </select>
         </div>
       `;
