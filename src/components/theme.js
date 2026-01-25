@@ -3,17 +3,18 @@ import { EmitterComponent } from "@uiframe/core";
 class ThemeManager {
   constructor(root = document.documentElement) {
     this.root = root;
+    // Set default grid type if not present
+    if (!this.root.hasAttribute("data-floxy-grid-type")) {
+      this.root.setAttribute("data-floxy-grid-type", "dots");
+    }
   }
 
   setToken(name, value) {
     this.root.style.setProperty(`--floxy-${name}`, value);
 
-    // Auto-update grid image when type changes
+    // Update data attribute for grid type switching logic in CSS
     if (name === "grid-type") {
-      const typeVar = value === "lines" ? "var(--grid-lines)" : "var(--grid-dots)";
-      const sizeVar = value === "lines" ? "var(--grid-line-size)" : "var(--grid-dot-size)";
-      this.root.style.setProperty("--floxy-grid-image", typeVar);
-      this.root.style.setProperty("--floxy-grid-size", sizeVar);
+      this.root.setAttribute("data-floxy-grid-type", value);
     }
   }
 
@@ -146,6 +147,7 @@ class ThemeEditor extends EmitterComponent {
             type: "range",
             min: 10,
             max: 100,
+            step: 10,
             unit: "px",
           },
           {
@@ -292,7 +294,7 @@ class ThemeEditor extends EmitterComponent {
     };
 
     panel.querySelectorAll("input, select").forEach((input) => {
-      input.oninput = (e) => {
+      const handler = (e) => {
         const token = e.target.dataset.token;
         const unit = e.target.dataset.unit || "";
         const value = e.target.value + unit;
@@ -302,6 +304,9 @@ class ThemeEditor extends EmitterComponent {
         const valDisplay = this.container.querySelector(`#val-${token}`);
         if (valDisplay) valDisplay.textContent = value;
       };
+
+      input.oninput = handler;
+      input.onchange = handler;
     });
 
     reset.onclick = (e) => {

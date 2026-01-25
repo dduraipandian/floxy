@@ -45,7 +45,7 @@
 
   /* Grid Styles */
   --floxy-grid-dot-color: #c1c1c4;
-  --floxy-grid-line-color: #e6e6e6;
+  --floxy-grid-line-color: #d9d9dd;
 
   --floxy-grid-dot-size: 24px;
   --floxy-grid-line-size: 40px;
@@ -53,7 +53,14 @@
   --floxy-grid-dot-radius: 1.4px;
   --floxy-grid-line-width: 1px;
 
-  /* Grid Presets */
+  /* Child Grid Styles */
+  --floxy-grid-child-color: color-mix(in srgb, var(--floxy-grid-line-color), transparent 50%);
+  --floxy-grid-child-size: 10px; /* 1/4th of your 40px major grid */
+  --floxy-grid-child-width: 1px;
+}
+
+.floxy-flow-container {
+  /* Grid Presets (Scoped to container) */
   --grid-dots: radial-gradient(
     var(--floxy-grid-dot-color) var(--floxy-grid-dot-radius),
     transparent var(--floxy-grid-dot-radius)
@@ -69,8 +76,53 @@
       var(--floxy-grid-line-color) var(--floxy-grid-line-width),
       transparent var(--floxy-grid-line-width)
     );
+
   --grid-line-size: var(--floxy-grid-line-size) var(--floxy-grid-line-size);
   --grid-dot-size: var(--floxy-grid-dot-size) var(--floxy-grid-dot-size);
+
+  /* Major X/Y Lines + Minor Child Grid */
+  --grid-lines-with-child:
+    linear-gradient(
+      to right,
+      var(--floxy-grid-line-color) var(--floxy-grid-line-width),
+      transparent var(--floxy-grid-line-width)
+    ),
+    linear-gradient(
+      to bottom,
+      var(--floxy-grid-line-color) var(--floxy-grid-line-width),
+      transparent var(--floxy-grid-line-width)
+    ),
+    linear-gradient(
+      to right,
+      var(--floxy-grid-child-color) var(--floxy-grid-child-width),
+      transparent var(--floxy-grid-child-width)
+    ),
+    linear-gradient(
+      to bottom,
+      var(--floxy-grid-child-color) var(--floxy-grid-child-width),
+      transparent var(--floxy-grid-child-width)
+    );
+
+  --grid-line-size-with-child:
+    var(--floxy-grid-line-size) var(--floxy-grid-line-size),
+    var(--floxy-grid-line-size) var(--floxy-grid-line-size),
+    var(--floxy-grid-child-size) var(--floxy-grid-child-size),
+    var(--floxy-grid-child-size) var(--floxy-grid-child-size);
+
+  /* Type Selection Handled here (CSS-driven logic) */
+  background-image: var(--grid-dots);
+  background-size: var(--grid-dot-size);
+}
+
+/* React to root attribute state */
+[data-floxy-grid-type="dots"] .floxy-flow-container {
+  background-image: var(--grid-dots);
+  background-size: var(--grid-dot-size);
+}
+
+[data-floxy-grid-type="lines"] .floxy-flow-container {
+  background-image: var(--grid-lines-with-child);
+  background-size: var(--grid-line-size-with-child);
 }
 
 /* START: FLOW COMPONENT */
@@ -83,9 +135,6 @@
   overflow: hidden;
   user-select: none;
   cursor: grab;
-
-  background-image: var(--floxy-grid-image, var(--grid-dots));
-  background-size: var(--floxy-grid-size, var(--grid-dot-size));
 
   &:active {
     cursor: grabbing;
