@@ -8,6 +8,10 @@
   --floxy-light-color: #f8f9fa;
   --floxy-dark-color: #212529;
 
+  /* Global App Background */
+  --floxy-app-bg: #f8f9fa;
+  --floxy-glass-blur: blur(12px) saturate(180%);
+
   /* Node Styles */
   --floxy-node-bg: #ffffff;
   --floxy-node-text: #24292f;
@@ -57,6 +61,25 @@
   --floxy-grid-child-color: color-mix(in srgb, var(--floxy-grid-line-color), transparent 50%);
   --floxy-grid-child-size: 10px; /* 1/4th of your 40px major grid */
   --floxy-grid-child-width: 1px;
+}
+
+/* Dark Theme Overrides */
+:root[data-floxy-theme="dark"] {
+  --floxy-app-bg: #000000;
+
+  /* Use Existing Flow Variables for Dark Theme */
+  --floxy-node-bg: #1c1c1e;
+  --floxy-node-text: #f2f2f7;
+  --floxy-node-border: #3a3a3c;
+  --floxy-node-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  --floxy-label-color: #f2f2f7;
+  --floxy-port-bg: #1c1c1e;
+  --floxy-port-border: #3a3a3c;
+
+  /* Grid Adjustments for Dark Mode */
+  --floxy-grid-dot-color: rgba(255, 255, 255, 0.3);
+  --floxy-grid-line-color: rgba(255, 255, 255, 0.1);
 }
 
 .floxy-flow-container {

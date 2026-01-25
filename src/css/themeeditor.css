@@ -3,19 +3,21 @@
   top: 0;
   right: -340px;
   width: 320px;
-  /* max-height: calc(100vh - 2rem); */
   height: 100%;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  background: var(--floxy-node-bg);
+  backdrop-filter: var(--floxy-glass-blur);
+  -webkit-backdrop-filter: var(--floxy-glass-blur);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    right 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.3s ease,
+    border-color 0.3s ease;
   font-family: inherit;
   border-radius: 0;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--floxy-node-border);
 }
 
 .floxy-theme-editor.open {
@@ -34,7 +36,7 @@
 
 .floxy-theme-header {
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--floxy-node-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -45,7 +47,7 @@
   overflow-y: auto;
   padding: 1.25rem;
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+  scrollbar-color: var(--floxy-node-border) transparent;
 }
 
 .floxy-theme-body::-webkit-scrollbar {
@@ -53,13 +55,13 @@
 }
 
 .floxy-theme-body::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: var(--floxy-node-border);
   border-radius: 10px;
 }
 
 .floxy-theme-footer {
   padding: 1.25rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 1px solid var(--floxy-node-border);
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -73,7 +75,7 @@
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #8e8e93;
+  color: var(--floxy-secondary-color);
   margin-bottom: 1.25rem !important;
   font-weight: 600;
 }
@@ -87,7 +89,7 @@
 
 .floxy-token-label {
   font-size: 0.85rem;
-  color: #1c1c1e;
+  color: var(--floxy-node-text);
   font-weight: 500;
 }
 
@@ -109,6 +111,10 @@
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+:root[data-floxy-theme="dark"] .floxy-color-input {
+  border-color: #3a3a3c;
+}
+
 .floxy-color-input:hover {
   transform: scale(1.15);
 }
@@ -124,14 +130,14 @@
 .floxy-range-input {
   flex: 1;
   height: 4px;
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--floxy-node-border);
   border-radius: 2px;
   outline: none;
 }
 
 .floxy-range-value {
   font-size: 0.7rem;
-  color: #8e8e93;
+  color: var(--floxy-secondary-color);
   min-width: 30px;
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -144,7 +150,7 @@
   width: 48px;
   height: 48px;
   border-radius: 1.5rem;
-  background: #007aff;
+  background: var(--floxy-primary-color);
   color: #fff;
   border: none;
   box-shadow: 0 12px 24px rgba(0, 122, 255, 0.3);

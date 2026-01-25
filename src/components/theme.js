@@ -7,6 +7,24 @@ class ThemeManager {
     if (!this.root.hasAttribute("data-floxy-grid-type")) {
       this.root.setAttribute("data-floxy-grid-type", "dots");
     }
+
+    // Initialize Global Theme
+    const savedTheme = localStorage.getItem("floxy-theme") || "system";
+    this.setGlobalTheme(savedTheme);
+  }
+
+  getGlobalTheme() {
+    return this.root.getAttribute("data-floxy-theme") || "light";
+  }
+
+  setGlobalTheme(theme) {
+    let effectiveTheme = theme;
+    if (theme === "system") {
+      effectiveTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+
+    this.root.setAttribute("data-floxy-theme", effectiveTheme);
+    localStorage.setItem("floxy-theme", theme); // Store user preference (including 'system')
   }
 
   setToken(name, value) {
@@ -25,6 +43,9 @@ class ThemeManager {
   }
 
   getToken(name) {
+    if (name === "global-theme") {
+      return localStorage.getItem("floxy-theme") || "system";
+    }
     return getComputedStyle(this.root).getPropertyValue(`--floxy-${name}`).trim();
   }
 }
@@ -35,6 +56,21 @@ class ThemeEditor extends EmitterComponent {
     this.manager = options.manager || new ThemeManager();
     this.isOpen = false;
     this.config = [
+      {
+        category: "Global Appearance",
+        tokens: [
+          {
+            name: "global-theme",
+            label: "Color Theme",
+            type: "select",
+            options: [
+              { label: "Light", value: "light" },
+              { label: "Dark", value: "dark" },
+              { label: "System", value: "system" },
+            ],
+          },
+        ],
+      },
       {
         category: "Brand Colors",
         group: true,
@@ -173,8 +209,8 @@ class ThemeEditor extends EmitterComponent {
             </button>
             <div class="floxy-theme-editor swag" id="floxy-theme-panel">
                 <div class="floxy-theme-header">
-                    <h5 class="m-0 fw-bold" style="font-size: 0.95rem; color: #1c1c1e;">Theme Editor</h5>
-                    <button type="button" class="btn-close" id="floxy-theme-close" style="font-size: 0.7rem; opacity: 0.6;"></button>
+                    <h5 class="m-0 fw-bold" style="font-size: 0.95rem; color: var(--floxy-label-color);">Theme Editor</h5>
+                    <button type="button" class="btn-close" id="floxy-theme-close" style="font-size: 0.7rem; opacity: 0.6; color: var(--floxy-node-text);"></button>
                 </div>
                 <div class="floxy-theme-body">
                     ${this.renderTokenControl()}
@@ -182,7 +218,7 @@ class ThemeEditor extends EmitterComponent {
                 <div class="floxy-theme-footer">
                     <button class="btn btn-sm btn-primary flex-grow-1 py-2" id="floxy-download-theme">Download Theme</button>
                     <button class="btn btn-sm btn-outline-secondary flex-grow-1 py-2" id="floxy-export-css">Copy CSS</button>
-                    <button class="btn btn-sm btn-link w-100 mt-2 text-muted" id="floxy-theme-reset" style="font-size: 0.75rem; text-decoration: none;">Reset Defaults</button>
+                    <button class="btn btn-sm btn-link w-100 mt-2" id="floxy-theme-reset" style="font-size: 0.75rem; text-decoration: none;  color: var(--floxy-secondary-color)">Reset Defaults</button>
                 </div>
             </div>
         `;
@@ -299,7 +335,11 @@ class ThemeEditor extends EmitterComponent {
         const unit = e.target.dataset.unit || "";
         const value = e.target.value + unit;
 
-        this.manager.setToken(token, value);
+        if (token === "global-theme") {
+          this.manager.setGlobalTheme(e.target.value);
+        } else {
+          this.manager.setToken(token, value);
+        }
 
         const valDisplay = this.container.querySelector(`#val-${token}`);
         if (valDisplay) valDisplay.textContent = value;
