@@ -17,6 +17,8 @@ BehaviorRegistry.register(ResizableBehavior);
 
 export { Flow } from "./src/flow.js";
 export { DagValidator } from "./src/components/plugins/dag-validator.js";
+export { ThemeManager } from "./src/components/theme.js";
+export { ThemeEditor } from "./src/components/theme.js";
 
 // register nodes
 import { nodeViewRegistry } from "./src/components/node/NodeViewRegistry.js";

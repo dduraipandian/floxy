@@ -22,8 +22,8 @@ class BaseNodeView extends EmitterComponent {
     return {
       inputs: 1,
       outputs: 1,
-      w: 200,
-      h: 50,
+      w: 250,
+      h: 70,
       label: "Node",
       group: "default",
       module: "default",

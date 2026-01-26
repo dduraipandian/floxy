@@ -19,7 +19,7 @@ function ensureArrowMarkers(svg, size = 5) {
 
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", pathD);
-    path.setAttribute("fill", "currentColor");
+    path.setAttribute("fill", "context-stroke");
 
     marker.appendChild(path);
     return marker;

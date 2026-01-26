@@ -19,8 +19,8 @@ class EllipseNodeView extends SVGNodeView {
     return {
       inputs: 1,
       outputs: 1,
-      w: 200,
-      h: 100,
+      w: 250,
+      h: 150,
       label: "Action",
       module: "diagram",
       group: "workflow",
