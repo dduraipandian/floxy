@@ -103,6 +103,15 @@ class ThemeEditor extends EmitterComponent {
             max: 50,
             unit: "px",
           },
+          { name: "node-focus-color", label: "Selected Color", type: "color" },
+          {
+            name: "node-focus-width",
+            label: "Selected Width",
+            type: "range",
+            min: 0,
+            max: 10,
+            unit: "px",
+          },
         ],
       },
       {

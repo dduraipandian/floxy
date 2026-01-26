@@ -80,6 +80,7 @@
   /* Grid Adjustments for Dark Mode */
   --floxy-grid-dot-color: rgba(255, 255, 255, 0.3);
   --floxy-grid-line-color: rgba(255, 255, 255, 0.1);
+  --floxy-grid-dot-radius: 1px;
 }
 
 .floxy-flow-container {

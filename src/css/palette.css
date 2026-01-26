@@ -8,7 +8,7 @@
   backdrop-filter: var(--floxy-glass-blur);
   -webkit-backdrop-filter: var(--floxy-glass-blur);
   border-right: 1px solid var(--floxy-node-border);
-  padding: 1.5rem;
+  padding: 1.25rem;
   z-index: 1000;
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.05);
   display: flex;
@@ -104,8 +104,9 @@ body.palette-closed #palette-reveal-btn {
 
 .draggable-item {
   background: var(--floxy-node-bg);
+  height: 2.5rem;
   border: 1px solid var(--floxy-node-border);
-  border-radius: 1rem;
+  border-radius: 0;
   padding: 0.85rem 1rem;
   margin-bottom: 0.75rem;
   cursor: grab;
