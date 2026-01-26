@@ -170,3 +170,7 @@
 .floxy-toggle-btn:active {
   transform: translateY(-2px) scale(0.98);
 }
+
+:root[data-floxy-theme="dark"] .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
