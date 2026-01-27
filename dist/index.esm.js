@@ -107,9 +107,18 @@ class BaseConnectionBehavior extends BaseBehavior {
   }
 }
 
+let GLOABL_ACTIVE = null;
+
+function setActive(behavior) {
+  GLOABL_ACTIVE = behavior;
+}
+
+function getActive() {
+  return GLOABL_ACTIVE;
+}
+
 class CommonSelectableBehavior extends BaseConnectionBehavior {
   // TODO: this should be removed when multiple nodes can be selected and tabs added.
-  static active = null;
 
   constructor({ type, component, options = {} }) {
     super({ type, component, options });
@@ -133,28 +142,26 @@ class CommonSelectableBehavior extends BaseConnectionBehavior {
   }
 
   select() {
-    if (this.selected) {
-      this.deselect();
-      return;
-    }
-    this.constructor.active?.deselect();
+    if (getActive() === this) return;
+
+    getActive()?.deselect();
 
     this.selected = true;
     this.component.select();
-    this.constructor.active = this;
+    setActive(this);
   }
 
   deselect() {
     if (!this.component.destroyed) {
       this.component.deselect();
     }
-    this.constructor.active = null;
+    setActive(null);
     this.selected = false;
   }
 
   detach() {
     if (this._onPointerDown && this.component?.view?.el) {
-      this.component.view.el.removeEventListener("click", this._onPointerDown);
+      this.component.view.detachEvent("click", this._onPointerDown);
     }
   }
 
@@ -1402,6 +1409,10 @@ class BaseNodeView extends EmitterComponent {
     this.el.addEventListener(event, callback);
   }
 
+  detachEvent(event, callback) {
+    this.el.removeEventListener(event, callback);
+  }
+
   getNodeElement() {}
   bindEvents() {}
 }
@@ -1897,6 +1908,11 @@ class ConnectionView extends EmitterComponent {
   attachEvent(event, callback) {
     this.path.addEventListener(event, callback);
     this.shadowPath.addEventListener(event, callback);
+  }
+
+  detachEvent(event, callback) {
+    this.path.removeEventListener(event, callback);
+    this.shadowPath.removeEventListener(event, callback);
   }
 }
 
