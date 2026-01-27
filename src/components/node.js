@@ -1,10 +1,10 @@
 import { EmitterComponent } from "@uiframe/core";
 import { Node } from "./node/Node.js";
 import { NodeModel } from "./node/NodeModel.js";
-import { BehaviorRegistry } from "./node/behaviors/BehaviorRegistry.js";
+import { defaultBehaviorRegistry } from "./behaviors/BehaviorRegistry.js";
 import { nodeViewRegistry } from "./node/NodeViewRegistry.js";
 import { DefaultView } from "./node/views/packages/workflow/DefaultView.js";
-import { DefaultBehaviorResolver } from "./node/DefaultBehaviorResolver.js";
+import { DefaultBehaviorResolver } from "./behaviors/DefaultBehaviorResolver.js";
 import * as constants from "./constants.js";
 
 class FlowNodeManager extends EmitterComponent {
@@ -14,7 +14,7 @@ class FlowNodeManager extends EmitterComponent {
     zoomGetter = () => 1,
     View = DefaultView,
     viewRegistry = nodeViewRegistry,
-    BehaviorRegistryCls = BehaviorRegistry,
+    behaviorRegistry = defaultBehaviorRegistry,
     BehaviorResolverCls = DefaultBehaviorResolver,
   }) {
     super({ name: name + "node-manager" });
@@ -25,11 +25,12 @@ class FlowNodeManager extends EmitterComponent {
     this.nodes = new Map();
     this.idCounter = 1;
 
-    this.BehaviorRegistryCls = BehaviorRegistryCls;
+    this.behaviorRegistry = behaviorRegistry;
     this.BehaviorResolverCls = BehaviorResolverCls;
 
-    this.behaviorResolver = new this.BehaviorResolverCls({ registry: this.BehaviorRegistryCls });
+    this.behaviorResolver = new this.BehaviorResolverCls({ registry: this.behaviorRegistry });
     this.behaviors = [];
+    this.type = "node";
   }
 
   dropNode(config) {
@@ -86,7 +87,7 @@ class FlowNodeManager extends EmitterComponent {
     const view = new ViewClass(model, { ...this.options, zoomGetter: this.zoomGetter });
     const node = new Node({ model, view });
 
-    const behaviors = this.behaviorResolver.resolve(node, this.options);
+    const behaviors = this.behaviorResolver.resolve(this.type, node, this.options);
     node.setBehaviors(behaviors);
 
     // bubble view events upward

@@ -5,8 +5,8 @@ class SelectableBehavior extends BaseNodeBehavior {
   // TODO: this should be removed when multiple nodes can be selected and tabs added.
   static active = null;
 
-  constructor({ node, options = {} }) {
-    super({ node, options });
+  constructor({ type, component, options = {} }) {
+    super({ type, component, options });
     this.selected = false;
   }
 

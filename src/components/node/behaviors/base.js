@@ -1,46 +1,16 @@
 import * as constants from "../../constants.js";
+import { BaseBehavior } from "../../behaviors/base.js";
 
-class BaseNodeBehavior {
-  constructor({ node, options = {} }) {
-    this.node = node;
-    this.options = options;
-    this.attached = false;
+class BaseNodeBehavior extends BaseBehavior {
+  static type = "node";
+
+  constructor({ type, component, options = {} }) {
+    super({ type, component, options });
+    this.node = this.component;
   }
 
-  static get behavior() {
-    throw new Error("Static property behavior must be implemented in the subclass");
-  }
-
-  isSupported() {
-    const iss = this.node.isCapabilitySupported(this.constructor.behavior);
-    console.debug("FLOW: Is behavior supported", this.constructor.behavior, iss);
-    return iss;
-  }
-
-  _attach() {
-    if (!this.isSupported()) return;
-    if (!this.gaurd()) return;
-
-    this.attach();
-    this.attached = true;
-    this.node.on(constants.NODE_REMOVED_EVENT, this.destroy);
-  }
-
-  gaurd() {
-    return true;
-  }
-
-  attach() {
-    throw new Error("Method 'attach()' must be implemented in the subclass");
-  }
-
-  detach() {
-    throw new Error("Method 'detach()' must be implemented in the subclass");
-  }
-
-  destroy() {
-    this.detach();
-    this.node.off(constants.NODE_REMOVED_EVENT, this.destroy);
+  static get removal_event() {
+    return constants.NODE_REMOVED_EVENT;
   }
 }
 
