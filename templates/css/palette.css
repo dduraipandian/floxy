@@ -106,7 +106,7 @@ body.palette-closed #palette-reveal-btn {
   background: var(--floxy-node-bg);
   height: 2.5rem;
   border: 1px solid var(--floxy-node-border);
-  border-radius: 0;
+  border-radius: 0.25rem;
   padding: 0.85rem 1rem;
   margin-bottom: 0.75rem;
   cursor: grab;

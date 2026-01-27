@@ -159,9 +159,10 @@ const DEFAULT_SUPPORTED_CAPABILITIES = [
 
 const SVGShapes = ["ellipse", "circle", "rect", "line", "polyline", "polygon", "path"];
 
-class BaseNodeBehavior {
-  constructor({ node, options = {} }) {
-    this.node = node;
+class BaseBehavior {
+  constructor({ type, component, options = {} }) {
+    this.component = component;
+    this.type = type;
     this.options = options;
     this.attached = false;
   }
@@ -170,19 +171,24 @@ class BaseNodeBehavior {
     throw new Error("Static property behavior must be implemented in the subclass");
   }
 
+  static get removal_event() {
+    throw new Error("Static property removal_event must be implemented in the subclass");
+  }
+
   isSupported() {
-    const iss = this.node.isCapabilitySupported(this.constructor.behavior);
+    const iss = this.component.isCapabilitySupported(this.constructor.behavior);
     console.debug("FLOW: Is behavior supported", this.constructor.behavior, iss);
     return iss;
   }
 
   _attach() {
+    console.log(this.component);
     if (!this.isSupported()) return;
     if (!this.gaurd()) return;
 
     this.attach();
     this.attached = true;
-    this.node.on(NODE_REMOVED_EVENT, this.destroy);
+    this.component.on(this.constructor.removal_event, this.destroy);
   }
 
   gaurd() {
@@ -199,7 +205,20 @@ class BaseNodeBehavior {
 
   destroy() {
     this.detach();
-    this.node.off(NODE_REMOVED_EVENT, this.destroy);
+    this.component.off(this.constructor.removal_event, this.destroy);
+  }
+}
+
+class BaseNodeBehavior extends BaseBehavior {
+  static type = "node";
+
+  constructor({ type, component, options = {} }) {
+    super({ type, component, options });
+    this.node = this.component;
+  }
+
+  static get removal_event() {
+    return NODE_REMOVED_EVENT;
   }
 }
 
@@ -241,8 +260,8 @@ class SelectableBehavior extends BaseNodeBehavior {
   // TODO: this should be removed when multiple nodes can be selected and tabs added.
   static active = null;
 
-  constructor({ node, options = {} }) {
-    super({ node, options });
+  constructor({ type, component, options = {} }) {
+    super({ type, component, options });
     this.selected = false;
   }
 
@@ -346,30 +365,6 @@ class EditableLabelBehavior extends BaseNodeBehavior {
   }
 }
 
-class _BehaviorRegistry {
-  constructor() {
-    this._registry = new Map();
-  }
-
-  register(BehaviorClass) {
-    const name = BehaviorClass.behavior;
-    if (!name) {
-      throw new Error(`Behavior ${BehaviorClass.name} must define static behavior`);
-    }
-    this._registry.set(name, BehaviorClass);
-  }
-
-  get(name) {
-    return this._registry.get(name);
-  }
-
-  getAll() {
-    return Array.from(this._registry.values());
-  }
-}
-
-let BehaviorRegistry = new _BehaviorRegistry();
-
 class ResizableBehavior extends BaseNodeBehavior {
   static get behavior() {
     return NODE_CAPABILITIES.RESIZABLE;
@@ -405,6 +400,37 @@ class ResizableBehavior extends BaseNodeBehavior {
     this.dragHandler?.destroy();
   }
 }
+
+class _BehaviorRegistry {
+  constructor() {
+    this._registry = new Map();
+  }
+
+  register(BehaviorClass) {
+    const name = BehaviorClass.behavior;
+    const type = BehaviorClass.type;
+    if (!name) {
+      throw new Error(`Behavior ${BehaviorClass.name} must define static behavior`);
+    }
+    if (!type) {
+      throw new Error(`Behavior ${BehaviorClass.type} must define static type`);
+    }
+    if (!this._registry.has(type)) {
+      this._registry.set(type, new Map());
+    }
+    this._registry.get(type).set(name, BehaviorClass);
+  }
+
+  get(type, name) {
+    return this._registry.get(type)?.get(name);
+  }
+
+  getAll(type) {
+    return Array.from(this._registry.get(type)?.values() || []);
+  }
+}
+
+const defaultBehaviorRegistry = new _BehaviorRegistry();
 
 class _PathRegistry {
   constructor() {
@@ -916,7 +942,13 @@ class Node extends EmitterComponent {
   }
 
   init() {
-    this.behaviors.forEach((b) => b._attach());
+    this.behaviors.forEach((b) => {
+      try {
+        b._attach();
+      } catch (error) {
+        console.error("Failed to attach behavior", b, error);
+      }
+    });
   }
 
   move(x, y) {
@@ -1292,13 +1324,15 @@ class DefaultBehaviorResolver {
     this.registry = registry;
   }
 
-  resolve(node, context = {}) {
+  resolve(type, component, context = {}) {
     const resolved = new Set();
 
-    node.model.capabilities.forEach((capability) => {
-      const BehaviorCls = this.registry.get(capability);
+    component.model.capabilities.forEach((capability) => {
+      const BehaviorCls = this.registry.get(type, capability);
       if (BehaviorCls) {
-        resolved.add(new BehaviorCls({ node, options: context }));
+        const behaviorInstance = new BehaviorCls({ type, component, options: context });
+        console.log("behaviorInstance", behaviorInstance);
+        resolved.add(behaviorInstance);
       }
     });
 
@@ -1313,7 +1347,7 @@ class FlowNodeManager extends EmitterComponent {
     zoomGetter = () => 1,
     View = DefaultView,
     viewRegistry = nodeViewRegistry,
-    BehaviorRegistryCls = BehaviorRegistry,
+    behaviorRegistry = defaultBehaviorRegistry,
     BehaviorResolverCls = DefaultBehaviorResolver,
   }) {
     super({ name: name + "node-manager" });
@@ -1324,11 +1358,12 @@ class FlowNodeManager extends EmitterComponent {
     this.nodes = new Map();
     this.idCounter = 1;
 
-    this.BehaviorRegistryCls = BehaviorRegistryCls;
+    this.behaviorRegistry = behaviorRegistry;
     this.BehaviorResolverCls = BehaviorResolverCls;
 
-    this.behaviorResolver = new this.BehaviorResolverCls({ registry: this.BehaviorRegistryCls });
+    this.behaviorResolver = new this.BehaviorResolverCls({ registry: this.behaviorRegistry });
     this.behaviors = [];
+    this.type = "node";
   }
 
   dropNode(config) {
@@ -1385,7 +1420,7 @@ class FlowNodeManager extends EmitterComponent {
     const view = new ViewClass(model, { ...this.options, zoomGetter: this.zoomGetter });
     const node = new Node({ model, view });
 
-    const behaviors = this.behaviorResolver.resolve(node, this.options);
+    const behaviors = this.behaviorResolver.resolve(this.type, node, this.options);
     node.setBehaviors(behaviors);
 
     // bubble view events upward
@@ -3083,10 +3118,10 @@ class EllipseNodeView extends SVGNodeView {
   }
 }
 
-BehaviorRegistry.register(DraggableBehavior);
-BehaviorRegistry.register(SelectableBehavior);
-BehaviorRegistry.register(EditableLabelBehavior);
-BehaviorRegistry.register(ResizableBehavior);
+defaultBehaviorRegistry.register(DraggableBehavior);
+defaultBehaviorRegistry.register(SelectableBehavior);
+defaultBehaviorRegistry.register(EditableLabelBehavior);
+defaultBehaviorRegistry.register(ResizableBehavior);
 
 nodeViewRegistry.register(EllipseNodeView);
 
