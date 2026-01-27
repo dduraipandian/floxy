@@ -3,6 +3,9 @@ import { DraggableBehavior } from "../src/components/node/behaviors/DraggableBeh
 import { SelectableBehavior } from "../src/components/node/behaviors/SelectableBehavior.js";
 import { EditableLabelBehavior } from "../src/components/node/behaviors/EditableLabelBehavior.js";
 import { ResizableBehavior } from "../src/components/node/behaviors/ResizableBehavior.js";
+
+import { getActive } from "../src/components/behaviors/common/SelectableBehavior.js";
+
 import * as constants from "../src/components/constants.js";
 
 /* eslint-disable no-unused-vars */
@@ -37,7 +40,7 @@ describe("Node Behaviors", () => {
     });
 
     test("should throw if behavior static property missing", () => {
-      class BadBehavior {}
+      class BadBehavior { }
       expect(() => behaviorRegistry.register(BadBehavior)).toThrow(
         "Behavior must define static behavior"
       );
@@ -125,7 +128,7 @@ describe("Node Behaviors", () => {
 
       expect(spy).toHaveBeenCalled();
       expect(behavior.selected).toBe(true);
-      expect(SelectableBehavior.active).toBe(behavior);
+      expect(getActive()).toBe(behavior);
       expect(node.select).toHaveBeenCalled();
 
       // selecting again should de-select the node
@@ -152,7 +155,7 @@ describe("Node Behaviors", () => {
       expect(behavior.selected).toBe(false);
       expect(node.deselect).toHaveBeenCalled();
       expect(behavior2.selected).toBe(true);
-      expect(SelectableBehavior.active).toBe(behavior2);
+      expect(getActive()).toBe(behavior2);
     });
   });
 

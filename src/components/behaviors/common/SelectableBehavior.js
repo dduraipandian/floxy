@@ -1,9 +1,18 @@
 import { BaseConnectionBehavior } from "../../connection/behaviors/base.js";
 import * as constants from "../../constants.js";
 
+let GLOABL_ACTIVE = null;
+
+function setActive(behavior) {
+  GLOABL_ACTIVE = behavior;
+}
+
+function getActive() {
+  return GLOABL_ACTIVE;
+}
+
 class CommonSelectableBehavior extends BaseConnectionBehavior {
   // TODO: this should be removed when multiple nodes can be selected and tabs added.
-  static active = null;
 
   constructor({ type, component, options = {} }) {
     super({ type, component, options });
@@ -31,18 +40,18 @@ class CommonSelectableBehavior extends BaseConnectionBehavior {
       this.deselect();
       return;
     }
-    this.constructor.active?.deselect();
+    getActive()?.deselect();
 
     this.selected = true;
     this.component.select();
-    this.constructor.active = this;
+    setActive(this);
   }
 
   deselect() {
     if (!this.component.destroyed) {
       this.component.deselect();
     }
-    this.constructor.active = null;
+    setActive(null);
     this.selected = false;
   }
 
@@ -61,4 +70,4 @@ class CommonSelectableBehavior extends BaseConnectionBehavior {
   }
 }
 
-export { CommonSelectableBehavior };
+export { CommonSelectableBehavior, getActive };

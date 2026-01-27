@@ -7,6 +7,8 @@ import { EditableLabelBehavior } from "../src/components/node/behaviors/Editable
 import { defaultBehaviorRegistry } from "../src/components/behaviors/BehaviorRegistry.js";
 import { ResizableBehavior } from "../src/components/node/behaviors/ResizableBehavior.js";
 
+import { getActive } from "../src/components/behaviors/common/SelectableBehavior.js";
+
 defaultBehaviorRegistry.register(DraggableBehavior);
 defaultBehaviorRegistry.register(SelectableBehavior);
 defaultBehaviorRegistry.register(EditableLabelBehavior);
@@ -80,7 +82,7 @@ describe("FlowNodeManager", () => {
     nodeEl.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
     expect(nodeEl.classList.contains("selected")).toBe(true);
-    expect(SelectableBehavior.active.node.id).toBe(id);
+    expect(getActive().node.id).toBe(id);
 
     const id2 = manager.addNode({
       name: "Other",
@@ -93,7 +95,7 @@ describe("FlowNodeManager", () => {
 
     expect(nodeEl.classList.contains("selected")).toBe(false);
     expect(nodeEl2.classList.contains("selected")).toBe(true);
-    expect(SelectableBehavior.active.node.id).toBe(id2);
+    expect(getActive().node.id).toBe(id2);
   });
 
   test("should remove node and emit event", () => {
