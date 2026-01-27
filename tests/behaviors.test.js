@@ -100,6 +100,7 @@ describe("Node Behaviors", () => {
       node = {
         view: {
           el: document.createElement("div"),
+          attachEvent: (e, handler) => node.view.el.addEventListener(e, handler),
         },
         isCapabilitySupported: jest.fn().mockReturnValue(true),
         select: jest.fn(),
@@ -116,16 +117,22 @@ describe("Node Behaviors", () => {
       if (SelectableBehavior.active) SelectableBehavior.active.deselect();
     });
 
-    test("should select on mousedown", () => {
+    test("should select on click", () => {
       behavior._attach();
       const spy = jest.spyOn(behavior, "select");
 
-      node.view.el.dispatchEvent(new MouseEvent("mousedown"));
+      node.view.el.dispatchEvent(new MouseEvent("click"));
 
       expect(spy).toHaveBeenCalled();
       expect(behavior.selected).toBe(true);
       expect(SelectableBehavior.active).toBe(behavior);
       expect(node.select).toHaveBeenCalled();
+
+      // selecting again should de-select the node
+      node.view.el.dispatchEvent(new MouseEvent("click"));
+      expect(spy).toHaveBeenCalledTimes(2);
+      expect(behavior.selected).toBe(false);
+      expect(node.deselect).toHaveBeenCalled();
     });
 
     test("should deselect previous active behavior", () => {
@@ -135,7 +142,7 @@ describe("Node Behaviors", () => {
         ...node,
         select: jest.fn(),
         deselect: jest.fn(),
-        view: { el: document.createElement("div") },
+        view: { el: document.createElement("div"), attachEvent: jest.fn() },
       };
       const behavior2 = new SelectableBehavior({ type: "node", component: node2 });
       behavior2._attach();
