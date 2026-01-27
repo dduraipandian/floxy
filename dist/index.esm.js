@@ -1,3 +1,161 @@
+// Canvas events
+const CANVAS_ZOOM_EVENT = "canvas:zoom";
+
+// Node Events
+const NODE_REMOVED_EVENT = "node:removed";
+const NODE_POINTER_DOWN_EVENT = "node:pointer:down";
+const NODE_MOVED_EVENT = "node:moved";
+const NODE_SELECTED_EVENT = "node:selected";
+const NODE_DESELECTED_EVENT = "node:deselected";
+const NODE_DROPPED_EVENT = "node:dropped";
+const NODE_UPDATED_EVENT = "node:updated";
+const NODE_LABEL_UPDATED_EVENT = "node:label:updated";
+
+const PORT_CONNECT_START_EVENT = "node:port:connect:start";
+const PORT_CONNECT_END_EVENT = "node:port:connect:end";
+
+// Connection Events
+const CONNECTION_CREATED_EVENT = "connection:created";
+const CONNECTION_REMOVED_EVENT = "connection:removed";
+const CONNECTION_UPDATED_EVENT = "connection:updated";
+const CONNECTION_CLICKED_EVENT = "connection:clicked";
+const CONNECTION_SELECTED_EVENT = "connection:selected";
+const CONNECTION_DESELECTED_EVENT = "connection:deselected";
+
+const DEFAULT_CONNECTION_PATH_TYPE = "bezier";
+
+const COMMON_CAPABILITIES = {
+  SELECTABLE: "selectable",
+};
+
+const NODE_CAPABILITIES = {
+  SELECTABLE: "selectable",
+  MOVABLE: "movable",
+  EDITABLE_LABEL: "editable-label",
+  RESIZABLE: "resizable",
+};
+
+const DEFAULT_SUPPORTED_CAPABILITIES = [
+  COMMON_CAPABILITIES.SELECTABLE,
+  NODE_CAPABILITIES.MOVABLE,
+  NODE_CAPABILITIES.EDITABLE_LABEL,
+  NODE_CAPABILITIES.RESIZABLE,
+];
+
+const SVGShapes = ["ellipse", "circle", "rect", "line", "polyline", "polygon", "path"];
+
+class BaseBehavior {
+  constructor({ type, component, options = {} }) {
+    this.component = component;
+    this.type = type;
+    this.options = options;
+    this.attached = false;
+  }
+
+  static get behavior() {
+    throw new Error("Static property behavior must be implemented in the subclass");
+  }
+
+  static get removal_event() {
+    throw new Error("Static property removal_event must be implemented in the subclass");
+  }
+
+  isSupported() {
+    const iss = this.component.isCapabilitySupported(this.constructor.behavior);
+    console.debug("FLOW: Is behavior supported", this.constructor.behavior, iss);
+    return iss;
+  }
+
+  _attach() {
+    console.log(this.component);
+    if (!this.isSupported()) return;
+    if (!this.gaurd()) return;
+
+    this.attach();
+    this.attached = true;
+    this.component.on(this.constructor.removal_event, this.destroy);
+  }
+
+  gaurd() {
+    return true;
+  }
+
+  attach() {
+    throw new Error("Method 'attach()' must be implemented in the subclass");
+  }
+
+  detach() {
+    throw new Error("Method 'detach()' must be implemented in the subclass");
+  }
+
+  destroy() {
+    this.detach();
+    this.component.off(this.constructor.removal_event, this.destroy);
+  }
+}
+
+class BaseConnectionBehavior extends BaseBehavior {
+  static type = "connection";
+
+  constructor({ type, component, options = {} }) {
+    super({ type, component, options });
+    this.connection = this.component;
+  }
+
+  static get removal_event() {
+    return CONNECTION_REMOVED_EVENT;
+  }
+}
+
+class SelectableBehavior$1 extends BaseConnectionBehavior {
+  // TODO: this should be removed when multiple nodes can be selected and tabs added.
+  static active = null;
+
+  constructor({ type, component, options = {} }) {
+    super({ type, component, options });
+    this.selected = false;
+  }
+
+  static get behavior() {
+    return COMMON_CAPABILITIES.SELECTABLE;
+  }
+
+  attach() {
+    const view = this.component.view;
+
+    const _onPointerDown = (e) => {
+      e.stopPropagation();
+      this.select();
+    };
+
+    this._onPointerDown = _onPointerDown.bind(this);
+    view.attachEvent("click", this._onPointerDown);
+  }
+
+  select() {
+    if (this.selected) return;
+    this.constructor.active?.deselect();
+
+    this.selected = true;
+    this.component.select();
+    this.constructor.active = this;
+  }
+
+  deselect() {
+    if (!this.component.destroyed) {
+      this.component.deselect();
+    }
+    this.constructor.active = null;
+    this.selected = false;
+  }
+
+  detach() {
+    if (this._onPointerDown && this.component?.view?.el) {
+      this.component.view.el.removeEventListener("click", this._onPointerDown);
+    }
+  }
+}
+
 class DragHandler {
   constructor(
     element,
@@ -116,96 +274,6 @@ class DragHandler {
     };
 
     this.rafId = requestAnimationFrame(loop);
-  }
-}
-
-// Canvas events
-const CANVAS_ZOOM_EVENT = "canvas:zoom";
-
-// Node Events
-const NODE_REMOVED_EVENT = "node:removed";
-const NODE_POINTER_DOWN_EVENT = "node:pointer:down";
-const NODE_MOVED_EVENT = "node:moved";
-const NODE_SELECTED_EVENT = "node:selected";
-const NODE_DESELECTED_EVENT = "node:deselected";
-const NODE_DROPPED_EVENT = "node:dropped";
-const NODE_UPDATED_EVENT = "node:updated";
-const NODE_LABEL_UPDATED_EVENT = "node:label:updated";
-
-const PORT_CONNECT_START_EVENT = "node:port:connect:start";
-const PORT_CONNECT_END_EVENT = "node:port:connect:end";
-
-// Connection Events
-const CONNECTION_CREATED_EVENT = "connection:created";
-const CONNECTION_REMOVED_EVENT = "connection:removed";
-const CONNECTION_UPDATED_EVENT = "connection:updated";
-const CONNECTION_CLICKED_EVENT = "connection:clicked";
-
-const DEFAULT_CONNECTION_PATH_TYPE = "bezier";
-
-const NODE_CAPABILITIES = {
-  SELECTABLE: "selectable",
-  MOVABLE: "movable",
-  EDITABLE_LABEL: "editable-label",
-  RESIZABLE: "resizable",
-};
-
-const DEFAULT_SUPPORTED_CAPABILITIES = [
-  NODE_CAPABILITIES.SELECTABLE,
-  NODE_CAPABILITIES.MOVABLE,
-  NODE_CAPABILITIES.EDITABLE_LABEL,
-  NODE_CAPABILITIES.RESIZABLE,
-];
-
-const SVGShapes = ["ellipse", "circle", "rect", "line", "polyline", "polygon", "path"];
-
-class BaseBehavior {
-  constructor({ type, component, options = {} }) {
-    this.component = component;
-    this.type = type;
-    this.options = options;
-    this.attached = false;
-  }
-
-  static get behavior() {
-    throw new Error("Static property behavior must be implemented in the subclass");
-  }
-
-  static get removal_event() {
-    throw new Error("Static property removal_event must be implemented in the subclass");
-  }
-
-  isSupported() {
-    const iss = this.component.isCapabilitySupported(this.constructor.behavior);
-    console.debug("FLOW: Is behavior supported", this.constructor.behavior, iss);
-    return iss;
-  }
-
-  _attach() {
-    console.log(this.component);
-    if (!this.isSupported()) return;
-    if (!this.gaurd()) return;
-
-    this.attach();
-    this.attached = true;
-    this.component.on(this.constructor.removal_event, this.destroy);
-  }
-
-  gaurd() {
-    return true;
-  }
-
-  attach() {
-    throw new Error("Method 'attach()' must be implemented in the subclass");
-  }
-
-  detach() {
-    throw new Error("Method 'detach()' must be implemented in the subclass");
-  }
-
-  destroy() {
-    this.detach();
-    this.component.off(this.constructor.removal_event, this.destroy);
   }
 }
 
@@ -1005,7 +1073,7 @@ class Node extends EmitterComponent {
   }
 }
 
-const DEFAULT_SUPPORTED_BEHAVIORS = [
+const DEFAULT_SUPPORTED_BEHAVIORS$1 = [
   NODE_CAPABILITIES.SELECTABLE,
   NODE_CAPABILITIES.MOVABLE,
 ];
@@ -1024,7 +1092,7 @@ class NodeModel {
     h = 100,
     w = 200,
     data = {},
-    capabilities = DEFAULT_SUPPORTED_BEHAVIORS,
+    capabilities = DEFAULT_SUPPORTED_BEHAVIORS$1,
   }) {
     this.id = id;
     this.module = module;
@@ -1049,6 +1117,27 @@ class NodeModel {
   resize(w, h) {
     this.w = w;
     this.h = h;
+  }
+}
+
+class DefaultBehaviorResolver {
+  constructor({ registry }) {
+    this.registry = registry;
+  }
+
+  resolve(type, component, context = {}) {
+    const resolved = new Set();
+
+    component.model.capabilities?.forEach((capability) => {
+      const BehaviorCls = this.registry.get(type, capability);
+      if (BehaviorCls) {
+        const behaviorInstance = new BehaviorCls({ type, component, options: context });
+        console.log("behaviorInstance", behaviorInstance);
+        resolved.add(behaviorInstance);
+      }
+    });
+
+    return resolved;
   }
 }
 
@@ -1297,6 +1386,10 @@ class BaseNodeView extends EmitterComponent {
     this.resize?.();
   }
 
+  attachEvent(event, callback) {
+    this.el.addEventListener(event, callback);
+  }
+
   getNodeElement() {}
   bindEvents() {}
 }
@@ -1316,27 +1409,6 @@ class DefaultView extends BaseNodeView {
             <div class="node-label">${this.model.label}</div>
         </div>
     `;
-  }
-}
-
-class DefaultBehaviorResolver {
-  constructor({ registry }) {
-    this.registry = registry;
-  }
-
-  resolve(type, component, context = {}) {
-    const resolved = new Set();
-
-    component.model.capabilities.forEach((capability) => {
-      const BehaviorCls = this.registry.get(type, capability);
-      if (BehaviorCls) {
-        const behaviorInstance = new BehaviorCls({ type, component, options: context });
-        console.log("behaviorInstance", behaviorInstance);
-        resolved.add(behaviorInstance);
-      }
-    });
-
-    return resolved;
   }
 }
 
@@ -1547,8 +1619,18 @@ class ConnectionStyle {
   }
 }
 
+const DEFAULT_SUPPORTED_BEHAVIORS = [NODE_CAPABILITIES.SELECTABLE];
+
 class ConnectionModel extends EmitterComponent {
-  constructor({ id, outNodeId, outPort, inNodeId, inPort, options = {} }) {
+  constructor({
+    id,
+    outNodeId,
+    outPort,
+    inNodeId,
+    inPort,
+    capabilities = DEFAULT_SUPPORTED_BEHAVIORS,
+    options = {},
+  }) {
     super({ name: `connection-${id}` });
 
     this.id = id;
@@ -1565,6 +1647,7 @@ class ConnectionModel extends EmitterComponent {
       ...options.style,
     };
     this.style = new ConnectionStyle(this.pathType, this.style);
+    this.capabilities = capabilities;
   }
 
   get source() {
@@ -1627,9 +1710,10 @@ class ConnectionView extends EmitterComponent {
     this.container = this.path;
 
     this.initShadowPath();
-    this.bindEvents();
+    // this.bindEvents();
 
     this.applyArrows();
+    this.el = this.path;
   }
 
   static getConnectionKey(outNodeId, outPort, inNodeId, inPort) {
@@ -1790,20 +1874,22 @@ class ConnectionView extends EmitterComponent {
       this.model.style.markHover(false);
       this.applyStyle();
     });
-
-    this.shadowPath.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.emit(CONNECTION_CLICKED_EVENT, this.model.id);
-    });
   }
 
-  _polyline(points) {
-    return points.map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`)).join(" ");
+  setSelected(selected) {
+    console.log("setSelected", selected);
+    this.path.classList.toggle("selected", selected);
+    this.shadowPath.classList.toggle("selected", selected);
+  }
+
+  attachEvent(event, callback) {
+    this.path.addEventListener(event, callback);
+    this.shadowPath.addEventListener(event, callback);
   }
 }
 
 class Connection extends EmitterComponent {
-  constructor({ model, view, nodeManager }) {
+  constructor({ model, view, nodeManager, behaviors = new Set() }) {
     super({ name: `connection-${model.id}` });
 
     this.model = model;
@@ -1814,6 +1900,7 @@ class Connection extends EmitterComponent {
     this._source = null;
     this._target = null;
 
+    this.behaviors = behaviors;
     this.id = this.model.id;
   }
 
@@ -1858,6 +1945,8 @@ class Connection extends EmitterComponent {
 
   init() {
     this.update();
+    this.attachBehaviors();
+    console.log("Connection init", this.behaviors);
   }
 
   update() {
@@ -1911,10 +2000,53 @@ class Connection extends EmitterComponent {
     this.model.pathType = pathType;
     this.view.updatePath();
   }
+
+  select() {
+    this.view.setSelected(true);
+    this.emit(CONNECTION_SELECTED_EVENT, { id: this.model.id });
+  }
+
+  deselect() {
+    this.view.setSelected(false);
+    this.emit(CONNECTION_DESELECTED_EVENT, { id: this.model.id });
+  }
+
+  setBehaviors(behaviors) {
+    this.behaviors = behaviors;
+  }
+
+  addBehavior(behavior) {
+    this.behaviors.add(behavior);
+  }
+
+  removeBehavior(behavior) {
+    this.behaviors.delete(behavior);
+  }
+
+  attachBehaviors() {
+    this.behaviors.forEach((b) => {
+      try {
+        b._attach();
+      } catch (error) {
+        console.error("Failed to attach behavior", b, error);
+      }
+    });
+  }
+
+  isCapabilitySupported(capability) {
+    return this.model.capabilities.includes(capability);
+  }
 }
 
 class FlowConnectionManager extends EmitterComponent {
-  constructor({ name, connectionContainer, nodeManager, options = {} }) {
+  constructor({
+    name,
+    connectionContainer,
+    nodeManager,
+    behaviorRegistry = defaultBehaviorRegistry,
+    BehaviorResolverCls = DefaultBehaviorResolver,
+    options = {},
+  }) {
     super({ name: name + "-flow-connection-manager", options });
     this.connectionContainer = connectionContainer;
     this.nodeManager = nodeManager;
@@ -1929,6 +2061,11 @@ class FlowConnectionManager extends EmitterComponent {
     this.connections = new Map();
     this.tempConnection = null;
     this.badConnections = new Set();
+
+    this.behaviorRegistry = behaviorRegistry;
+    this.BehaviorResolverCls = BehaviorResolverCls;
+    this.behaviorResolver = new this.BehaviorResolverCls({ registry: this.behaviorRegistry });
+    this.type = "connection";
   }
 
   addConnection(outNodeId, outPort, inNodeId, inPort, pathType = undefined) {
@@ -1992,6 +2129,10 @@ class FlowConnectionManager extends EmitterComponent {
       nodeManager: this.nodeManager,
       options: connectionOptions,
     });
+
+    const behaviors = this.behaviorResolver.resolve(this.type, connection, this.options);
+    connection.setBehaviors(behaviors);
+
     connection.renderInto(this.connectionContainer.id);
 
     view.on(CONNECTION_CLICKED_EVENT, (id) => {
@@ -3122,6 +3263,7 @@ defaultBehaviorRegistry.register(DraggableBehavior);
 defaultBehaviorRegistry.register(SelectableBehavior);
 defaultBehaviorRegistry.register(EditableLabelBehavior);
 defaultBehaviorRegistry.register(ResizableBehavior);
+defaultBehaviorRegistry.register(SelectableBehavior$1);
 
 nodeViewRegistry.register(EllipseNodeView);
 
