@@ -1,4 +1,4 @@
-class _BehaviorRegistry {
+class BehaviorRegistry {
   constructor() {
     this._registry = new Map();
   }
@@ -25,8 +25,23 @@ class _BehaviorRegistry {
   getAll(type) {
     return Array.from(this._registry.get(type)?.values() || []);
   }
+
+  resolve(type, component, context = {}) {
+    const resolved = new Set();
+
+    component.model.capabilities?.forEach((capability) => {
+      const BehaviorCls = this.get(type, capability);
+      if (BehaviorCls) {
+        const behaviorInstance = new BehaviorCls({ type, component, options: context });
+        console.log("behaviorInstance", behaviorInstance);
+        resolved.add(behaviorInstance);
+      }
+    });
+
+    return resolved;
+  }
 }
 
-const defaultBehaviorRegistry = new _BehaviorRegistry();
+const defaultBehaviorRegistry = new BehaviorRegistry();
 
 export { defaultBehaviorRegistry };

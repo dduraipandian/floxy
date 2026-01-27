@@ -3,7 +3,6 @@ import { ConnectionModel } from "./connection/ConnectionModel.js";
 import { ConnectionView } from "./connection/ConnectionView.js";
 import { Connection } from "./connection/Connection.js";
 import { defaultBehaviorRegistry } from "./behaviors/BehaviorRegistry.js";
-import { DefaultBehaviorResolver } from "./behaviors/DefaultBehaviorResolver.js";
 import * as constants from "./constants.js";
 
 class FlowConnectionManager extends EmitterComponent {
@@ -12,7 +11,6 @@ class FlowConnectionManager extends EmitterComponent {
     connectionContainer,
     nodeManager,
     behaviorRegistry = defaultBehaviorRegistry,
-    BehaviorResolverCls = DefaultBehaviorResolver,
     options = {},
   }) {
     super({ name: name + "-flow-connection-manager", options });
@@ -31,8 +29,6 @@ class FlowConnectionManager extends EmitterComponent {
     this.badConnections = new Set();
 
     this.behaviorRegistry = behaviorRegistry;
-    this.BehaviorResolverCls = BehaviorResolverCls;
-    this.behaviorResolver = new this.BehaviorResolverCls({ registry: this.behaviorRegistry });
     this.type = "connection";
   }
 
@@ -98,7 +94,7 @@ class FlowConnectionManager extends EmitterComponent {
       options: connectionOptions,
     });
 
-    const behaviors = this.behaviorResolver.resolve(this.type, connection, this.options);
+    const behaviors = this.behaviorRegistry.resolve(this.type, connection, this.options);
     connection.setBehaviors(behaviors);
 
     connection.renderInto(this.connectionContainer.id);
