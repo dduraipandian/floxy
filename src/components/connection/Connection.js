@@ -1,7 +1,8 @@
 import { EmitterComponent } from "@uiframe/core";
+import * as constants from "../constants.js";
 
 class Connection extends EmitterComponent {
-  constructor({ model, view, nodeManager }) {
+  constructor({ model, view, nodeManager, behaviors = new Set() }) {
     super({ name: `connection-${model.id}` });
 
     this.model = model;
@@ -12,6 +13,7 @@ class Connection extends EmitterComponent {
     this._source = null;
     this._target = null;
 
+    this.behaviors = behaviors;
     this.id = this.model.id;
   }
 
@@ -56,6 +58,8 @@ class Connection extends EmitterComponent {
 
   init() {
     this.update();
+    this.attachBehaviors();
+    console.log("Connection init", this.behaviors);
   }
 
   update() {
@@ -108,6 +112,42 @@ class Connection extends EmitterComponent {
   setPathStyle(pathType) {
     this.model.pathType = pathType;
     this.view.updatePath();
+  }
+
+  select() {
+    this.view.setSelected(true);
+    this.emit(constants.CONNECTION_SELECTED_EVENT, { id: this.model.id });
+  }
+
+  deselect() {
+    this.view.setSelected(false);
+    this.emit(constants.CONNECTION_DESELECTED_EVENT, { id: this.model.id });
+  }
+
+  setBehaviors(behaviors) {
+    this.behaviors = behaviors;
+  }
+
+  addBehavior(behavior) {
+    this.behaviors.add(behavior);
+  }
+
+  removeBehavior(behavior) {
+    this.behaviors.delete(behavior);
+  }
+
+  attachBehaviors() {
+    this.behaviors.forEach((b) => {
+      try {
+        b._attach();
+      } catch (error) {
+        console.error("Failed to attach behavior", b, error);
+      }
+    });
+  }
+
+  isCapabilitySupported(capability) {
+    return this.model.capabilities.includes(capability);
   }
 }
 

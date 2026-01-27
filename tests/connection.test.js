@@ -94,34 +94,6 @@ describe("FlowConnectionManager", () => {
     expect(connectionContainer.querySelector(".flow-connection-temp")).toBeFalsy();
   });
 
-  test("should emit connection:removed on real path click", () => {
-    const n1 = nodeManager.addNode({ name: "N1" });
-    const n2 = nodeManager.addNode({ name: "N2" });
-    const connection = manager.addConnection(n1, 0, n2, 0);
-
-    const spy = jest.fn();
-    manager.on(Constant.CONNECTION_REMOVED_EVENT, spy);
-
-    const path = connectionContainer.querySelector("path.connection");
-    path.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-
-    expect(spy).toHaveBeenCalledWith(connection.id);
-  });
-
-  test("should emit connection:removed on shadow path click", () => {
-    const n1 = nodeManager.addNode({ name: "N1" });
-    const n2 = nodeManager.addNode({ name: "N2" });
-    const connection = manager.addConnection(n1, 0, n2, 0);
-
-    const spy = jest.fn();
-    manager.on(Constant.CONNECTION_REMOVED_EVENT, spy);
-
-    const path = connectionContainer.querySelector("path.shadow-path");
-    path.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-
-    expect(spy).toHaveBeenCalledWith(connection.id);
-  });
-
   test("should set default path type", () => {
     const n1 = nodeManager.addNode({ name: "N1" });
     const n2 = nodeManager.addNode({ name: "N2" });

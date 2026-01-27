@@ -40,7 +40,7 @@
   --floxy-port-output-bg: #f8f9fa;
 
   /* Connection Styles */
-  --floxy-conn-color: #0969da;
+  --floxy-conn-color: #b1b3b4;
   --floxy-conn-width: 2px;
   --floxy-conn-hover-color: #0d6efd;
   --floxy-conn-hover-width: 3px;
@@ -76,6 +76,8 @@
   --floxy-label-color: #f2f2f7;
   --floxy-port-bg: #1c1c1e;
   --floxy-port-border: #3a3a3c;
+
+  --floxy-conn-color: #6e7781;
 
   /* Grid Adjustments for Dark Mode */
   --floxy-grid-dot-color: rgba(255, 255, 255, 0.3);

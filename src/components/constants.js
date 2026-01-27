@@ -20,6 +20,8 @@ export const CONNECTION_CREATED_EVENT = "connection:created";
 export const CONNECTION_REMOVED_EVENT = "connection:removed";
 export const CONNECTION_UPDATED_EVENT = "connection:updated";
 export const CONNECTION_CLICKED_EVENT = "connection:clicked";
+export const CONNECTION_SELECTED_EVENT = "connection:selected";
+export const CONNECTION_DESELECTED_EVENT = "connection:deselected";
 
 export const DEFAULT_CONNECTION_PATH_TYPE = "bezier";
 
@@ -27,6 +29,10 @@ export const CONNECTION_PATH_TYPES = {
   BEZIER: DEFAULT_CONNECTION_PATH_TYPE,
   STRAIGHT: "straight",
   ORTHOGONAL: "orthogonal",
+};
+
+export const COMMON_CAPABILITIES = {
+  SELECTABLE: "selectable",
 };
 
 export const NODE_CAPABILITIES = {
@@ -37,7 +43,7 @@ export const NODE_CAPABILITIES = {
 };
 
 export const DEFAULT_SUPPORTED_CAPABILITIES = [
-  NODE_CAPABILITIES.SELECTABLE,
+  COMMON_CAPABILITIES.SELECTABLE,
   NODE_CAPABILITIES.MOVABLE,
   NODE_CAPABILITIES.EDITABLE_LABEL,
   NODE_CAPABILITIES.RESIZABLE,

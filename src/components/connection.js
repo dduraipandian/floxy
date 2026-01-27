@@ -2,11 +2,19 @@ import { EmitterComponent } from "@uiframe/core";
 import { ConnectionModel } from "./connection/ConnectionModel.js";
 import { ConnectionView } from "./connection/ConnectionView.js";
 import { Connection } from "./connection/Connection.js";
-
+import { defaultBehaviorRegistry } from "./behaviors/BehaviorRegistry.js";
+import { DefaultBehaviorResolver } from "./behaviors/DefaultBehaviorResolver.js";
 import * as constants from "./constants.js";
 
 class FlowConnectionManager extends EmitterComponent {
-  constructor({ name, connectionContainer, nodeManager, options = {} }) {
+  constructor({
+    name,
+    connectionContainer,
+    nodeManager,
+    behaviorRegistry = defaultBehaviorRegistry,
+    BehaviorResolverCls = DefaultBehaviorResolver,
+    options = {},
+  }) {
     super({ name: name + "-flow-connection-manager", options });
     this.connectionContainer = connectionContainer;
     this.nodeManager = nodeManager;
@@ -21,6 +29,11 @@ class FlowConnectionManager extends EmitterComponent {
     this.connections = new Map();
     this.tempConnection = null;
     this.badConnections = new Set();
+
+    this.behaviorRegistry = behaviorRegistry;
+    this.BehaviorResolverCls = BehaviorResolverCls;
+    this.behaviorResolver = new this.BehaviorResolverCls({ registry: this.behaviorRegistry });
+    this.type = "connection";
   }
 
   addConnection(outNodeId, outPort, inNodeId, inPort, pathType = undefined) {
@@ -84,6 +97,10 @@ class FlowConnectionManager extends EmitterComponent {
       nodeManager: this.nodeManager,
       options: connectionOptions,
     });
+
+    const behaviors = this.behaviorResolver.resolve(this.type, connection, this.options);
+    connection.setBehaviors(behaviors);
+
     connection.renderInto(this.connectionContainer.id);
 
     view.on(constants.CONNECTION_CLICKED_EVENT, (id) => {

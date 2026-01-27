@@ -2,8 +2,18 @@ import { EmitterComponent } from "@uiframe/core";
 import { ConnectionStyle } from "./ConnectionStyle.js";
 import * as constants from "../constants.js";
 
+const DEFAULT_SUPPORTED_BEHAVIORS = [constants.NODE_CAPABILITIES.SELECTABLE];
+
 class ConnectionModel extends EmitterComponent {
-  constructor({ id, outNodeId, outPort, inNodeId, inPort, options = {} }) {
+  constructor({
+    id,
+    outNodeId,
+    outPort,
+    inNodeId,
+    inPort,
+    capabilities = DEFAULT_SUPPORTED_BEHAVIORS,
+    options = {},
+  }) {
     super({ name: `connection-${id}` });
 
     this.id = id;
@@ -20,6 +30,7 @@ class ConnectionModel extends EmitterComponent {
       ...options.style,
     };
     this.style = new ConnectionStyle(this.pathType, this.style);
+    this.capabilities = capabilities;
   }
 
   get source() {
