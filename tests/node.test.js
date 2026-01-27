@@ -77,7 +77,7 @@ describe("FlowNodeManager", () => {
     });
     const nodeEl = canvasContainer.querySelector(`#node-${id}`);
 
-    nodeEl.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+    nodeEl.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
     expect(nodeEl.classList.contains("selected")).toBe(true);
     expect(SelectableBehavior.active.node.id).toBe(id);
@@ -89,7 +89,7 @@ describe("FlowNodeManager", () => {
       label: "Action",
     });
     const nodeEl2 = canvasContainer.querySelector(`#node-${id2}`);
-    nodeEl2.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+    nodeEl2.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
     expect(nodeEl.classList.contains("selected")).toBe(false);
     expect(nodeEl2.classList.contains("selected")).toBe(true);
