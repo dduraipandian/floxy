@@ -240,22 +240,6 @@ describe("Flow Integration", () => {
     expect(flow.connectionManager.tempConnection).toBeNull();
   });
 
-  test("should remove connection when clicking on path", () => {
-    const n1 = flow.addNode({ name: "N1", outputs: 1 });
-    const n2 = flow.addNode({ name: "N2", inputs: 1 });
-    flow.addConnection(n1, 0, n2, 0);
-
-    const path = container.querySelector("path.flow-connection-path");
-    expect(path).toBeTruthy();
-
-    // Click on the connection path to remove it
-    path.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-
-    // Verify connection was removed
-    expect(flow.connectionManager.size).toBe(0);
-    expect(container.querySelector("path.flow-connection-path")).toBeNull();
-  });
-
   test("should finalize connection on mouseup over target port", () => {
     const n1 = flow.addNode({ name: "N1", outputs: 1 });
     const n2 = flow.addNode({ name: "N2", inputs: 1 });

@@ -40,9 +40,10 @@ class ConnectionView extends EmitterComponent {
     this.container = this.path;
 
     this.initShadowPath();
-    this.bindEvents();
+    // this.bindEvents();
 
     this.applyArrows();
+    this.el = this.path;
   }
 
   static getConnectionKey(outNodeId, outPort, inNodeId, inPort) {
@@ -203,15 +204,17 @@ class ConnectionView extends EmitterComponent {
       this.model.style.markHover(false);
       this.applyStyle();
     });
-
-    this.shadowPath.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.emit(constants.CONNECTION_CLICKED_EVENT, this.model.id);
-    });
   }
 
-  _polyline(points) {
-    return points.map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`)).join(" ");
+  setSelected(selected) {
+    console.log("setSelected", selected);
+    this.path.classList.toggle("selected", selected);
+    this.shadowPath.classList.toggle("selected", selected);
+  }
+
+  attachEvent(event, callback) {
+    this.path.addEventListener(event, callback);
+    this.shadowPath.addEventListener(event, callback);
   }
 }
 

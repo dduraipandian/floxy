@@ -1,5 +1,7 @@
 import "./src/css/base.css";
 
+import { SelectableBehavior as ConnectionSelectableBehavior } from "./src/components/connection/behaviors/SelectableBehavior.js";
+
 import { DraggableBehavior } from "./src/components/node/behaviors/DraggableBehavior.js";
 import { SelectableBehavior } from "./src/components/node/behaviors/SelectableBehavior.js";
 import { EditableLabelBehavior } from "./src/components/node/behaviors/EditableLabelBehavior.js";
@@ -15,6 +17,7 @@ defaultBehaviorRegistry.register(DraggableBehavior);
 defaultBehaviorRegistry.register(SelectableBehavior);
 defaultBehaviorRegistry.register(EditableLabelBehavior);
 defaultBehaviorRegistry.register(ResizableBehavior);
+defaultBehaviorRegistry.register(ConnectionSelectableBehavior);
 
 export { Flow } from "./src/flow.js";
 export { DagValidator } from "./src/components/plugins/dag-validator.js";

@@ -227,6 +227,10 @@ class BaseNodeView extends EmitterComponent {
     this.resize?.();
   }
 
+  attachEvent(event, callback) {
+    this.el.addEventListener(event, callback);
+  }
+
   getNodeElement() {}
   bindEvents() {}
 }

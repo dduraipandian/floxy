@@ -2,9 +2,9 @@ import { EmitterComponent } from "@uiframe/core";
 import { Node } from "./node/Node.js";
 import { NodeModel } from "./node/NodeModel.js";
 import { defaultBehaviorRegistry } from "./behaviors/BehaviorRegistry.js";
+import { DefaultBehaviorResolver } from "./behaviors/DefaultBehaviorResolver.js";
 import { nodeViewRegistry } from "./node/NodeViewRegistry.js";
 import { DefaultView } from "./node/views/packages/workflow/DefaultView.js";
-import { DefaultBehaviorResolver } from "./behaviors/DefaultBehaviorResolver.js";
 import * as constants from "./constants.js";
 
 class FlowNodeManager extends EmitterComponent {
