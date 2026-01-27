@@ -216,6 +216,11 @@ class ConnectionView extends EmitterComponent {
     this.path.addEventListener(event, callback);
     this.shadowPath.addEventListener(event, callback);
   }
+
+  detachEvent(event, callback) {
+    this.path.removeEventListener(event, callback);
+    this.shadowPath.removeEventListener(event, callback);
+  }
 }
 
 export { ConnectionView };

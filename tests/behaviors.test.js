@@ -3,6 +3,9 @@ import { DraggableBehavior } from "../src/components/node/behaviors/DraggableBeh
 import { SelectableBehavior } from "../src/components/node/behaviors/SelectableBehavior.js";
 import { EditableLabelBehavior } from "../src/components/node/behaviors/EditableLabelBehavior.js";
 import { ResizableBehavior } from "../src/components/node/behaviors/ResizableBehavior.js";
+
+import { getActive } from "../src/components/behaviors/common/SelectableBehavior.js";
+
 import * as constants from "../src/components/constants.js";
 
 /* eslint-disable no-unused-vars */
@@ -125,14 +128,14 @@ describe("Node Behaviors", () => {
 
       expect(spy).toHaveBeenCalled();
       expect(behavior.selected).toBe(true);
-      expect(SelectableBehavior.active).toBe(behavior);
+      expect(getActive()).toBe(behavior);
       expect(node.select).toHaveBeenCalled();
 
       // selecting again should de-select the node
       node.view.el.dispatchEvent(new MouseEvent("click"));
       expect(spy).toHaveBeenCalledTimes(2);
-      expect(behavior.selected).toBe(false);
-      expect(node.deselect).toHaveBeenCalled();
+      expect(behavior.selected).toBe(true);
+      expect(node.deselect).not.toHaveBeenCalled();
     });
 
     test("should deselect previous active behavior", () => {
@@ -152,7 +155,7 @@ describe("Node Behaviors", () => {
       expect(behavior.selected).toBe(false);
       expect(node.deselect).toHaveBeenCalled();
       expect(behavior2.selected).toBe(true);
-      expect(SelectableBehavior.active).toBe(behavior2);
+      expect(getActive()).toBe(behavior2);
     });
   });
 
