@@ -208,8 +208,8 @@ class ConnectionView extends EmitterComponent {
 
   setSelected(selected) {
     console.log("setSelected", selected);
-    this.path.classList.toggle("selected", selected);
-    this.shadowPath.classList.toggle("selected", selected);
+    this.model.style.markSelected(selected);
+    this.applyStyle();
   }
 
   attachEvent(event, callback) {
