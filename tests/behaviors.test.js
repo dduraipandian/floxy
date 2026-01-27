@@ -1,4 +1,4 @@
-import { BehaviorRegistry } from "../src/components/node/behaviors/BehaviorRegistry.js";
+import { defaultBehaviorRegistry as behaviorRegistry } from "../src/components/behaviors/BehaviorRegistry.js";
 import { DraggableBehavior } from "../src/components/node/behaviors/DraggableBehavior.js";
 import { SelectableBehavior } from "../src/components/node/behaviors/SelectableBehavior.js";
 import { EditableLabelBehavior } from "../src/components/node/behaviors/EditableLabelBehavior.js";
@@ -25,19 +25,22 @@ describe("Node Behaviors", () => {
       // but might be in index or manually.
       // Let's register manually to test registry.
       class TestBehavior {
+        static type = "test-component";
         static get behavior() {
           return "test-behavior";
         }
       }
-      BehaviorRegistry.register(TestBehavior);
+      behaviorRegistry.register(TestBehavior);
 
-      expect(BehaviorRegistry.get("test-behavior")).toBe(TestBehavior);
-      expect(BehaviorRegistry.getAll()).toContain(TestBehavior);
+      expect(behaviorRegistry.get("test-component", "test-behavior")).toBe(TestBehavior);
+      expect(behaviorRegistry.getAll("test-component")).toContain(TestBehavior);
     });
 
     test("should throw if behavior static property missing", () => {
       class BadBehavior {}
-      expect(() => BehaviorRegistry.register(BadBehavior)).toThrow();
+      expect(() => behaviorRegistry.register(BadBehavior)).toThrow(
+        "Behavior must define static behavior"
+      );
     });
   });
 
@@ -59,7 +62,7 @@ describe("Node Behaviors", () => {
         on: jest.fn(),
         off: jest.fn(),
       };
-      behavior = new DraggableBehavior({ node });
+      behavior = new DraggableBehavior({ type: "node", component: node });
     });
 
     test("should attach drag handler if supported", () => {
@@ -105,7 +108,7 @@ describe("Node Behaviors", () => {
         off: jest.fn(),
         destroyed: false,
       };
-      behavior = new SelectableBehavior({ node });
+      behavior = new SelectableBehavior({ type: "node", component: node });
     });
 
     afterEach(() => {
@@ -134,7 +137,7 @@ describe("Node Behaviors", () => {
         deselect: jest.fn(),
         view: { el: document.createElement("div") },
       };
-      const behavior2 = new SelectableBehavior({ node: node2 });
+      const behavior2 = new SelectableBehavior({ type: "node", component: node2 });
       behavior2._attach();
 
       behavior2.select();
@@ -166,7 +169,7 @@ describe("Node Behaviors", () => {
         emit: jest.fn(),
       };
       node.view.el.appendChild(labelEl);
-      behavior = new EditableLabelBehavior({ node });
+      behavior = new EditableLabelBehavior({ type: "node", component: node });
     });
 
     test("should make label editable on dblclick", () => {
@@ -218,7 +221,7 @@ describe("Node Behaviors", () => {
         off: jest.fn(),
         onResize: jest.fn(),
       };
-      behavior = new ResizableBehavior({ node });
+      behavior = new ResizableBehavior({ type: "node", component: node });
     });
 
     test("should add resize handle on attach", () => {

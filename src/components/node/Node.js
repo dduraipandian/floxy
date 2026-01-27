@@ -34,7 +34,13 @@ class Node extends EmitterComponent {
   }
 
   init() {
-    this.behaviors.forEach((b) => b._attach());
+    this.behaviors.forEach((b) => {
+      try {
+        b._attach();
+      } catch (error) {
+        console.error("Failed to attach behavior", b, error);
+      }
+    });
   }
 
   move(x, y) {
