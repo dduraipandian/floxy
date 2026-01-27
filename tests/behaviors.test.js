@@ -40,7 +40,7 @@ describe("Node Behaviors", () => {
     });
 
     test("should throw if behavior static property missing", () => {
-      class BadBehavior { }
+      class BadBehavior {}
       expect(() => behaviorRegistry.register(BadBehavior)).toThrow(
         "Behavior must define static behavior"
       );
@@ -134,8 +134,8 @@ describe("Node Behaviors", () => {
       // selecting again should de-select the node
       node.view.el.dispatchEvent(new MouseEvent("click"));
       expect(spy).toHaveBeenCalledTimes(2);
-      expect(behavior.selected).toBe(false);
-      expect(node.deselect).toHaveBeenCalled();
+      expect(behavior.selected).toBe(true);
+      expect(node.deselect).not.toHaveBeenCalled();
     });
 
     test("should deselect previous active behavior", () => {

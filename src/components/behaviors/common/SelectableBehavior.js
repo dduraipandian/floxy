@@ -36,10 +36,8 @@ class CommonSelectableBehavior extends BaseConnectionBehavior {
   }
 
   select() {
-    if (this.selected) {
-      this.deselect();
-      return;
-    }
+    if (getActive() === this) return;
+
     getActive()?.deselect();
 
     this.selected = true;
@@ -57,7 +55,7 @@ class CommonSelectableBehavior extends BaseConnectionBehavior {
 
   detach() {
     if (this._onPointerDown && this.component?.view?.el) {
-      this.component.view.el.removeEventListener("click", this._onPointerDown);
+      this.component.view.detachEvent("click", this._onPointerDown);
     }
   }
 
