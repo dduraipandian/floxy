@@ -107,7 +107,7 @@ class BaseConnectionBehavior extends BaseBehavior {
   }
 }
 
-class SelectableBehavior$1 extends BaseConnectionBehavior {
+class CommonSelectableBehavior extends BaseConnectionBehavior {
   // TODO: this should be removed when multiple nodes can be selected and tabs added.
   static active = null;
 
@@ -133,7 +133,10 @@ class SelectableBehavior$1 extends BaseConnectionBehavior {
   }
 
   select() {
-    if (this.selected) return;
+    if (this.selected) {
+      this.deselect();
+      return;
+    }
     this.constructor.active?.deselect();
 
     this.selected = true;
@@ -153,6 +156,39 @@ class SelectableBehavior$1 extends BaseConnectionBehavior {
     if (this._onPointerDown && this.component?.view?.el) {
       this.component.view.el.removeEventListener("click", this._onPointerDown);
     }
+  }
+
+  static get select_event() {
+    throw new Error("Static property select_event must be implemented in the subclass");
+  }
+
+  static get deselect_event() {
+    throw new Error("Static property deselect_event must be implemented in the subclass");
+  }
+}
+
+class SelectableBehavior$1 extends CommonSelectableBehavior {
+  static type = "connection";
+
+  constructor({ type, component, options = {} }) {
+    super({ type, component, options });
+    this.connection = this.component;
+  }
+
+  static get behavior() {
+    return COMMON_CAPABILITIES.SELECTABLE;
+  }
+
+  static get removal_event() {
+    return CONNECTION_REMOVED_EVENT;
+  }
+
+  static get select_event() {
+    return CONNECTION_SELECTED_EVENT;
+  }
+
+  static get deselect_event() {
+    return CONNECTION_DESELECTED_EVENT;
   }
 }
 
@@ -324,52 +360,28 @@ class DraggableBehavior extends BaseNodeBehavior {
   }
 }
 
-class SelectableBehavior extends BaseNodeBehavior {
-  // TODO: this should be removed when multiple nodes can be selected and tabs added.
-  static active = null;
+class SelectableBehavior extends CommonSelectableBehavior {
+  static type = "node";
 
   constructor({ type, component, options = {} }) {
     super({ type, component, options });
-    this.selected = false;
+    this.node = this.component;
   }
 
   static get behavior() {
-    return NODE_CAPABILITIES.SELECTABLE;
+    return COMMON_CAPABILITIES.SELECTABLE;
   }
 
-  attach() {
-    const view = this.node.view;
-
-    const _onPointerDown = (e) => {
-      e.stopPropagation();
-      this.select();
-    };
-
-    this._onPointerDown = _onPointerDown.bind(this);
-    view.el.addEventListener("mousedown", this._onPointerDown);
+  static get removal_event() {
+    return NODE_REMOVED_EVENT;
   }
 
-  select() {
-    if (this.selected) return;
-    this.constructor.active?.deselect();
-
-    this.selected = true;
-    this.node.select();
-    this.constructor.active = this;
+  static get select_event() {
+    return NODE_SELECTED_EVENT;
   }
 
-  deselect() {
-    if (!this.node.destroyed) {
-      this.node.deselect();
-    }
-    this.constructor.active = null;
-    this.selected = false;
-  }
-
-  detach() {
-    if (this._onPointerDown && this.node?.view?.el) {
-      this.node.view.el.removeEventListener("mousedown", this._onPointerDown);
-    }
+  static get deselect_event() {
+    return NODE_DESELECTED_EVENT;
   }
 }
 
