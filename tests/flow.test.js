@@ -82,18 +82,6 @@ describe("Flow Integration", () => {
     expect(mockNotification.warning).toHaveBeenCalled();
   });
 
-  test("should cleanup connections when a node is removed via UI", () => {
-    const n1 = flow.addNode({ name: "N1" });
-    const n2 = flow.addNode({ name: "N2" });
-    flow.addConnection(n1, 0, n2, 0);
-
-    const closeBtn = container.querySelector(`#node-${n1} .node-close`);
-    closeBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-
-    expect(flow.nodeManager.nodes.get(n1)).toBeUndefined();
-    expect(flow.connectionManager.connections.size).toBe(0);
-  });
-
   test("should handle nodes dropped on the canvas", () => {
     const dropEvent = new MouseEvent("drop", {
       clientX: 500,

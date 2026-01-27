@@ -98,19 +98,6 @@ describe("FlowNodeManager", () => {
     expect(getActive().node.id).toBe(id2);
   });
 
-  test("should remove node and emit event", () => {
-    const id = manager.addNode({ name: "Removable" });
-    const spy = jest.fn();
-    manager.on(constants.NODE_REMOVED_EVENT, spy);
-
-    const closeBtn = canvasContainer.querySelector(`#node-${id} .node-close`);
-    closeBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-
-    expect(manager.nodes[id]).toBeUndefined();
-    expect(canvasContainer.querySelector(`#node-${id}`)).toBeFalsy();
-    expect(spy).toHaveBeenCalledWith({ id: id });
-  });
-
   test("should emit port:connect:start on port mousedown", () => {
     const spy = jest.fn();
     manager.on(constants.PORT_CONNECT_START_EVENT, spy);

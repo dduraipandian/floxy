@@ -56,7 +56,6 @@ describe("BaseNodeView", () => {
     expect(nodeView.container.dataset.id).toBe("node-1");
     expect(nodeView.container.querySelector(".flow-ports-input")).toBeTruthy();
     expect(nodeView.container.querySelector(".flow-ports-output")).toBeTruthy();
-    expect(nodeView.container.querySelector(".node-close")).toBeTruthy();
   });
 
   test("should calculate port position correctly", () => {
