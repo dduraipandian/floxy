@@ -28,20 +28,20 @@ class CommonSelectableBehavior extends BaseBehavior {
 
     const _onPointerDown = (e) => {
       e.stopPropagation();
-      this.select();
+      this.select(e.clientX, e.clientY);
     };
 
     this._onPointerDown = _onPointerDown.bind(this);
     view.attachEvent("click", this._onPointerDown);
   }
 
-  select() {
+  select(cx, cy) {
     if (getActive() === this) return;
 
     getActive()?.deselect();
 
     this.selected = true;
-    this.component.select();
+    this.component.select(cx, cy);
     setActive(this);
   }
 

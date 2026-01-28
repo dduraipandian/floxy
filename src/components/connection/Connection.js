@@ -114,9 +114,9 @@ class Connection extends EmitterComponent {
     this.view.updatePath();
   }
 
-  select() {
+  select(cx, cy) {
     this.view.setSelected(true);
-    this.emit(constants.CONNECTION_SELECTED_EVENT, { id: this.model.id });
+    this.emit(constants.CONNECTION_SELECTED_EVENT, { id: this.model.id, cx, cy });
   }
 
   deselect() {

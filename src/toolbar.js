@@ -5,32 +5,34 @@ class SelectionToolbar extends EmitterComponent {
     super({ name: "floxy-selection-toolbar" });
     this.selection = selection;
     this.options = options;
+    this.x = null;
+    this.y = null;
   }
 
   html() {
-    return "";
+    return `
+        <div id="floxy-selection-toolbar-btn-group" class="btn-group btn-group-sm role="group" aria-label="floxy flow toolbar">
+        </div>`;
   }
 
   init() {
+    this.container = this.container.querySelector("#floxy-selection-toolbar-btn-group");
     this.updateView();
   }
 
   updateView() {
-    this.container.innerHTML = `
-        <div id="floxy-selection-toolbar-btn-group" class="btn-group btn-group-sm role="group" aria-label="floxy flow toolbar">
-        </div>`;
+    this.container.innerHTML = this.html();
 
-    this.container.style.position = "absolute";
     this.container.style.zIndex = "1000";
     this.container.style.height = "fit-content";
 
-    const btnGroup = this.container.querySelector("#floxy-selection-toolbar-btn-group");
     if (!this.selection.active) {
       this.container.style.display = "none";
       return;
     }
 
     this.container.style.display = "block";
+    this.container.style.position = "absolute";
 
     const commands = [...this.selection.commands];
 
@@ -48,19 +50,36 @@ class SelectionToolbar extends EmitterComponent {
           if (success && cmd.clearSelection) this.updateView();
         };
 
-        btnGroup.appendChild(btn);
+        this.container.appendChild(btn);
       });
-    this.position(btnGroup);
+    this.position();
   }
 
-  position(btnGroup) {
+  position() {
     const bounds = this.selection.getBounds();
     if (!bounds) return;
 
-    const btnGroupWidth = btnGroup.offsetWidth;
+    if (this.selection.cx) {
+      const x = this.selection.cx;
+      const y = this.selection.cy + 16;
 
-    this.container.style.left = `${bounds.left + bounds.width / 2 - btnGroupWidth / 2 + 5}px`;
-    this.container.style.top = `${bounds.top + bounds.height + 16}px`;
+      // connection
+      this.container.style.left = `${x}px`;
+      this.container.style.top = `${y}px`;
+    } else {
+      // node
+      const btnGroupWidth = this.container.offsetWidth;
+      this.container.style.left = `${bounds.left + bounds.width / 2 - btnGroupWidth / 2 + 5}px`;
+      this.container.style.top = `${bounds.top + bounds.height + 16}px`;
+    }
+  }
+
+  hide() {
+    this.container.style.display = "none";
+  }
+
+  show() {
+    this.container.style.display = "block";
   }
 }
 

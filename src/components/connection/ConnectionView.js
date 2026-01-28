@@ -201,13 +201,19 @@ class ConnectionView extends EmitterComponent {
     const el = this.el;
     if (!el) return null;
 
-    const bbox = el.getBBox();
+    const len = el.getTotalLength();
+    const point = el.getPointAtLength(len / 2);
+
+    const svg = el.ownerSVGElement;
+    const pt = svg.createSVGPoint();
+    pt.x = point.x;
+    pt.y = point.y;
+
+    const screenPoint = pt.matrixTransform(el.getScreenCTM());
 
     return {
-      left: bbox.x,
-      top: bbox.y,
-      width: bbox.width,
-      height: bbox.height,
+      centerX: screenPoint.x,
+      centerY: screenPoint.y,
     };
   }
 

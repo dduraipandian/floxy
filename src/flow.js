@@ -19,6 +19,8 @@ class Selection {
     this.component = null;
     this.manager = null;
     this.commands = new Set();
+    this.cx = null;
+    this.cy = null;
     this.notification = options.notification;
   }
 
@@ -26,15 +28,19 @@ class Selection {
     return this.component !== null && this.manager !== null;
   }
 
-  set(component, manager, commandRegistry) {
+  set(component, manager, commandRegistry, cx, cy) {
     this.manager = manager;
     this.component = component;
+    this.cx = cx;
+    this.cy = cy;
     this.commands = commandRegistry.resolve(component, { options: this.options });
   }
 
   clear() {
     this.component = null;
     this.manager = null;
+    this.cx = null;
+    this.cy = null;
     this.commands = new Set();
   }
 
@@ -151,8 +157,9 @@ class Flow extends EmitterComponent {
       this.nodeManager.zoom = data.zoom;
     });
 
-    this.nodeManager.on(constants.NODE_SELECTED_EVENT, ({ id }) => {
+    this.nodeManager.on(constants.NODE_SELECTED_EVENT, ({ id, cx, cy }) => {
       const node = this.nodeManager.getNode(id);
+      this.emit(constants.NODE_SELECTED_EVENT, { id, cx, cy });
       this.selectionManager.set(node, this.nodeManager, this.nodeCommandRegistry);
       this.toolbar.updateView();
     });
@@ -163,12 +170,22 @@ class Flow extends EmitterComponent {
       this.toolbar.updateView();
     });
 
-    this.connectionManager.on(constants.CONNECTION_SELECTED_EVENT, ({ id }) => {
+    this.connectionManager.on(constants.CONNECTION_SELECTED_EVENT, ({ id, cx, cy }) => {
       console.debug("Connection is selected: ", id);
-      this.emit(constants.CONNECTION_SELECTED_EVENT, { id });
-      // this.connectionManager.removeConnection(connectionId);
+      this.emit(constants.CONNECTION_SELECTED_EVENT, { id, cx, cy });
       const connection = this.connectionManager.getConnection(id);
-      this.selectionManager.set(connection, this.connectionManager, this.connectionCommandRegistry);
+      if (!this._canvasRect) {
+        this._canvasRect = this.canvasEl.getBoundingClientRect();
+      }
+      const x = (cx - this._canvasRect.left) / this.zoom;
+      const y = (cy - this._canvasRect.top) / this.zoom;
+      this.selectionManager.set(
+        connection,
+        this.connectionManager,
+        this.connectionCommandRegistry,
+        x,
+        y
+      );
       this.toolbar.updateView();
     });
 
@@ -187,13 +204,13 @@ class Flow extends EmitterComponent {
     this.nodeManager.on(constants.NODE_MOVED_EVENT, ({ id, x, y }) => {
       this.emit(constants.NODE_MOVED_EVENT, { id, x, y });
       this.connectionManager.updateConnections(id);
-      this.toolbar.updateView();
+      this.toolbar.hide();
     });
 
     this.nodeManager.on(constants.NODE_UPDATED_EVENT, ({ id, x, y, w, h }) => {
       this.emit(constants.NODE_UPDATED_EVENT, { id, x, y, w, h });
       this.connectionManager.updateConnections(id);
-      this.toolbar.updateView();
+      this.toolbar.hide();
     });
 
     this.nodeManager.on(constants.NODE_REMOVED_EVENT, ({ id }) => {
