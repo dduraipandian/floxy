@@ -1,7 +1,7 @@
 import { EmitterComponent } from "@uiframe/core";
 import { Node } from "./node/Node.js";
 import { NodeModel } from "./node/NodeModel.js";
-import { defaultBehaviorRegistry } from "./behaviors/BehaviorRegistry.js";
+import { defaultBehaviorRegistry } from "./node/capability.js";
 import { nodeViewRegistry } from "./node/NodeViewRegistry.js";
 import { DefaultView } from "./node/views/packages/workflow/DefaultView.js";
 import * as constants from "./constants.js";
@@ -81,7 +81,7 @@ class FlowNodeManager extends EmitterComponent {
     const view = new ViewClass(model, { ...this.options, zoomGetter: this.zoomGetter });
     const node = new Node({ model, view });
 
-    const behaviors = this.behaviorRegistry.resolve(this.type, node, this.options);
+    const behaviors = this.behaviorRegistry.resolve(node, this.options);
     node.setBehaviors(behaviors);
 
     // bubble view events upward

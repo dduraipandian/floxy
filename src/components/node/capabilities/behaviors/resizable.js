@@ -1,9 +1,9 @@
-import { BaseNodeBehavior } from "./base.js";
-import { DragHandler } from "../../utils.js";
-import * as constants from "../../constants.js";
+import { NodeCapability } from "../../capability.js";
+import { DragHandler } from "../../../utils.js";
+import * as constants from "../../../constants.js";
 
-class ResizableBehavior extends BaseNodeBehavior {
-  static get behavior() {
+class ResizableBehavior extends NodeCapability {
+  static get capability() {
     return constants.NODE_CAPABILITIES.RESIZABLE;
   }
 

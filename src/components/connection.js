@@ -2,7 +2,7 @@ import { EmitterComponent } from "@uiframe/core";
 import { ConnectionModel } from "./connection/ConnectionModel.js";
 import { ConnectionView } from "./connection/ConnectionView.js";
 import { Connection } from "./connection/Connection.js";
-import { defaultBehaviorRegistry } from "./behaviors/BehaviorRegistry.js";
+import { defaultBehaviorRegistry } from "./connection/capability.js";
 import * as constants from "./constants.js";
 
 class FlowConnectionManager extends EmitterComponent {
@@ -94,7 +94,7 @@ class FlowConnectionManager extends EmitterComponent {
       options: connectionOptions,
     });
 
-    const behaviors = this.behaviorRegistry.resolve(this.type, connection, this.options);
+    const behaviors = this.behaviorRegistry.resolve(connection, this.options);
     connection.setBehaviors(behaviors);
 
     connection.renderInto(this.connectionContainer.id);

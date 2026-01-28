@@ -1,5 +1,5 @@
-import { BaseConnectionBehavior } from "../../connection/behaviors/base.js";
-import * as constants from "../../constants.js";
+import { BaseCapability } from "../../base.js";
+import * as constants from "../../../constants.js";
 
 let GLOABL_ACTIVE = null;
 
@@ -11,15 +11,15 @@ function getActive() {
   return GLOABL_ACTIVE;
 }
 
-class CommonSelectableBehavior extends BaseConnectionBehavior {
+class CommonSelectableBehavior extends BaseCapability {
   // TODO: this should be removed when multiple nodes can be selected and tabs added.
 
-  constructor({ type, component, options = {} }) {
-    super({ type, component, options });
+  constructor({ component, options = {} }) {
+    super({ component, options });
     this.selected = false;
   }
 
-  static get behavior() {
+  static get capability() {
     return constants.COMMON_CAPABILITIES.SELECTABLE;
   }
 

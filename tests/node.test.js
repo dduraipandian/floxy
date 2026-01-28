@@ -1,13 +1,13 @@
 import { FlowNodeManager } from "../src/components/node.js";
 import * as constants from "../src/components/constants.js";
 
-import { DraggableBehavior } from "../src/components/node/behaviors/DraggableBehavior.js";
-import { SelectableBehavior } from "../src/components/node/behaviors/SelectableBehavior.js";
-import { EditableLabelBehavior } from "../src/components/node/behaviors/EditableLabelBehavior.js";
-import { defaultBehaviorRegistry } from "../src/components/behaviors/BehaviorRegistry.js";
-import { ResizableBehavior } from "../src/components/node/behaviors/ResizableBehavior.js";
+import { DraggableBehavior } from "../src/components/node/capabilities/behaviors/draggable.js";
+import { SelectableBehavior } from "../src/components/node/capabilities/behaviors/selectable.js";
+import { EditableLabelBehavior } from "../src/components/node/capabilities/behaviors/editable_label.js";
+import { defaultBehaviorRegistry } from "../src/components/node/capability.js";
+import { ResizableBehavior } from "../src/components/node/capabilities/behaviors/resizable.js";
 
-import { getActive } from "../src/components/behaviors/common/SelectableBehavior.js";
+import { getActive } from "../src/components/capability/behaviors/common/selectable.js";
 
 defaultBehaviorRegistry.register(DraggableBehavior);
 defaultBehaviorRegistry.register(SelectableBehavior);

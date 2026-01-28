@@ -1,15 +1,13 @@
-import { CommonSelectableBehavior } from "../../behaviors/common/SelectableBehavior.js";
-import * as constants from "../../constants.js";
+import { CommonSelectableBehavior } from "../../../capability/behaviors/common/selectable.js";
+import * as constants from "../../../constants.js";
 
 class SelectableBehavior extends CommonSelectableBehavior {
-  static type = "node";
-
-  constructor({ type, component, options = {} }) {
-    super({ type, component, options });
+  constructor({ component, options = {} }) {
+    super({ component, options });
     this.node = this.component;
   }
 
-  static get behavior() {
+  static get capability() {
     return constants.COMMON_CAPABILITIES.SELECTABLE;
   }
 

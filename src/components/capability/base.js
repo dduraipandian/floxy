@@ -1,13 +1,12 @@
-class BaseBehavior {
-  constructor({ type, component, options = {} }) {
+class BaseCapability {
+  constructor({ component, options = {} }) {
     this.component = component;
-    this.type = type;
     this.options = options;
     this.attached = false;
   }
 
-  static get behavior() {
-    throw new Error("Static property behavior must be implemented in the subclass");
+  static get capability() {
+    throw new Error("Static property capability must be implemented in the subclass");
   }
 
   static get removal_event() {
@@ -15,13 +14,12 @@ class BaseBehavior {
   }
 
   isSupported() {
-    const iss = this.component.isCapabilitySupported(this.constructor.behavior);
-    console.debug("FLOW: Is behavior supported", this.constructor.behavior, iss);
+    const iss = this.component.isCapabilitySupported(this.constructor.capability);
+    console.debug("FLOW: Is behavior supported", this.constructor.capability, iss);
     return iss;
   }
 
   _attach() {
-    console.log(this.component);
     if (!this.isSupported()) return;
     if (!this.gaurd()) return;
 
@@ -48,4 +46,4 @@ class BaseBehavior {
   }
 }
 
-export { BaseBehavior };
+export { BaseCapability };
