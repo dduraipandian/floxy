@@ -24,6 +24,11 @@ class BaseCommand extends BaseCapability {
     execute(flow, manager, component) {
         throw new Error("Method 'execute()' must be implemented in the subclass");
     }
+
+    static get label() { return this.capability; }
+    static get order() { return 0; }
+    static get icon() { return ""; }
+    static get toolclass() { return ""; }
 }
 
 export { BaseCommand };

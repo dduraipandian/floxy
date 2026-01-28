@@ -14,6 +14,11 @@ class RemovableCommand extends BaseCommand {
         manager.remove(component.id);
         return true;
     }
+
+    static get label() { return "Delete"; }
+    static get order() { return 100; }
+    static get icon() { return `<i class="bi bi-trash"></i>`; }
+    static get toolclass() { return "btn-danger"; }
 }
 
 export { RemovableCommand };

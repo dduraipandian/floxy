@@ -199,8 +199,21 @@ class ConnectionView extends EmitterComponent {
     });
   }
 
+  getBounds() {
+    const el = this.el;
+    if (!el) return null;
+
+    const bbox = el.getBBox();
+
+    return {
+      left: bbox.x,
+      top: bbox.y,
+      width: bbox.width,
+      height: bbox.height
+    };
+  }
+
   setSelected(selected) {
-    console.log("setSelected", selected);
     this.model.style.markSelected(selected);
     this.applyStyle();
   }

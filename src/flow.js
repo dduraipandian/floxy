@@ -8,6 +8,8 @@ import { FlowSerializer } from "./components/serializer.js";
 import { defaultCommandRegistry as defaultNodeCommandRegistry } from "./components/node/capability.js";
 import { defaultCommandRegistry as defaultConnectionCommandRegistry } from "./components/connection/capability.js";
 
+import { SelectionToolbar } from "./toolbar.js";
+
 import * as constants from "./components/constants.js";
 
 class Selection {
@@ -37,16 +39,23 @@ class Selection {
   }
 
   execute(capability) {
+    let success = false;
     console.debug("Executing capability: ", capability, this.commands);
     const cmd = [...this.commands].find(c => c.constructor.capability === capability);
     if (cmd) {
-      const success = cmd?.run(this.flow, this.manager, this.component);
+      success = cmd?.run(this.flow, this.manager, this.component);
       if (success && cmd.clearSelection) {
         this.clear();
       }
     } else {
       this.notification?.error(`${this.component?.label} is not ${capability}.`);
     }
+    return success;
+  }
+
+  getBounds() {
+    if (!this.component?.view?.getBounds) return null;
+    return this.component.view.getBounds();
   }
 }
 
@@ -96,6 +105,7 @@ class Flow extends EmitterComponent {
     this.nodeCommandRegistry = nodeCommandRegistry;
     this.connectionCommandRegistry = connectionCommandRegistry;
     this.selectionManager = new selectionManagerCls(this, { notification: this.notification });
+    this.toolbar = null;
   }
 
   /**
@@ -142,10 +152,12 @@ class Flow extends EmitterComponent {
     this.nodeManager.on(constants.NODE_SELECTED_EVENT, ({ id }) => {
       const node = this.nodeManager.getNode(id);
       this.selectionManager.set(node, this.nodeManager, this.nodeCommandRegistry);
+      this.toolbar.updateView();
     });
 
     this.nodeManager.on(constants.NODE_DESELECTED_EVENT, ({ id }) => {
       this.selectionManager.clear();
+      this.toolbar.updateView();
     });
 
     this.connectionManager.on(constants.CONNECTION_SELECTED_EVENT, ({ id }) => {
@@ -154,10 +166,12 @@ class Flow extends EmitterComponent {
       // this.connectionManager.removeConnection(connectionId);
       const connection = this.connectionManager.getConnection(id);
       this.selectionManager.set(connection, this.connectionManager, this.connectionCommandRegistry);
+      this.toolbar.updateView();
     });
 
     this.connectionManager.on(constants.CONNECTION_DESELECTED_EVENT, ({ id }) => {
       this.selectionManager.clear();
+      this.toolbar.updateView();
     });
 
     this.canvas.on(constants.NODE_DROPPED_EVENT, (config) => {
@@ -169,17 +183,20 @@ class Flow extends EmitterComponent {
     this.nodeManager.on(constants.NODE_MOVED_EVENT, ({ id, x, y }) => {
       this.emit(constants.NODE_MOVED_EVENT, { id, x, y });
       this.connectionManager.updateConnections(id);
+      this.toolbar.updateView();
     });
 
     this.nodeManager.on(constants.NODE_UPDATED_EVENT, ({ id, x, y, w, h }) => {
       this.emit(constants.NODE_UPDATED_EVENT, { id, x, y, w, h });
       this.connectionManager.updateConnections(id);
+      this.toolbar.updateView();
     });
 
     this.nodeManager.on(constants.NODE_REMOVED_EVENT, ({ id }) => {
       console.debug("Node is removed: ", id);
       this.emit(constants.NODE_REMOVED_EVENT, { id });
       this.removeNode(id);
+      this.toolbar.updateView();
     });
 
     this.nodeManager.on(constants.PORT_CONNECT_START_EVENT, ({ nodeId, portIndex, event }) => {
@@ -216,6 +233,9 @@ class Flow extends EmitterComponent {
       );
     });
     this.bindCommandEvents();
+
+    this.toolbar = new SelectionToolbar({ selection: this.selectionManager });
+    this.toolbar.renderInto(this.canvasEl);
   }
 
   bindCommandEvents() {
@@ -223,7 +243,8 @@ class Flow extends EmitterComponent {
       console.log("Key pressed: ", e.key);
       const capability = constants.COMMAND_CAPABILITIES[e.key];
       if (capability && this.selectionManager.active) {
-        this.selectionManager.execute(capability);
+        const success = this.selectionManager.execute(capability);
+        if (success) this.toolbar.updateView()
       }
     });
   }
