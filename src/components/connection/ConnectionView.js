@@ -1,8 +1,6 @@
 import { EmitterComponent } from "@uiframe/core";
 import { pathRegistry } from "./paths/PathRegistry.js";
 
-import * as constants from "../constants.js";
-
 class ConnectionView extends EmitterComponent {
   #p1 = null;
   #p2 = null;
@@ -209,7 +207,7 @@ class ConnectionView extends EmitterComponent {
       left: bbox.x,
       top: bbox.y,
       width: bbox.width,
-      height: bbox.height
+      height: bbox.height,
     };
   }
 

@@ -37,7 +37,7 @@ class EllipseNodeView extends SVGNodeView {
     return this.ellipse;
   }
 
-  updateShape() { }
+  updateShape() {}
 
   resize() {
     const { w, h } = this.model;

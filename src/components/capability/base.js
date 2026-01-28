@@ -35,9 +35,15 @@ class BaseBehavior extends BaseCapability {
     this.component.on(this.constructor.removal_event, this.destroy);
   }
 
-  gaurd() { return true; }
-  attach() { throw new Error("Method 'attach()' must be implemented in the subclass"); }
-  detach() { throw new Error("Method 'detach()' must be implemented in the subclass"); }
+  gaurd() {
+    return true;
+  }
+  attach() {
+    throw new Error("Method 'attach()' must be implemented in the subclass");
+  }
+  detach() {
+    throw new Error("Method 'detach()' must be implemented in the subclass");
+  }
 
   destroy() {
     this.detach();

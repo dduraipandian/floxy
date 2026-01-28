@@ -94,17 +94,20 @@ class FlowConnectionManager extends EmitterComponent {
       options: connectionOptions,
     });
 
-    const behaviors = this.behaviorRegistry.resolve(connection, { component: connection, options: connectionOptions });
+    const behaviors = this.behaviorRegistry.resolve(connection, {
+      component: connection,
+      options: connectionOptions,
+    });
     connection.setBehaviors(behaviors);
 
     connection.renderInto(this.connectionContainer.id);
 
-    connection.on(constants.CONNECTION_SELECTED_EVENT, e => {
-      this.emit(constants.CONNECTION_SELECTED_EVENT, e)
+    connection.on(constants.CONNECTION_SELECTED_EVENT, (e) => {
+      this.emit(constants.CONNECTION_SELECTED_EVENT, e);
     });
 
-    connection.on(constants.CONNECTION_DESELECTED_EVENT, e => {
-      this.emit(constants.CONNECTION_DESELECTED_EVENT, e)
+    connection.on(constants.CONNECTION_DESELECTED_EVENT, (e) => {
+      this.emit(constants.CONNECTION_DESELECTED_EVENT, e);
     });
     return connection;
   }

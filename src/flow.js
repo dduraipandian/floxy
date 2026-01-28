@@ -41,7 +41,7 @@ class Selection {
   execute(capability) {
     let success = false;
     console.debug("Executing capability: ", capability, this.commands);
-    const cmd = [...this.commands].find(c => c.constructor.capability === capability);
+    const cmd = [...this.commands].find((c) => c.constructor.capability === capability);
     if (cmd) {
       success = cmd?.run(this.flow, this.manager, this.component);
       if (success && cmd.clearSelection) {
@@ -72,13 +72,15 @@ class Flow extends EmitterComponent {
    * @param {number} [options.options.zoom=1] - Initial zoom level.
    * @param {Object} [options.options.canvas={x:0, y:0}] - Initial pan position.
    */
-  constructor({ name,
+  constructor({
+    name,
     options = {},
     validators = [],
     notification = null,
     nodeCommandRegistry = defaultNodeCommandRegistry,
     connectionCommandRegistry = defaultConnectionCommandRegistry,
-    selectionManagerCls = Selection }) {
+    selectionManagerCls = Selection,
+  }) {
     super({ name });
 
     this.options = options;
@@ -155,6 +157,7 @@ class Flow extends EmitterComponent {
       this.toolbar.updateView();
     });
 
+    // eslint-disable-next-line no-unused-vars
     this.nodeManager.on(constants.NODE_DESELECTED_EVENT, ({ id }) => {
       this.selectionManager.clear();
       this.toolbar.updateView();
@@ -169,6 +172,7 @@ class Flow extends EmitterComponent {
       this.toolbar.updateView();
     });
 
+    // eslint-disable-next-line no-unused-vars
     this.connectionManager.on(constants.CONNECTION_DESELECTED_EVENT, ({ id }) => {
       this.selectionManager.clear();
       this.toolbar.updateView();
@@ -244,7 +248,7 @@ class Flow extends EmitterComponent {
       const capability = constants.COMMAND_CAPABILITIES[e.key];
       if (capability && this.selectionManager.active) {
         const success = this.selectionManager.execute(capability);
-        if (success) this.toolbar.updateView()
+        if (success) this.toolbar.updateView();
       }
     });
   }

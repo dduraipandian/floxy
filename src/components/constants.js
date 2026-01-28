@@ -59,5 +59,5 @@ export const SVGShapes = ["ellipse", "circle", "rect", "line", "polyline", "poly
 
 export const COMMAND_CAPABILITIES = {
   Delete: CAPABILITIES.REMOVABLE,
-  Backspace: CAPABILITIES.REMOVABLE
+  Backspace: CAPABILITIES.REMOVABLE,
 };

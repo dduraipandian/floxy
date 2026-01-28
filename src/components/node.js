@@ -81,7 +81,10 @@ class FlowNodeManager extends EmitterComponent {
     const view = new ViewClass(model, { ...this.options, zoomGetter: this.zoomGetter });
     const node = new Node({ model, view });
 
-    const behaviors = this.behaviorRegistry.resolve(node, { component: node, options: this.options });
+    const behaviors = this.behaviorRegistry.resolve(node, {
+      component: node,
+      options: this.options,
+    });
     node.setBehaviors(behaviors);
 
     // bubble view events upward
