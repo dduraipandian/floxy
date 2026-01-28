@@ -2,8 +2,7 @@ import { EmitterComponent } from "@uiframe/core";
 import { ConnectionModel } from "./connection/ConnectionModel.js";
 import { ConnectionView } from "./connection/ConnectionView.js";
 import { Connection } from "./connection/Connection.js";
-import { defaultBehaviorRegistry } from "./behaviors/BehaviorRegistry.js";
-import { DefaultBehaviorResolver } from "./behaviors/DefaultBehaviorResolver.js";
+import { defaultBehaviorRegistry } from "./connection/capability.js";
 import * as constants from "./constants.js";
 
 class FlowConnectionManager extends EmitterComponent {
@@ -12,7 +11,6 @@ class FlowConnectionManager extends EmitterComponent {
     connectionContainer,
     nodeManager,
     behaviorRegistry = defaultBehaviorRegistry,
-    BehaviorResolverCls = DefaultBehaviorResolver,
     options = {},
   }) {
     super({ name: name + "-flow-connection-manager", options });
@@ -31,8 +29,6 @@ class FlowConnectionManager extends EmitterComponent {
     this.badConnections = new Set();
 
     this.behaviorRegistry = behaviorRegistry;
-    this.BehaviorResolverCls = BehaviorResolverCls;
-    this.behaviorResolver = new this.BehaviorResolverCls({ registry: this.behaviorRegistry });
     this.type = "connection";
   }
 
@@ -98,13 +94,20 @@ class FlowConnectionManager extends EmitterComponent {
       options: connectionOptions,
     });
 
-    const behaviors = this.behaviorResolver.resolve(this.type, connection, this.options);
+    const behaviors = this.behaviorRegistry.resolve(connection, {
+      component: connection,
+      options: connectionOptions,
+    });
     connection.setBehaviors(behaviors);
 
     connection.renderInto(this.connectionContainer.id);
 
-    view.on(constants.CONNECTION_CLICKED_EVENT, (id) => {
-      this.removeConnection(id);
+    connection.on(constants.CONNECTION_SELECTED_EVENT, (e) => {
+      this.emit(constants.CONNECTION_SELECTED_EVENT, e);
+    });
+
+    connection.on(constants.CONNECTION_DESELECTED_EVENT, (e) => {
+      this.emit(constants.CONNECTION_DESELECTED_EVENT, e);
     });
     return connection;
   }
@@ -138,6 +141,10 @@ class FlowConnectionManager extends EmitterComponent {
     this.emit(constants.CONNECTION_REMOVED_EVENT, id);
     this.connections.delete(id);
     conn?.destroy();
+  }
+
+  remove(id) {
+    this.removeConnection(id);
   }
 
   removeRelatedConnections(nodeId) {

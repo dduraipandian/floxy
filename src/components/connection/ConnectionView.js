@@ -1,8 +1,6 @@
 import { EmitterComponent } from "@uiframe/core";
 import { pathRegistry } from "./paths/PathRegistry.js";
 
-import * as constants from "../constants.js";
-
 class ConnectionView extends EmitterComponent {
   #p1 = null;
   #p2 = null;
@@ -183,16 +181,9 @@ class ConnectionView extends EmitterComponent {
   }
 
   bindEvents() {
-    this.bindSelect();
     this.bindShadowSelect();
   }
 
-  bindSelect() {
-    this.path.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.emit(constants.CONNECTION_CLICKED_EVENT, this.model.id);
-    });
-  }
   bindShadowSelect() {
     this.shadowPath.addEventListener("mouseover", (e) => {
       e.stopPropagation();
@@ -206,8 +197,27 @@ class ConnectionView extends EmitterComponent {
     });
   }
 
+  getBounds() {
+    const el = this.el;
+    if (!el) return null;
+
+    const len = el.getTotalLength();
+    const point = el.getPointAtLength(len / 2);
+
+    const svg = el.ownerSVGElement;
+    const pt = svg.createSVGPoint();
+    pt.x = point.x;
+    pt.y = point.y;
+
+    const screenPoint = pt.matrixTransform(el.getScreenCTM());
+
+    return {
+      centerX: screenPoint.x,
+      centerY: screenPoint.y,
+    };
+  }
+
   setSelected(selected) {
-    console.log("setSelected", selected);
     this.model.style.markSelected(selected);
     this.applyStyle();
   }

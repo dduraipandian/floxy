@@ -1,10 +1,10 @@
-import { defaultBehaviorRegistry as behaviorRegistry } from "../src/components/behaviors/BehaviorRegistry.js";
-import { DraggableBehavior } from "../src/components/node/behaviors/DraggableBehavior.js";
-import { SelectableBehavior } from "../src/components/node/behaviors/SelectableBehavior.js";
-import { EditableLabelBehavior } from "../src/components/node/behaviors/EditableLabelBehavior.js";
-import { ResizableBehavior } from "../src/components/node/behaviors/ResizableBehavior.js";
+import { defaultBehaviorRegistry as behaviorRegistry } from "../src/components/node/capability.js";
+import { DraggableBehavior } from "../src/components/node/capabilities/behaviors/draggable.js";
+import { SelectableBehavior } from "../src/components/node/capabilities/behaviors/selectable.js";
+import { EditableLabelBehavior } from "../src/components/node/capabilities/behaviors/editable_label.js";
+import { ResizableBehavior } from "../src/components/node/capabilities/behaviors/resizable.js";
 
-import { getActive } from "../src/components/behaviors/common/SelectableBehavior.js";
+import { getActive } from "../src/components/capability/behaviors/common/selectable.js";
 
 import * as constants from "../src/components/constants.js";
 
@@ -28,21 +28,20 @@ describe("Node Behaviors", () => {
       // but might be in index or manually.
       // Let's register manually to test registry.
       class TestBehavior {
-        static type = "test-component";
-        static get behavior() {
+        static get capability() {
           return "test-behavior";
         }
       }
       behaviorRegistry.register(TestBehavior);
 
-      expect(behaviorRegistry.get("test-component", "test-behavior")).toBe(TestBehavior);
-      expect(behaviorRegistry.getAll("test-component")).toContain(TestBehavior);
+      expect(behaviorRegistry.get("test-behavior")).toBe(TestBehavior);
+      expect(behaviorRegistry.getAll()).toContain(TestBehavior);
     });
 
-    test("should throw if behavior static property missing", () => {
-      class BadBehavior {}
-      expect(() => behaviorRegistry.register(BadBehavior)).toThrow(
-        "Behavior must define static behavior"
+    test("should throw if capability static property missing", () => {
+      class BadCapability {}
+      expect(() => behaviorRegistry.register(BadCapability)).toThrow(
+        "Capability must define static capability"
       );
     });
   });

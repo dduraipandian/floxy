@@ -78,7 +78,7 @@ class BaseNodeView extends EmitterComponent {
     this.close = close;
     this.el.prepend(inputPorts);
     this.el.appendChild(outputPorts);
-    this.el.appendChild(close);
+    // this.el.appendChild(close);
   }
 
   destroy() {

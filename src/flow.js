@@ -5,7 +5,65 @@ import { FlowNodeManager } from "./components/node.js";
 import { FlowConnectionManager } from "./components/connection.js";
 import { FlowSerializer } from "./components/serializer.js";
 
+import { defaultCommandRegistry as defaultNodeCommandRegistry } from "./components/node/capability.js";
+import { defaultCommandRegistry as defaultConnectionCommandRegistry } from "./components/connection/capability.js";
+
+import { SelectionToolbar } from "./toolbar.js";
+
 import * as constants from "./components/constants.js";
+
+class Selection {
+  constructor(flow, options = {}) {
+    this.flow = flow;
+    this.options = options;
+    this.component = null;
+    this.manager = null;
+    this.commands = new Set();
+    this.cx = null;
+    this.cy = null;
+    this.notification = options.notification;
+  }
+
+  get active() {
+    return this.component !== null && this.manager !== null;
+  }
+
+  set(component, manager, commandRegistry, cx, cy) {
+    this.manager = manager;
+    this.component = component;
+    this.cx = cx;
+    this.cy = cy;
+    this.commands = commandRegistry.resolve(component, { options: this.options });
+  }
+
+  clear() {
+    this.component = null;
+    this.manager = null;
+    this.cx = null;
+    this.cy = null;
+    this.commands = new Set();
+  }
+
+  execute(capability) {
+    let success = false;
+    console.debug("Executing capability: ", capability, this.commands);
+    const cmd = [...this.commands].find((c) => c.constructor.capability === capability);
+    if (cmd) {
+      success = cmd?.run(this.flow, this.manager, this.component);
+      if (success && cmd.clearSelection) {
+        this.clear();
+      }
+    } else {
+      this.notification?.error(`${this.component?.label} is not ${capability}.`);
+    }
+    return success;
+  }
+
+  getBounds() {
+    if (!this.component?.view?.getBounds) return null;
+    return this.component.view.getBounds();
+  }
+}
 
 /**
  * A lightweight Flow/Node editor component inspired by Drawflow, and freeform.
@@ -20,7 +78,15 @@ class Flow extends EmitterComponent {
    * @param {number} [options.options.zoom=1] - Initial zoom level.
    * @param {Object} [options.options.canvas={x:0, y:0}] - Initial pan position.
    */
-  constructor({ name, options = {}, validators = [], notification = null }) {
+  constructor({
+    name,
+    options = {},
+    validators = [],
+    notification = null,
+    nodeCommandRegistry = defaultNodeCommandRegistry,
+    connectionCommandRegistry = defaultConnectionCommandRegistry,
+    selectionManagerCls = Selection,
+  }) {
     super({ name });
 
     this.options = options;
@@ -42,6 +108,12 @@ class Flow extends EmitterComponent {
     this.connectionManager = null;
     this.rafId = null;
     this.isConnecting = false;
+    this.commands = new Set();
+    this.activeSelection = null;
+    this.nodeCommandRegistry = nodeCommandRegistry;
+    this.connectionCommandRegistry = connectionCommandRegistry;
+    this.selectionManager = new selectionManagerCls(this, { notification: this.notification });
+    this.toolbar = null;
   }
 
   /**
@@ -85,6 +157,44 @@ class Flow extends EmitterComponent {
       this.nodeManager.zoom = data.zoom;
     });
 
+    this.nodeManager.on(constants.NODE_SELECTED_EVENT, ({ id, cx, cy }) => {
+      const node = this.nodeManager.getNode(id);
+      this.emit(constants.NODE_SELECTED_EVENT, { id, cx, cy });
+      this.selectionManager.set(node, this.nodeManager, this.nodeCommandRegistry);
+      this.toolbar.updateView();
+    });
+
+    // eslint-disable-next-line no-unused-vars
+    this.nodeManager.on(constants.NODE_DESELECTED_EVENT, ({ id }) => {
+      this.selectionManager.clear();
+      this.toolbar.updateView();
+    });
+
+    this.connectionManager.on(constants.CONNECTION_SELECTED_EVENT, ({ id, cx, cy }) => {
+      console.debug("Connection is selected: ", id);
+      this.emit(constants.CONNECTION_SELECTED_EVENT, { id, cx, cy });
+      const connection = this.connectionManager.getConnection(id);
+      if (!this._canvasRect) {
+        this._canvasRect = this.canvasEl.getBoundingClientRect();
+      }
+      const x = (cx - this._canvasRect.left) / this.zoom;
+      const y = (cy - this._canvasRect.top) / this.zoom;
+      this.selectionManager.set(
+        connection,
+        this.connectionManager,
+        this.connectionCommandRegistry,
+        x,
+        y
+      );
+      this.toolbar.updateView();
+    });
+
+    // eslint-disable-next-line no-unused-vars
+    this.connectionManager.on(constants.CONNECTION_DESELECTED_EVENT, ({ id }) => {
+      this.selectionManager.clear();
+      this.toolbar.updateView();
+    });
+
     this.canvas.on(constants.NODE_DROPPED_EVENT, (config) => {
       console.debug("Node is dropped: ", config);
       this.emit(constants.NODE_DROPPED_EVENT, config);
@@ -94,17 +204,20 @@ class Flow extends EmitterComponent {
     this.nodeManager.on(constants.NODE_MOVED_EVENT, ({ id, x, y }) => {
       this.emit(constants.NODE_MOVED_EVENT, { id, x, y });
       this.connectionManager.updateConnections(id);
+      this.toolbar.hide();
     });
 
     this.nodeManager.on(constants.NODE_UPDATED_EVENT, ({ id, x, y, w, h }) => {
       this.emit(constants.NODE_UPDATED_EVENT, { id, x, y, w, h });
       this.connectionManager.updateConnections(id);
+      this.toolbar.hide();
     });
 
     this.nodeManager.on(constants.NODE_REMOVED_EVENT, ({ id }) => {
       console.debug("Node is removed: ", id);
       this.emit(constants.NODE_REMOVED_EVENT, { id });
       this.removeNode(id);
+      this.toolbar.updateView();
     });
 
     this.nodeManager.on(constants.PORT_CONNECT_START_EVENT, ({ nodeId, portIndex, event }) => {
@@ -129,12 +242,6 @@ class Flow extends EmitterComponent {
       );
     });
 
-    this.connectionManager.on(constants.CONNECTION_CLICKED_EVENT, (connection) => {
-      console.debug("Connection is clicked: ", connection);
-      this.emit(constants.CONNECTION_CLICKED_EVENT, connection);
-      this.connectionManager.removeConnection(connection);
-    });
-
     this.connectionManager.on(constants.CONNECTION_REMOVED_EVENT, (connection) => {
       console.debug("Connection is removed: ", connection);
       this.emit(constants.CONNECTION_REMOVED_EVENT, connection);
@@ -145,6 +252,21 @@ class Flow extends EmitterComponent {
           inNodeId: connection.inNodeId,
         })
       );
+    });
+    this.bindCommandEvents();
+
+    this.toolbar = new SelectionToolbar({ selection: this.selectionManager });
+    this.toolbar.renderInto(this.canvasEl);
+  }
+
+  bindCommandEvents() {
+    window.addEventListener("keydown", (e) => {
+      console.log("Key pressed: ", e.key);
+      const capability = constants.COMMAND_CAPABILITIES[e.key];
+      if (capability && this.selectionManager.active) {
+        const success = this.selectionManager.execute(capability);
+        if (success) this.toolbar.updateView();
+      }
     });
   }
 

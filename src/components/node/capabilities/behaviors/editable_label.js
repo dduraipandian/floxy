@@ -1,9 +1,9 @@
-import { BaseNodeBehavior } from "./base.js";
-import * as constants from "../../constants.js";
+import { NodeCapability } from "../../capability.js";
+import * as constants from "../../../constants.js";
 
-class EditableLabelBehavior extends BaseNodeBehavior {
-  static get behavior() {
-    return constants.NODE_CAPABILITIES.EDITABLE_LABEL;
+class EditableLabelBehavior extends NodeCapability {
+  static get capability() {
+    return constants.CAPABILITIES.EDITABLE_LABEL;
   }
 
   gaurd() {

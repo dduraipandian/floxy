@@ -1,8 +1,7 @@
 import { EmitterComponent } from "@uiframe/core";
 import { Node } from "./node/Node.js";
 import { NodeModel } from "./node/NodeModel.js";
-import { defaultBehaviorRegistry } from "./behaviors/BehaviorRegistry.js";
-import { DefaultBehaviorResolver } from "./behaviors/DefaultBehaviorResolver.js";
+import { defaultBehaviorRegistry } from "./node/capability.js";
 import { nodeViewRegistry } from "./node/NodeViewRegistry.js";
 import { DefaultView } from "./node/views/packages/workflow/DefaultView.js";
 import * as constants from "./constants.js";
@@ -15,7 +14,6 @@ class FlowNodeManager extends EmitterComponent {
     View = DefaultView,
     viewRegistry = nodeViewRegistry,
     behaviorRegistry = defaultBehaviorRegistry,
-    BehaviorResolverCls = DefaultBehaviorResolver,
   }) {
     super({ name: name + "node-manager" });
     this.canvasContainer = canvasContainer;
@@ -26,10 +24,6 @@ class FlowNodeManager extends EmitterComponent {
     this.idCounter = 1;
 
     this.behaviorRegistry = behaviorRegistry;
-    this.BehaviorResolverCls = BehaviorResolverCls;
-
-    this.behaviorResolver = new this.BehaviorResolverCls({ registry: this.behaviorRegistry });
-    this.behaviors = [];
     this.type = "node";
   }
 
@@ -87,15 +81,18 @@ class FlowNodeManager extends EmitterComponent {
     const view = new ViewClass(model, { ...this.options, zoomGetter: this.zoomGetter });
     const node = new Node({ model, view });
 
-    const behaviors = this.behaviorResolver.resolve(this.type, node, this.options);
+    const behaviors = this.behaviorRegistry.resolve(node, {
+      component: node,
+      options: this.options,
+    });
     node.setBehaviors(behaviors);
 
     // bubble view events upward
     this.propagateEvent(constants.PORT_CONNECT_START_EVENT, view);
     this.propagateEvent(constants.PORT_CONNECT_END_EVENT, view);
 
-    this.propagateEvent(constants.NODE_SELECTED_EVENT, view);
-    this.propagateEvent(constants.NODE_DESELECTED_EVENT, view);
+    this.propagateEvent(constants.NODE_SELECTED_EVENT, node);
+    this.propagateEvent(constants.NODE_DESELECTED_EVENT, node);
 
     this.propagateEvent(constants.NODE_MOVED_EVENT, node);
     this.propagateEvent(constants.NODE_UPDATED_EVENT, node);
@@ -116,7 +113,12 @@ class FlowNodeManager extends EmitterComponent {
     node = null;
   }
 
+  remove(id) {
+    this.removeNode(id);
+  }
+
   propagateEvent(event, instance) {
+    console.debug("FLOW: Propagate event", event, instance);
     instance.on(event, (e) => this.emit(event, e));
   }
 
