@@ -1,3 +1,56 @@
+class BaseCapability {
+  constructor({ options = {} }) {
+    this.options = options;
+  }
+
+  static get capability() {
+    throw new Error("Static property capability must be implemented in the subclass");
+  }
+
+  isSupported(target) {
+    const iss = target.isCapabilitySupported(this.constructor.capability);
+    console.debug("FLOW: Is behavior supported", this.constructor.capability, iss);
+    return iss;
+  }
+}
+
+class BaseBehavior extends BaseCapability {
+  constructor({ component, options = {} }) {
+    super(options);
+    this.component = component;
+    this.manager = options.manager;
+    this.attached = false;
+  }
+
+  static get removal_event() {
+    throw new Error("Static property removal_event must be implemented in the subclass");
+  }
+
+  _attach() {
+    if (!this.isSupported(this.component)) return;
+    if (!this.gaurd()) return;
+
+    this.attach();
+    this.attached = true;
+    this.component.on(this.constructor.removal_event, this.destroy);
+  }
+
+  gaurd() {
+    return true;
+  }
+  attach() {
+    throw new Error("Method 'attach()' must be implemented in the subclass");
+  }
+  detach() {
+    throw new Error("Method 'detach()' must be implemented in the subclass");
+  }
+
+  destroy() {
+    this.detach();
+    this.component.off(this.constructor.removal_event, this.destroy);
+  }
+}
+
 // Canvas events
 const CANVAS_ZOOM_EVENT = "canvas:zoom";
 
@@ -18,7 +71,6 @@ const PORT_CONNECT_END_EVENT = "node:port:connect:end";
 const CONNECTION_CREATED_EVENT = "connection:created";
 const CONNECTION_REMOVED_EVENT = "connection:removed";
 const CONNECTION_UPDATED_EVENT = "connection:updated";
-const CONNECTION_CLICKED_EVENT = "connection:clicked";
 const CONNECTION_SELECTED_EVENT = "connection:selected";
 const CONNECTION_DESELECTED_EVENT = "connection:deselected";
 
@@ -28,84 +80,32 @@ const COMMON_CAPABILITIES = {
   SELECTABLE: "selectable",
 };
 
-const NODE_CAPABILITIES = {
-  SELECTABLE: "selectable",
+const CAPABILITIES = {
   MOVABLE: "movable",
   EDITABLE_LABEL: "editable-label",
   RESIZABLE: "resizable",
+  REMOVABLE: "removable",
 };
 
 const DEFAULT_SUPPORTED_CAPABILITIES = [
   COMMON_CAPABILITIES.SELECTABLE,
-  NODE_CAPABILITIES.MOVABLE,
-  NODE_CAPABILITIES.EDITABLE_LABEL,
-  NODE_CAPABILITIES.RESIZABLE,
+  CAPABILITIES.MOVABLE,
+  CAPABILITIES.EDITABLE_LABEL,
+  CAPABILITIES.RESIZABLE,
+  CAPABILITIES.REMOVABLE,
+];
+
+const DEFAULT_SUPPORTED_CONNECTION_CAPABILITIES = [
+  COMMON_CAPABILITIES.SELECTABLE,
+  CAPABILITIES.REMOVABLE,
 ];
 
 const SVGShapes = ["ellipse", "circle", "rect", "line", "polyline", "polygon", "path"];
 
-class BaseBehavior {
-  constructor({ type, component, options = {} }) {
-    this.component = component;
-    this.type = type;
-    this.options = options;
-    this.attached = false;
-  }
-
-  static get behavior() {
-    throw new Error("Static property behavior must be implemented in the subclass");
-  }
-
-  static get removal_event() {
-    throw new Error("Static property removal_event must be implemented in the subclass");
-  }
-
-  isSupported() {
-    const iss = this.component.isCapabilitySupported(this.constructor.behavior);
-    console.debug("FLOW: Is behavior supported", this.constructor.behavior, iss);
-    return iss;
-  }
-
-  _attach() {
-    console.log(this.component);
-    if (!this.isSupported()) return;
-    if (!this.gaurd()) return;
-
-    this.attach();
-    this.attached = true;
-    this.component.on(this.constructor.removal_event, this.destroy);
-  }
-
-  gaurd() {
-    return true;
-  }
-
-  attach() {
-    throw new Error("Method 'attach()' must be implemented in the subclass");
-  }
-
-  detach() {
-    throw new Error("Method 'detach()' must be implemented in the subclass");
-  }
-
-  destroy() {
-    this.detach();
-    this.component.off(this.constructor.removal_event, this.destroy);
-  }
-}
-
-class BaseConnectionBehavior extends BaseBehavior {
-  static type = "connection";
-
-  constructor({ type, component, options = {} }) {
-    super({ type, component, options });
-    this.connection = this.component;
-  }
-
-  static get removal_event() {
-    return CONNECTION_REMOVED_EVENT;
-  }
-}
+const COMMAND_CAPABILITIES = {
+  Delete: CAPABILITIES.REMOVABLE,
+  Backspace: CAPABILITIES.REMOVABLE,
+};
 
 let GLOABL_ACTIVE = null;
 
@@ -117,15 +117,15 @@ function getActive() {
   return GLOABL_ACTIVE;
 }
 
-class CommonSelectableBehavior extends BaseConnectionBehavior {
+class CommonSelectableBehavior extends BaseBehavior {
   // TODO: this should be removed when multiple nodes can be selected and tabs added.
 
-  constructor({ type, component, options = {} }) {
-    super({ type, component, options });
+  constructor({ component, options = {} }) {
+    super({ component, options });
     this.selected = false;
   }
 
-  static get behavior() {
+  static get capability() {
     return COMMON_CAPABILITIES.SELECTABLE;
   }
 
@@ -134,20 +134,20 @@ class CommonSelectableBehavior extends BaseConnectionBehavior {
 
     const _onPointerDown = (e) => {
       e.stopPropagation();
-      this.select();
+      this.select(e.clientX, e.clientY);
     };
 
     this._onPointerDown = _onPointerDown.bind(this);
     view.attachEvent("click", this._onPointerDown);
   }
 
-  select() {
+  select(cx, cy) {
     if (getActive() === this) return;
 
     getActive()?.deselect();
 
     this.selected = true;
-    this.component.select();
+    this.component.select(cx, cy);
     setActive(this);
   }
 
@@ -175,14 +175,12 @@ class CommonSelectableBehavior extends BaseConnectionBehavior {
 }
 
 class SelectableBehavior$1 extends CommonSelectableBehavior {
-  static type = "connection";
-
-  constructor({ type, component, options = {} }) {
-    super({ type, component, options });
+  constructor({ component, options = {} }) {
+    super({ component, options });
     this.connection = this.component;
   }
 
-  static get behavior() {
+  static get capability() {
     return COMMON_CAPABILITIES.SELECTABLE;
   }
 
@@ -320,11 +318,51 @@ class DragHandler {
   }
 }
 
-class BaseNodeBehavior extends BaseBehavior {
-  static type = "node";
+class CapabilityRegistry {
+  constructor() {
+    this._registry = new Map();
+  }
 
-  constructor({ type, component, options = {} }) {
-    super({ type, component, options });
+  register(CapabilityClass) {
+    const name = CapabilityClass.capability;
+    if (!name) {
+      throw new Error(`Capability ${CapabilityClass.name} must define static capability`);
+    }
+    this._registry.set(name, CapabilityClass);
+  }
+
+  get(name) {
+    return this._registry.get(name);
+  }
+
+  getAll() {
+    return Array.from(this._registry.values() || []);
+  }
+
+  resolve(component, context = {}) {
+    // context will be used to create resolved instances.
+    // for example, Behavior requires state of the component. so it requires component and options to be passed to constructor.
+    // so context will be { component, options }
+    // Command does not require state of the component. So it does not require component to be passed to constructor.
+    // resolver will not know the what type of instance is required. So it will create instance using the context.
+    const resolved = new Set();
+
+    component.model.capabilities?.forEach((capability) => {
+      const CapabilityCls = this.get(capability);
+      if (CapabilityCls) {
+        const capabilityInstance = new CapabilityCls(context);
+        console.log("capabilityInstance", capabilityInstance);
+        resolved.add(capabilityInstance);
+      }
+    });
+
+    return resolved;
+  }
+}
+
+class NodeCapability extends BaseBehavior {
+  constructor({ component, options = {} }) {
+    super({ component, options });
     this.node = this.component;
   }
 
@@ -333,9 +371,12 @@ class BaseNodeBehavior extends BaseBehavior {
   }
 }
 
-class DraggableBehavior extends BaseNodeBehavior {
-  static get behavior() {
-    return NODE_CAPABILITIES.MOVABLE;
+const defaultBehaviorRegistry$1 = new CapabilityRegistry();
+const defaultCommandRegistry$1 = new CapabilityRegistry();
+
+class DraggableBehavior extends NodeCapability {
+  static get capability() {
+    return CAPABILITIES.MOVABLE;
   }
 
   gaurd() {
@@ -368,14 +409,12 @@ class DraggableBehavior extends BaseNodeBehavior {
 }
 
 class SelectableBehavior extends CommonSelectableBehavior {
-  static type = "node";
-
-  constructor({ type, component, options = {} }) {
-    super({ type, component, options });
+  constructor({ component, options = {} }) {
+    super({ component, options });
     this.node = this.component;
   }
 
-  static get behavior() {
+  static get capability() {
     return COMMON_CAPABILITIES.SELECTABLE;
   }
 
@@ -392,9 +431,9 @@ class SelectableBehavior extends CommonSelectableBehavior {
   }
 }
 
-class EditableLabelBehavior extends BaseNodeBehavior {
-  static get behavior() {
-    return NODE_CAPABILITIES.EDITABLE_LABEL;
+class EditableLabelBehavior extends NodeCapability {
+  static get capability() {
+    return CAPABILITIES.EDITABLE_LABEL;
   }
 
   gaurd() {
@@ -452,9 +491,9 @@ class EditableLabelBehavior extends BaseNodeBehavior {
   }
 }
 
-class ResizableBehavior extends BaseNodeBehavior {
-  static get behavior() {
-    return NODE_CAPABILITIES.RESIZABLE;
+class ResizableBehavior extends NodeCapability {
+  static get capability() {
+    return CAPABILITIES.RESIZABLE;
   }
 
   attach() {
@@ -488,36 +527,76 @@ class ResizableBehavior extends BaseNodeBehavior {
   }
 }
 
-class _BehaviorRegistry {
-  constructor() {
-    this._registry = new Map();
+class BaseCommand extends BaseCapability {
+  static get capability() {
+    throw new Error("Static property capability must be implemented in the subclass");
   }
 
-  register(BehaviorClass) {
-    const name = BehaviorClass.behavior;
-    const type = BehaviorClass.type;
-    if (!name) {
-      throw new Error(`Behavior ${BehaviorClass.name} must define static behavior`);
-    }
-    if (!type) {
-      throw new Error(`Behavior ${BehaviorClass.type} must define static type`);
-    }
-    if (!this._registry.has(type)) {
-      this._registry.set(type, new Map());
-    }
-    this._registry.get(type).set(name, BehaviorClass);
+  get clearSelection() {
+    return false;
   }
 
-  get(type, name) {
-    return this._registry.get(type)?.get(name);
+  canExecute(component) {
+    return this.isSupported(component);
   }
 
-  getAll(type) {
-    return Array.from(this._registry.get(type)?.values() || []);
+  run(flow, manager, component) {
+    if (!this.canExecute(component)) {
+      flow.notification?.error(`${this.constructor.capability} is not supported`);
+      return false;
+    }
+    return this.execute(flow, manager, component);
+  }
+
+  // eslint-disable-next-line no-unused-vars
+  execute(flow, manager, component) {
+    throw new Error("Method 'execute()' must be implemented in the subclass");
+  }
+
+  static get label() {
+    return this.capability;
+  }
+  static get order() {
+    return 0;
+  }
+  static get icon() {
+    return "";
+  }
+  static get toolclass() {
+    return "";
   }
 }
 
-const defaultBehaviorRegistry = new _BehaviorRegistry();
+class RemovableCommand extends BaseCommand {
+  static get capability() {
+    return "removable";
+  }
+
+  get clearSelection() {
+    return true;
+  }
+
+  execute(flow, manager, component) {
+    manager.remove(component.id);
+    return true;
+  }
+
+  static get label() {
+    return "Delete";
+  }
+  static get order() {
+    return 100;
+  }
+  static get icon() {
+    return '<i class="bi bi-trash"></i>';
+  }
+  static get toolclass() {
+    return "btn-danger";
+  }
+}
+
+const defaultBehaviorRegistry = new CapabilityRegistry();
+const defaultCommandRegistry = new CapabilityRegistry();
 
 class _PathRegistry {
   constructor() {
@@ -1081,9 +1160,13 @@ class Node extends EmitterComponent {
     return this.model.h;
   }
 
-  select() {
+  get label() {
+    return this.model.label;
+  }
+
+  select(cx, cy) {
     this.view.setSelected(true);
-    this.emit(NODE_SELECTED_EVENT, { id: this.model.id });
+    this.emit(NODE_SELECTED_EVENT, { id: this.model.id, cx, cy });
   }
 
   deselect() {
@@ -1091,11 +1174,6 @@ class Node extends EmitterComponent {
     this.emit(NODE_DESELECTED_EVENT, { id: this.model.id });
   }
 }
-
-const DEFAULT_SUPPORTED_BEHAVIORS$1 = [
-  NODE_CAPABILITIES.SELECTABLE,
-  NODE_CAPABILITIES.MOVABLE,
-];
 
 class NodeModel {
   constructor({
@@ -1111,7 +1189,7 @@ class NodeModel {
     h = 100,
     w = 200,
     data = {},
-    capabilities = DEFAULT_SUPPORTED_BEHAVIORS$1,
+    capabilities = DEFAULT_SUPPORTED_CAPABILITIES,
   }) {
     this.id = id;
     this.module = module;
@@ -1136,27 +1214,6 @@ class NodeModel {
   resize(w, h) {
     this.w = w;
     this.h = h;
-  }
-}
-
-class DefaultBehaviorResolver {
-  constructor({ registry }) {
-    this.registry = registry;
-  }
-
-  resolve(type, component, context = {}) {
-    const resolved = new Set();
-
-    component.model.capabilities?.forEach((capability) => {
-      const BehaviorCls = this.registry.get(type, capability);
-      if (BehaviorCls) {
-        const behaviorInstance = new BehaviorCls({ type, component, options: context });
-        console.log("behaviorInstance", behaviorInstance);
-        resolved.add(behaviorInstance);
-      }
-    });
-
-    return resolved;
   }
 }
 
@@ -1256,7 +1313,7 @@ class BaseNodeView extends EmitterComponent {
     this.close = close;
     this.el.prepend(inputPorts);
     this.el.appendChild(outputPorts);
-    this.el.appendChild(close);
+    // this.el.appendChild(close);
   }
 
   destroy() {
@@ -1442,8 +1499,7 @@ class FlowNodeManager extends EmitterComponent {
     zoomGetter = () => 1,
     View = DefaultView,
     viewRegistry = nodeViewRegistry,
-    behaviorRegistry = defaultBehaviorRegistry,
-    BehaviorResolverCls = DefaultBehaviorResolver,
+    behaviorRegistry = defaultBehaviorRegistry$1,
   }) {
     super({ name: name + "node-manager" });
     this.canvasContainer = canvasContainer;
@@ -1454,10 +1510,6 @@ class FlowNodeManager extends EmitterComponent {
     this.idCounter = 1;
 
     this.behaviorRegistry = behaviorRegistry;
-    this.BehaviorResolverCls = BehaviorResolverCls;
-
-    this.behaviorResolver = new this.BehaviorResolverCls({ registry: this.behaviorRegistry });
-    this.behaviors = [];
     this.type = "node";
   }
 
@@ -1515,15 +1567,18 @@ class FlowNodeManager extends EmitterComponent {
     const view = new ViewClass(model, { ...this.options, zoomGetter: this.zoomGetter });
     const node = new Node({ model, view });
 
-    const behaviors = this.behaviorResolver.resolve(this.type, node, this.options);
+    const behaviors = this.behaviorRegistry.resolve(node, {
+      component: node,
+      options: this.options,
+    });
     node.setBehaviors(behaviors);
 
     // bubble view events upward
     this.propagateEvent(PORT_CONNECT_START_EVENT, view);
     this.propagateEvent(PORT_CONNECT_END_EVENT, view);
 
-    this.propagateEvent(NODE_SELECTED_EVENT, view);
-    this.propagateEvent(NODE_DESELECTED_EVENT, view);
+    this.propagateEvent(NODE_SELECTED_EVENT, node);
+    this.propagateEvent(NODE_DESELECTED_EVENT, node);
 
     this.propagateEvent(NODE_MOVED_EVENT, node);
     this.propagateEvent(NODE_UPDATED_EVENT, node);
@@ -1544,7 +1599,12 @@ class FlowNodeManager extends EmitterComponent {
     node = null;
   }
 
+  remove(id) {
+    this.removeNode(id);
+  }
+
   propagateEvent(event, instance) {
+    console.debug("FLOW: Propagate event", event, instance);
     instance.on(event, (e) => this.emit(event, e));
   }
 
@@ -1642,8 +1702,6 @@ class ConnectionStyle {
   }
 }
 
-const DEFAULT_SUPPORTED_BEHAVIORS = [NODE_CAPABILITIES.SELECTABLE];
-
 class ConnectionModel extends EmitterComponent {
   constructor({
     id,
@@ -1651,7 +1709,7 @@ class ConnectionModel extends EmitterComponent {
     outPort,
     inNodeId,
     inPort,
-    capabilities = DEFAULT_SUPPORTED_BEHAVIORS,
+    capabilities = DEFAULT_SUPPORTED_CONNECTION_CAPABILITIES,
     options = {},
   }) {
     super({ name: `connection-${id}` });
@@ -1876,16 +1934,9 @@ class ConnectionView extends EmitterComponent {
   }
 
   bindEvents() {
-    this.bindSelect();
     this.bindShadowSelect();
   }
 
-  bindSelect() {
-    this.path.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.emit(CONNECTION_CLICKED_EVENT, this.model.id);
-    });
-  }
   bindShadowSelect() {
     this.shadowPath.addEventListener("mouseover", (e) => {
       e.stopPropagation();
@@ -1899,8 +1950,27 @@ class ConnectionView extends EmitterComponent {
     });
   }
 
+  getBounds() {
+    const el = this.el;
+    if (!el) return null;
+
+    const len = el.getTotalLength();
+    const point = el.getPointAtLength(len / 2);
+
+    const svg = el.ownerSVGElement;
+    const pt = svg.createSVGPoint();
+    pt.x = point.x;
+    pt.y = point.y;
+
+    const screenPoint = pt.matrixTransform(el.getScreenCTM());
+
+    return {
+      centerX: screenPoint.x,
+      centerY: screenPoint.y,
+    };
+  }
+
   setSelected(selected) {
-    console.log("setSelected", selected);
     this.model.style.markSelected(selected);
     this.applyStyle();
   }
@@ -2029,9 +2099,9 @@ class Connection extends EmitterComponent {
     this.view.updatePath();
   }
 
-  select() {
+  select(cx, cy) {
     this.view.setSelected(true);
-    this.emit(CONNECTION_SELECTED_EVENT, { id: this.model.id });
+    this.emit(CONNECTION_SELECTED_EVENT, { id: this.model.id, cx, cy });
   }
 
   deselect() {
@@ -2072,7 +2142,6 @@ class FlowConnectionManager extends EmitterComponent {
     connectionContainer,
     nodeManager,
     behaviorRegistry = defaultBehaviorRegistry,
-    BehaviorResolverCls = DefaultBehaviorResolver,
     options = {},
   }) {
     super({ name: name + "-flow-connection-manager", options });
@@ -2091,8 +2160,6 @@ class FlowConnectionManager extends EmitterComponent {
     this.badConnections = new Set();
 
     this.behaviorRegistry = behaviorRegistry;
-    this.BehaviorResolverCls = BehaviorResolverCls;
-    this.behaviorResolver = new this.BehaviorResolverCls({ registry: this.behaviorRegistry });
     this.type = "connection";
   }
 
@@ -2158,13 +2225,20 @@ class FlowConnectionManager extends EmitterComponent {
       options: connectionOptions,
     });
 
-    const behaviors = this.behaviorResolver.resolve(this.type, connection, this.options);
+    const behaviors = this.behaviorRegistry.resolve(connection, {
+      component: connection,
+      options: connectionOptions,
+    });
     connection.setBehaviors(behaviors);
 
     connection.renderInto(this.connectionContainer.id);
 
-    view.on(CONNECTION_CLICKED_EVENT, (id) => {
-      this.removeConnection(id);
+    connection.on(CONNECTION_SELECTED_EVENT, (e) => {
+      this.emit(CONNECTION_SELECTED_EVENT, e);
+    });
+
+    connection.on(CONNECTION_DESELECTED_EVENT, (e) => {
+      this.emit(CONNECTION_DESELECTED_EVENT, e);
     });
     return connection;
   }
@@ -2198,6 +2272,10 @@ class FlowConnectionManager extends EmitterComponent {
     this.emit(CONNECTION_REMOVED_EVENT, id);
     this.connections.delete(id);
     conn?.destroy();
+  }
+
+  remove(id) {
+    this.removeConnection(id);
   }
 
   removeRelatedConnections(nodeId) {
@@ -2319,6 +2397,142 @@ class FlowSerializer {
   }
 }
 
+class SelectionToolbar extends EmitterComponent {
+  constructor({ selection, options = {} }) {
+    super({ name: "floxy-selection-toolbar" });
+    this.selection = selection;
+    this.options = options;
+    this.x = null;
+    this.y = null;
+  }
+
+  html() {
+    return `
+        <div id="floxy-selection-toolbar-btn-group" class="btn-group btn-group-sm role="group" aria-label="floxy flow toolbar">
+        </div>`;
+  }
+
+  init() {
+    this.container = this.container.querySelector("#floxy-selection-toolbar-btn-group");
+    this.updateView();
+  }
+
+  updateView() {
+    this.container.innerHTML = this.html();
+
+    this.container.style.zIndex = "1000";
+    this.container.style.height = "fit-content";
+
+    if (!this.selection.active) {
+      this.container.style.display = "none";
+      return;
+    }
+
+    this.container.style.display = "block";
+    this.container.style.position = "absolute";
+
+    const commands = [...this.selection.commands];
+
+    commands
+      .sort((a, b) => (a.constructor.order ?? 0) - (b.constructor.order ?? 0))
+      .forEach((cmd) => {
+        const btn = document.createElement("button");
+        btn.classList.add("btn");
+        if (cmd.constructor.icon) btn.innerHTML = cmd.constructor.icon;
+        else btn.textContent = cmd.constructor.label;
+        if (cmd.constructor.toolclass) btn.classList.add(cmd.constructor.toolclass);
+        else btn.classList.add("btn-outline-secondary");
+        btn.onclick = () => {
+          const success = this.selection.execute(cmd.constructor.capability);
+          if (success && cmd.clearSelection) this.updateView();
+        };
+
+        this.container.appendChild(btn);
+      });
+    this.position();
+  }
+
+  position() {
+    const bounds = this.selection.getBounds();
+    if (!bounds) return;
+
+    if (this.selection.cx) {
+      const x = this.selection.cx;
+      const y = this.selection.cy + 16;
+
+      // connection
+      this.container.style.left = `${x}px`;
+      this.container.style.top = `${y}px`;
+    } else {
+      // node
+      const btnGroupWidth = this.container.offsetWidth;
+      this.container.style.left = `${bounds.left + bounds.width / 2 - btnGroupWidth / 2 + 5}px`;
+      this.container.style.top = `${bounds.top + bounds.height + 16}px`;
+    }
+  }
+
+  hide() {
+    this.container.style.display = "none";
+  }
+
+  show() {
+    this.container.style.display = "block";
+  }
+}
+
+class Selection {
+  constructor(flow, options = {}) {
+    this.flow = flow;
+    this.options = options;
+    this.component = null;
+    this.manager = null;
+    this.commands = new Set();
+    this.cx = null;
+    this.cy = null;
+    this.notification = options.notification;
+  }
+
+  get active() {
+    return this.component !== null && this.manager !== null;
+  }
+
+  set(component, manager, commandRegistry, cx, cy) {
+    this.manager = manager;
+    this.component = component;
+    this.cx = cx;
+    this.cy = cy;
+    this.commands = commandRegistry.resolve(component, { options: this.options });
+  }
+
+  clear() {
+    this.component = null;
+    this.manager = null;
+    this.cx = null;
+    this.cy = null;
+    this.commands = new Set();
+  }
+
+  execute(capability) {
+    let success = false;
+    console.debug("Executing capability: ", capability, this.commands);
+    const cmd = [...this.commands].find((c) => c.constructor.capability === capability);
+    if (cmd) {
+      success = cmd?.run(this.flow, this.manager, this.component);
+      if (success && cmd.clearSelection) {
+        this.clear();
+      }
+    } else {
+      this.notification?.error(`${this.component?.label} is not ${capability}.`);
+    }
+    return success;
+  }
+
+  getBounds() {
+    if (!this.component?.view?.getBounds) return null;
+    return this.component.view.getBounds();
+  }
+}
+
 /**
  * A lightweight Flow/Node editor component inspired by Drawflow, and freeform.
  * features: zoom, pan, draggable nodes, input/output ports, bezier connections.
@@ -2332,7 +2546,15 @@ class Flow extends EmitterComponent {
    * @param {number} [options.options.zoom=1] - Initial zoom level.
    * @param {Object} [options.options.canvas={x:0, y:0}] - Initial pan position.
    */
-  constructor({ name, options = {}, validators = [], notification = null }) {
+  constructor({
+    name,
+    options = {},
+    validators = [],
+    notification = null,
+    nodeCommandRegistry = defaultCommandRegistry$1,
+    connectionCommandRegistry = defaultCommandRegistry,
+    selectionManagerCls = Selection,
+  }) {
     super({ name });
 
     this.options = options;
@@ -2354,6 +2576,12 @@ class Flow extends EmitterComponent {
     this.connectionManager = null;
     this.rafId = null;
     this.isConnecting = false;
+    this.commands = new Set();
+    this.activeSelection = null;
+    this.nodeCommandRegistry = nodeCommandRegistry;
+    this.connectionCommandRegistry = connectionCommandRegistry;
+    this.selectionManager = new selectionManagerCls(this, { notification: this.notification });
+    this.toolbar = null;
   }
 
   /**
@@ -2397,6 +2625,44 @@ class Flow extends EmitterComponent {
       this.nodeManager.zoom = data.zoom;
     });
 
+    this.nodeManager.on(NODE_SELECTED_EVENT, ({ id, cx, cy }) => {
+      const node = this.nodeManager.getNode(id);
+      this.emit(NODE_SELECTED_EVENT, { id, cx, cy });
+      this.selectionManager.set(node, this.nodeManager, this.nodeCommandRegistry);
+      this.toolbar.updateView();
+    });
+
+    // eslint-disable-next-line no-unused-vars
+    this.nodeManager.on(NODE_DESELECTED_EVENT, ({ id }) => {
+      this.selectionManager.clear();
+      this.toolbar.updateView();
+    });
+
+    this.connectionManager.on(CONNECTION_SELECTED_EVENT, ({ id, cx, cy }) => {
+      console.debug("Connection is selected: ", id);
+      this.emit(CONNECTION_SELECTED_EVENT, { id, cx, cy });
+      const connection = this.connectionManager.getConnection(id);
+      if (!this._canvasRect) {
+        this._canvasRect = this.canvasEl.getBoundingClientRect();
+      }
+      const x = (cx - this._canvasRect.left) / this.zoom;
+      const y = (cy - this._canvasRect.top) / this.zoom;
+      this.selectionManager.set(
+        connection,
+        this.connectionManager,
+        this.connectionCommandRegistry,
+        x,
+        y
+      );
+      this.toolbar.updateView();
+    });
+
+    // eslint-disable-next-line no-unused-vars
+    this.connectionManager.on(CONNECTION_DESELECTED_EVENT, ({ id }) => {
+      this.selectionManager.clear();
+      this.toolbar.updateView();
+    });
+
     this.canvas.on(NODE_DROPPED_EVENT, (config) => {
       console.debug("Node is dropped: ", config);
       this.emit(NODE_DROPPED_EVENT, config);
@@ -2406,17 +2672,20 @@ class Flow extends EmitterComponent {
     this.nodeManager.on(NODE_MOVED_EVENT, ({ id, x, y }) => {
       this.emit(NODE_MOVED_EVENT, { id, x, y });
       this.connectionManager.updateConnections(id);
+      this.toolbar.hide();
     });
 
     this.nodeManager.on(NODE_UPDATED_EVENT, ({ id, x, y, w, h }) => {
       this.emit(NODE_UPDATED_EVENT, { id, x, y, w, h });
       this.connectionManager.updateConnections(id);
+      this.toolbar.hide();
     });
 
     this.nodeManager.on(NODE_REMOVED_EVENT, ({ id }) => {
       console.debug("Node is removed: ", id);
       this.emit(NODE_REMOVED_EVENT, { id });
       this.removeNode(id);
+      this.toolbar.updateView();
     });
 
     this.nodeManager.on(PORT_CONNECT_START_EVENT, ({ nodeId, portIndex, event }) => {
@@ -2441,12 +2710,6 @@ class Flow extends EmitterComponent {
       );
     });
 
-    this.connectionManager.on(CONNECTION_CLICKED_EVENT, (connection) => {
-      console.debug("Connection is clicked: ", connection);
-      this.emit(CONNECTION_CLICKED_EVENT, connection);
-      this.connectionManager.removeConnection(connection);
-    });
-
     this.connectionManager.on(CONNECTION_REMOVED_EVENT, (connection) => {
       console.debug("Connection is removed: ", connection);
       this.emit(CONNECTION_REMOVED_EVENT, connection);
@@ -2457,6 +2720,21 @@ class Flow extends EmitterComponent {
           inNodeId: connection.inNodeId,
         })
       );
+    });
+    this.bindCommandEvents();
+
+    this.toolbar = new SelectionToolbar({ selection: this.selectionManager });
+    this.toolbar.renderInto(this.canvasEl);
+  }
+
+  bindCommandEvents() {
+    window.addEventListener("keydown", (e) => {
+      console.log("Key pressed: ", e.key);
+      const capability = COMMAND_CAPABILITIES[e.key];
+      if (capability && this.selectionManager.active) {
+        const success = this.selectionManager.execute(capability);
+        if (success) this.toolbar.updateView();
+      }
     });
   }
 
@@ -3240,10 +3518,11 @@ class SVGNodeView extends BaseNodeView {
 }
 
 const SUPPORTED_CAPABILITIES = [
-  NODE_CAPABILITIES.MOVABLE,
-  NODE_CAPABILITIES.EDITABLE_LABEL,
-  NODE_CAPABILITIES.RESIZABLE,
-  NODE_CAPABILITIES.SELECTABLE,
+  CAPABILITIES.MOVABLE,
+  CAPABILITIES.EDITABLE_LABEL,
+  CAPABILITIES.RESIZABLE,
+  CAPABILITIES.SELECTABLE,
+  CAPABILITIES.REMOVABLE,
 ];
 
 class EllipseNodeView extends SVGNodeView {
@@ -3287,11 +3566,15 @@ class EllipseNodeView extends SVGNodeView {
   }
 }
 
-defaultBehaviorRegistry.register(DraggableBehavior);
-defaultBehaviorRegistry.register(SelectableBehavior);
-defaultBehaviorRegistry.register(EditableLabelBehavior);
-defaultBehaviorRegistry.register(ResizableBehavior);
+defaultBehaviorRegistry$1.register(DraggableBehavior);
+defaultBehaviorRegistry$1.register(SelectableBehavior);
+defaultBehaviorRegistry$1.register(EditableLabelBehavior);
+defaultBehaviorRegistry$1.register(ResizableBehavior);
+
+defaultCommandRegistry$1.register(RemovableCommand);
+
 defaultBehaviorRegistry.register(SelectableBehavior$1);
+defaultCommandRegistry.register(RemovableCommand);
 
 nodeViewRegistry.register(EllipseNodeView);
 
