@@ -114,13 +114,21 @@ class Flow extends EmitterComponent {
     this.connectionCommandRegistry = connectionCommandRegistry;
     this.selectionManager = new selectionManagerCls(this, { notification: this.notification });
     this.toolbar = null;
+
+    this.zoomInEl = null;
+    this.zoomOutEl = null;
+    this.zoomResetEl = null;
   }
 
   /**
    * Returns component HTML structure.
    */
   html() {
-    return "";
+    return `<ul class="list-group list-group-horizontal-sm zoom-actions" style="width: fit-content;">
+                  <a href="#" class="list-group-item list-group-item-action zoom-item" id="${this.id}-zoomin" data-action="zoomin"><i class="bi bi-plus-lg"></i></a>                  
+                  <a href="#" class="list-group-item list-group-item-action zoom-item" id="${this.id}-zoomreset" data-action="zoomreset"><i class="bi bi-justify"></i></a>
+                  <a href="#" class="list-group-item list-group-item-action zoom-item" id="${this.id}-zoomout" data-action="zoomout"><i class="bi bi-dash-lg"></i></a>
+                </ul>`;
   }
 
   init() {
@@ -136,6 +144,13 @@ class Flow extends EmitterComponent {
     this.containerEl = this.container;
     this.canvasEl = this.canvas.canvasEl;
     this.svgEl = this.canvas.svgEl;
+
+    this.zoomInEl = this.containerEl.querySelector(`#${this.id}-zoomin`);
+    this.zoomOutEl = this.containerEl.querySelector(`#${this.id}-zoomout`);
+    this.zoomResetEl = this.containerEl.querySelector(`#${this.id}-zoomreset`);
+    this.zoomInEl.addEventListener("click", this.onZoomAction.bind(this));
+    this.zoomOutEl.addEventListener("click", this.onZoomAction.bind(this));
+    this.zoomResetEl.addEventListener("click", this.onZoomAction.bind(this));
 
     this.nodeManager = new FlowNodeManager({
       name: this.name + "-flow-node-manager",
@@ -268,6 +283,37 @@ class Flow extends EmitterComponent {
         if (success) this.toolbar.updateView();
       }
     });
+  }
+
+  onZoomAction(e) {
+    e.preventDefault();
+    const action = e.currentTarget.dataset.action;
+    switch (action) {
+      case "zoomin":
+        this.zoom += 0.1;
+        break;
+      case "zoomout":
+        this.zoom -= 0.1;
+        break;
+      case "zoomreset":
+        this.zoom = this.originalZoom;
+        break;
+    }
+    this.zoomChangeUpdate();
+    this.canvas.handleZoomChange(this.zoom);
+  }
+
+  zoomChangeUpdate() {
+    if (this.zoom === this.originalZoom) {
+      this.zoomInEl.classList.remove("active");
+      this.zoomOutEl.classList.remove("active");
+    } else if (this.zoom > this.originalZoom) {
+      this.zoomInEl.classList.add("active");
+      this.zoomOutEl.classList.remove("active");
+    } else {
+      this.zoomInEl.classList.remove("active");
+      this.zoomOutEl.classList.add("active");
+    }
   }
 
   highlightCycle(stack) {

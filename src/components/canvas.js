@@ -133,6 +133,19 @@ class FlowCanvas extends EmitterComponent {
     });
   }
 
+  handleZoomChange(zoom) {
+    this.zoom = zoom;
+    this.redrawCanvas();
+    this.emit(constants.CANVAS_ZOOM_EVENT, {
+      data: {
+        zoom: this.zoom,
+        x: this.canvasX,
+        y: this.canvasY,
+        originalZoom: this.originalZoom,
+      },
+    });
+  }
+
   onDrop(e) {
     e.preventDefault();
     e.stopPropagation();
