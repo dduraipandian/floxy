@@ -94,7 +94,7 @@ class FlowConnectionManager extends EmitterComponent {
       options: connectionOptions,
     });
 
-    const behaviors = this.behaviorRegistry.resolve(connection, this.options);
+    const behaviors = this.behaviorRegistry.resolve(connection, { component: connection, options: connectionOptions });
     connection.setBehaviors(behaviors);
 
     connection.renderInto(this.connectionContainer.id);
@@ -134,6 +134,10 @@ class FlowConnectionManager extends EmitterComponent {
     this.emit(constants.CONNECTION_REMOVED_EVENT, id);
     this.connections.delete(id);
     conn?.destroy();
+  }
+
+  remove(id) {
+    this.removeConnection(id);
   }
 
   removeRelatedConnections(nodeId) {

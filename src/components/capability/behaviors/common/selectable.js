@@ -1,4 +1,4 @@
-import { BaseCapability } from "../../base.js";
+import { BaseBehavior } from "../../base.js";
 import * as constants from "../../../constants.js";
 
 let GLOABL_ACTIVE = null;
@@ -11,7 +11,7 @@ function getActive() {
   return GLOABL_ACTIVE;
 }
 
-class CommonSelectableBehavior extends BaseCapability {
+class CommonSelectableBehavior extends BaseBehavior {
   // TODO: this should be removed when multiple nodes can be selected and tabs added.
 
   constructor({ component, options = {} }) {

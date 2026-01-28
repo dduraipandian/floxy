@@ -2,10 +2,11 @@ import { SVGNodeView } from "../../../SVGNodeView.js";
 import * as constants from "../../../../constants.js";
 
 const SUPPORTED_CAPABILITIES = [
-  constants.NODE_CAPABILITIES.MOVABLE,
-  constants.NODE_CAPABILITIES.EDITABLE_LABEL,
-  constants.NODE_CAPABILITIES.RESIZABLE,
-  constants.NODE_CAPABILITIES.SELECTABLE,
+  constants.CAPABILITIES.MOVABLE,
+  constants.CAPABILITIES.EDITABLE_LABEL,
+  constants.CAPABILITIES.RESIZABLE,
+  constants.CAPABILITIES.SELECTABLE,
+  constants.CAPABILITIES.REMOVABLE,
 ];
 
 class EllipseNodeView extends SVGNodeView {
@@ -36,7 +37,7 @@ class EllipseNodeView extends SVGNodeView {
     return this.ellipse;
   }
 
-  updateShape() {}
+  updateShape() { }
 
   resize() {
     const { w, h } = this.model;

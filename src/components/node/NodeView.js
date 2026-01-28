@@ -235,8 +235,8 @@ class BaseNodeView extends EmitterComponent {
     this.el.removeEventListener(event, callback);
   }
 
-  getNodeElement() {}
-  bindEvents() {}
+  getNodeElement() { }
+  bindEvents() { }
 }
 
 export { BaseNodeView };

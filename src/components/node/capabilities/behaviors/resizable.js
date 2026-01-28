@@ -4,7 +4,7 @@ import * as constants from "../../../constants.js";
 
 class ResizableBehavior extends NodeCapability {
   static get capability() {
-    return constants.NODE_CAPABILITIES.RESIZABLE;
+    return constants.CAPABILITIES.RESIZABLE;
   }
 
   attach() {

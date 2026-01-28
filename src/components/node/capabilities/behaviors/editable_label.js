@@ -3,7 +3,7 @@ import * as constants from "../../../constants.js";
 
 class EditableLabelBehavior extends NodeCapability {
   static get capability() {
-    return constants.NODE_CAPABILITIES.EDITABLE_LABEL;
+    return constants.CAPABILITIES.EDITABLE_LABEL;
   }
 
   gaurd() {

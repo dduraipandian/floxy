@@ -2,8 +2,6 @@ import { EmitterComponent } from "@uiframe/core";
 import { ConnectionStyle } from "./ConnectionStyle.js";
 import * as constants from "../constants.js";
 
-const DEFAULT_SUPPORTED_BEHAVIORS = [constants.NODE_CAPABILITIES.SELECTABLE];
-
 class ConnectionModel extends EmitterComponent {
   constructor({
     id,
@@ -11,7 +9,7 @@ class ConnectionModel extends EmitterComponent {
     outPort,
     inNodeId,
     inPort,
-    capabilities = DEFAULT_SUPPORTED_BEHAVIORS,
+    capabilities = constants.DEFAULT_SUPPORTED_CONNECTION_CAPABILITIES,
     options = {},
   }) {
     super({ name: `connection-${id}` });

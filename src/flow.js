@@ -5,6 +5,11 @@ import { FlowNodeManager } from "./components/node.js";
 import { FlowConnectionManager } from "./components/connection.js";
 import { FlowSerializer } from "./components/serializer.js";
 
+import { defaultCommandRegistry as defaultNodeCommandRegistry } from "./components/node/capability.js";
+import { defaultCommandRegistry as defaultConnectionCommandRegistry } from "./components/connection/capability.js";
+
+import { RemovableCommand } from "./components/commands/removable.js";
+
 import * as constants from "./components/constants.js";
 
 /**
@@ -20,7 +25,12 @@ class Flow extends EmitterComponent {
    * @param {number} [options.options.zoom=1] - Initial zoom level.
    * @param {Object} [options.options.canvas={x:0, y:0}] - Initial pan position.
    */
-  constructor({ name, options = {}, validators = [], notification = null }) {
+  constructor({ name,
+    options = {},
+    validators = [],
+    notification = null,
+    nodeCommandRegistry = defaultNodeCommandRegistry,
+    connectionCommandRegistry = defaultConnectionCommandRegistry }) {
     super({ name });
 
     this.options = options;
@@ -42,6 +52,10 @@ class Flow extends EmitterComponent {
     this.connectionManager = null;
     this.rafId = null;
     this.isConnecting = false;
+    this.commands = new Set();
+    this.activeSelection = null;
+    this.nodeCommandRegistry = nodeCommandRegistry;
+    this.connectionCommandRegistry = connectionCommandRegistry;
   }
 
   /**
@@ -83,6 +97,17 @@ class Flow extends EmitterComponent {
       this.zoom = data.zoom;
       this.connectionManager.zoom = data.zoom;
       this.nodeManager.zoom = data.zoom;
+    });
+
+    this.nodeManager.on(constants.NODE_SELECTED_EVENT, ({ id }) => {
+      const node = this.nodeManager.getNode(id);
+      this.activeSelection = node;
+      this.commands = this.nodeCommandRegistry.resolve(node, { options: this.options });
+    });
+
+    this.nodeManager.on(constants.NODE_DESELECTED_EVENT, ({ id }) => {
+      this.activeSelection = null;
+      this.commands = new Set();
     });
 
     this.canvas.on(constants.NODE_DROPPED_EVENT, (config) => {
@@ -129,8 +154,8 @@ class Flow extends EmitterComponent {
       );
     });
 
-    this.connectionManager.on(constants.CONNECTION_CLICKED_EVENT, (connection) => {
-      console.debug("Connection is clicked: ", connection);
+    this.connectionManager.on(constants.CONNECTION_SELECTED_EVENT, (connection) => {
+      console.debug("Connection is selected: ", connection);
       this.emit(constants.CONNECTION_CLICKED_EVENT, connection);
       this.connectionManager.removeConnection(connection);
     });
@@ -145,6 +170,25 @@ class Flow extends EmitterComponent {
           inNodeId: connection.inNodeId,
         })
       );
+    });
+    this.bindCommandEvents();
+  }
+
+  bindCommandEvents() {
+    window.addEventListener("keydown", (e) => {
+      if ((e.key === "Backspace" || e.key === "Delete") && this.activeSelection) {
+        const deleteCmd = [...this.commands].find(c => c.constructor.capability === "removable");
+        if (deleteCmd) {
+          const node = this.nodeManager.getNode(this.activeSelection.id);
+          const success = deleteCmd?.run(this, this.nodeManager, node);
+          if (success) {
+            this.activeSelection = null;
+            this.commands = new Set();
+          }
+        } else {
+          this.notification?.error(`Node-${this.activeSelection.label} is not removable`);
+        }
+      }
     });
   }
 

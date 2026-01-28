@@ -4,7 +4,7 @@ import * as constants from "../../../constants.js";
 
 class DraggableBehavior extends NodeCapability {
   static get capability() {
-    return constants.NODE_CAPABILITIES.MOVABLE;
+    return constants.CAPABILITIES.MOVABLE;
   }
 
   gaurd() {

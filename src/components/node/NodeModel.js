@@ -1,10 +1,5 @@
 import * as constants from "../constants.js";
 
-const DEFAULT_SUPPORTED_BEHAVIORS = [
-  constants.NODE_CAPABILITIES.SELECTABLE,
-  constants.NODE_CAPABILITIES.MOVABLE,
-];
-
 class NodeModel {
   constructor({
     id,
@@ -19,7 +14,7 @@ class NodeModel {
     h = 100,
     w = 200,
     data = {},
-    capabilities = DEFAULT_SUPPORTED_BEHAVIORS,
+    capabilities = constants.DEFAULT_SUPPORTED_CAPABILITIES,
   }) {
     this.id = id;
     this.module = module;

@@ -1,8 +1,8 @@
 import * as constants from "../constants.js";
-import { BaseCapability } from "../capability/base.js";
+import { BaseBehavior } from "../capability/base.js";
 import { CapabilityRegistry } from "../capability/registry.js";
 
-class NodeCapability extends BaseCapability {
+class NodeCapability extends BaseBehavior {
   constructor({ component, options = {} }) {
     super({ component, options });
     this.node = this.component;

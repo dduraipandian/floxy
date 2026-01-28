@@ -86,6 +86,10 @@ class Node extends EmitterComponent {
     return this.model.h;
   }
 
+  get label() {
+    return this.model.label;
+  }
+
   select() {
     this.view.setSelected(true);
     this.emit(constants.NODE_SELECTED_EVENT, { id: this.model.id });
