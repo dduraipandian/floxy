@@ -8,9 +8,47 @@ import { FlowSerializer } from "./components/serializer.js";
 import { defaultCommandRegistry as defaultNodeCommandRegistry } from "./components/node/capability.js";
 import { defaultCommandRegistry as defaultConnectionCommandRegistry } from "./components/connection/capability.js";
 
-import { RemovableCommand } from "./components/commands/removable.js";
-
 import * as constants from "./components/constants.js";
+
+class Selection {
+  constructor(flow, options = {}) {
+    this.flow = flow;
+    this.options = options;
+    this.component = null;
+    this.manager = null;
+    this.commands = new Set();
+    this.notification = options.notification;
+  }
+
+  get active() {
+    return this.component !== null && this.manager !== null;
+  }
+
+  set(component, manager, commandRegistry) {
+    this.manager = manager;
+    this.component = component;
+    this.commands = commandRegistry.resolve(component, { options: this.options });
+  }
+
+  clear() {
+    this.component = null;
+    this.manager = null;
+    this.commands = new Set();
+  }
+
+  execute(capability) {
+    console.debug("Executing capability: ", capability, this.commands);
+    const cmd = [...this.commands].find(c => c.constructor.capability === capability);
+    if (cmd) {
+      const success = cmd?.run(this.flow, this.manager, this.component);
+      if (success && cmd.clearSelection) {
+        this.clear();
+      }
+    } else {
+      this.notification?.error(`${this.component?.label} is not ${capability}.`);
+    }
+  }
+}
 
 /**
  * A lightweight Flow/Node editor component inspired by Drawflow, and freeform.
@@ -30,7 +68,8 @@ class Flow extends EmitterComponent {
     validators = [],
     notification = null,
     nodeCommandRegistry = defaultNodeCommandRegistry,
-    connectionCommandRegistry = defaultConnectionCommandRegistry }) {
+    connectionCommandRegistry = defaultConnectionCommandRegistry,
+    selectionManagerCls = Selection }) {
     super({ name });
 
     this.options = options;
@@ -56,6 +95,7 @@ class Flow extends EmitterComponent {
     this.activeSelection = null;
     this.nodeCommandRegistry = nodeCommandRegistry;
     this.connectionCommandRegistry = connectionCommandRegistry;
+    this.selectionManager = new selectionManagerCls(this, { notification: this.notification });
   }
 
   /**
@@ -101,13 +141,23 @@ class Flow extends EmitterComponent {
 
     this.nodeManager.on(constants.NODE_SELECTED_EVENT, ({ id }) => {
       const node = this.nodeManager.getNode(id);
-      this.activeSelection = node;
-      this.commands = this.nodeCommandRegistry.resolve(node, { options: this.options });
+      this.selectionManager.set(node, this.nodeManager, this.nodeCommandRegistry);
     });
 
     this.nodeManager.on(constants.NODE_DESELECTED_EVENT, ({ id }) => {
-      this.activeSelection = null;
-      this.commands = new Set();
+      this.selectionManager.clear();
+    });
+
+    this.connectionManager.on(constants.CONNECTION_SELECTED_EVENT, ({ id }) => {
+      console.debug("Connection is selected: ", id);
+      this.emit(constants.CONNECTION_SELECTED_EVENT, { id });
+      // this.connectionManager.removeConnection(connectionId);
+      const connection = this.connectionManager.getConnection(id);
+      this.selectionManager.set(connection, this.connectionManager, this.connectionCommandRegistry);
+    });
+
+    this.connectionManager.on(constants.CONNECTION_DESELECTED_EVENT, ({ id }) => {
+      this.selectionManager.clear();
     });
 
     this.canvas.on(constants.NODE_DROPPED_EVENT, (config) => {
@@ -154,12 +204,6 @@ class Flow extends EmitterComponent {
       );
     });
 
-    this.connectionManager.on(constants.CONNECTION_SELECTED_EVENT, (connection) => {
-      console.debug("Connection is selected: ", connection);
-      this.emit(constants.CONNECTION_CLICKED_EVENT, connection);
-      this.connectionManager.removeConnection(connection);
-    });
-
     this.connectionManager.on(constants.CONNECTION_REMOVED_EVENT, (connection) => {
       console.debug("Connection is removed: ", connection);
       this.emit(constants.CONNECTION_REMOVED_EVENT, connection);
@@ -176,18 +220,10 @@ class Flow extends EmitterComponent {
 
   bindCommandEvents() {
     window.addEventListener("keydown", (e) => {
-      if ((e.key === "Backspace" || e.key === "Delete") && this.activeSelection) {
-        const deleteCmd = [...this.commands].find(c => c.constructor.capability === "removable");
-        if (deleteCmd) {
-          const node = this.nodeManager.getNode(this.activeSelection.id);
-          const success = deleteCmd?.run(this, this.nodeManager, node);
-          if (success) {
-            this.activeSelection = null;
-            this.commands = new Set();
-          }
-        } else {
-          this.notification?.error(`Node-${this.activeSelection.label} is not removable`);
-        }
+      console.log("Key pressed: ", e.key);
+      const capability = constants.COMMAND_CAPABILITIES[e.key];
+      if (capability && this.selectionManager.active) {
+        this.selectionManager.execute(capability);
       }
     });
   }

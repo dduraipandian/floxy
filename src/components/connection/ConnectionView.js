@@ -183,16 +183,9 @@ class ConnectionView extends EmitterComponent {
   }
 
   bindEvents() {
-    this.bindSelect();
     this.bindShadowSelect();
   }
 
-  bindSelect() {
-    this.path.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.emit(constants.CONNECTION_CLICKED_EVENT, this.model.id);
-    });
-  }
   bindShadowSelect() {
     this.shadowPath.addEventListener("mouseover", (e) => {
       e.stopPropagation();

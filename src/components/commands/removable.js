@@ -5,6 +5,10 @@ class RemovableCommand extends BaseCommand {
         return "removable";
     }
 
+    get clearSelection() {
+        return true;
+    }
+
     // eslint-disable-next-line no-unused-vars
     execute(flow, manager, component) {
         manager.remove(component.id);

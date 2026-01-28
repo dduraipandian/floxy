@@ -5,6 +5,10 @@ class BaseCommand extends BaseCapability {
         throw new Error("Static property capability must be implemented in the subclass");
     }
 
+    get clearSelection() {
+        return false;
+    }
+
     canExecute(component) {
         return this.isSupported(component);
     }

@@ -56,3 +56,8 @@ export const DEFAULT_SUPPORTED_CONNECTION_CAPABILITIES = [
 ];
 
 export const SVGShapes = ["ellipse", "circle", "rect", "line", "polyline", "polygon", "path"];
+
+export const COMMAND_CAPABILITIES = {
+  Delete: CAPABILITIES.REMOVABLE,
+  Backspace: CAPABILITIES.REMOVABLE
+};

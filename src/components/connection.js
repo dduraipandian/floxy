@@ -99,8 +99,12 @@ class FlowConnectionManager extends EmitterComponent {
 
     connection.renderInto(this.connectionContainer.id);
 
-    view.on(constants.CONNECTION_CLICKED_EVENT, (id) => {
-      this.removeConnection(id);
+    connection.on(constants.CONNECTION_SELECTED_EVENT, e => {
+      this.emit(constants.CONNECTION_SELECTED_EVENT, e)
+    });
+
+    connection.on(constants.CONNECTION_DESELECTED_EVENT, e => {
+      this.emit(constants.CONNECTION_DESELECTED_EVENT, e)
     });
     return connection;
   }
