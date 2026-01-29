@@ -46,7 +46,7 @@ describe("FlowCanvas", () => {
     expect(container.style.backgroundPosition).toBe("100px 200px");
   });
 
-  test("should emit canvas:zoom event on wheel", () => {
+  test("should emit canvas:zoom event on wheel", async () => {
     const canvas = new FlowCanvas({ name: "test-canvas" });
     const spy = jest.fn();
     canvas.on(Constant.CANVAS_ZOOM_EVENT, spy);
@@ -55,8 +55,13 @@ describe("FlowCanvas", () => {
     const event = new WheelEvent("wheel", { deltaY: 100 });
     container.dispatchEvent(event);
 
+    // Wait for internal RAF/timeouts (we simulate delay)
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    // Math.min(this.zoom + delta, this.maxZoom) = Math.min(1 - .1, 3) = .9
+    //  this.zoom + diff * this.zoomEase = 1 + (-.1 * .15) = .985
     expect(spy).toHaveBeenCalled();
-    expect(canvas.zoom).toBeCloseTo(0.9); // Default step is 0.1
+    expect(canvas.zoom).toBeCloseTo(0.985); // with zoom ease .15
   });
 
   test("should emit node:dropped event on drop", () => {
