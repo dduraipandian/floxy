@@ -111,7 +111,7 @@ class Connection extends EmitterComponent {
 
   setPathStyle(pathType) {
     this.model.pathType = pathType;
-    this.view.updatePath();
+    this.update();
   }
 
   select(cx, cy) {

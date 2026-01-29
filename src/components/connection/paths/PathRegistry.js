@@ -14,6 +14,10 @@ class _PathRegistry {
   has(type) {
     return this.paths.has(type);
   }
+
+  getAll() {
+    return [...this.paths.keys()];
+  }
 }
 
 let pathRegistry = new _PathRegistry();

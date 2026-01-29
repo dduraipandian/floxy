@@ -11,7 +11,7 @@ class SelectionToolbar extends EmitterComponent {
 
   html() {
     return `
-        <div id="floxy-selection-toolbar-btn-group" class="btn-group btn-group-sm floxy-selection-toolbar" role="group" aria-label="floxy flow toolbar">
+        <div id="floxy-selection-toolbar-btn-group" class="list-group tools list-group-horizontal-sm floxy-selection-toolbar" style="width: fit-content;">
         </div>`;
   }
 
@@ -21,7 +21,7 @@ class SelectionToolbar extends EmitterComponent {
   }
 
   updateView() {
-    this.container.innerHTML = this.html();
+    this.container.innerHTML = "";
 
     this.container.style.zIndex = "1000";
     this.container.style.height = "fit-content";
@@ -31,7 +31,7 @@ class SelectionToolbar extends EmitterComponent {
       return;
     }
 
-    this.container.style.display = "block";
+    this.container.style.display = "flex";
     this.container.style.position = "absolute";
 
     const commands = [...this.selection.commands];
@@ -39,12 +39,12 @@ class SelectionToolbar extends EmitterComponent {
     commands
       .sort((a, b) => (a.constructor.order ?? 0) - (b.constructor.order ?? 0))
       .forEach((cmd) => {
-        const btn = document.createElement("button");
-        btn.classList.add("btn");
+        const btn = document.createElement("a");
+        btn.classList.add("list-group-item");
+        btn.classList.add("tool-item");
         if (cmd.constructor.icon) btn.innerHTML = cmd.constructor.icon;
         else btn.textContent = cmd.constructor.label;
         if (cmd.constructor.toolclass) btn.classList.add(cmd.constructor.toolclass);
-        else btn.classList.add("btn-outline-secondary");
         btn.onclick = () => {
           const success = this.selection.execute(cmd.constructor.capability);
           if (success && cmd.clearSelection) this.updateView();

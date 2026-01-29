@@ -8,6 +8,7 @@ import { EditableLabelBehavior } from "./src/components/node/capabilities/behavi
 import { ResizableBehavior } from "./src/components/node/capabilities/behaviors/resizable.js";
 
 import { RemovableCommand } from "./src/components/commands/removable.js";
+import { SetBezierPath, SetLinePath, SetOrthogonalPath } from "./src/components/commands/paths.js";
 
 import { defaultBehaviorRegistry as defaultNodeBehaviorRegistry } from "./src/components/node/capability.js";
 import { defaultCommandRegistry as defaultNodeCommandRegistry } from "./src/components/node/capability.js";
@@ -27,6 +28,9 @@ defaultNodeCommandRegistry.register(RemovableCommand);
 
 defaultConnectionBehaviorRegistry.register(ConnectionSelectableBehavior);
 defaultConnectionCommandRegistry.register(RemovableCommand);
+defaultConnectionCommandRegistry.register(SetBezierPath);
+defaultConnectionCommandRegistry.register(SetLinePath);
+defaultConnectionCommandRegistry.register(SetOrthogonalPath);
 
 export { Flow } from "./src/flow.js";
 export { DagValidator } from "./src/components/plugins/dag-validator.js";
