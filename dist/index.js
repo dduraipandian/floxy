@@ -964,7 +964,11 @@ class FlowCanvas extends EmitterComponent {
     this.containerId = this.id + "-flow-container";
     this.zoomActionsId = this.id + "-zoom-actions";
     this.arrowMarkerSize = options.arrow_marker_size || 7;
-    // this.nodeManager = new FlowNodeManager({ name: this.name + "-flow-node-manager", canvasId: this.canvasId, options });
+    this.zoomRafId = null;
+    this.targetZoom = this.zoom;
+    this.zoomEase = options.zoom_ease || 0.15;
+    this.minZoom = 0.1;
+    this.maxZoom = 3;
   }
 
   html() {
@@ -1030,32 +1034,44 @@ class FlowCanvas extends EmitterComponent {
     console.log("FLOW: Wheel on canvas with deltaY: ", e.deltaY);
 
     const delta = e.deltaY > 0 ? -0.1 : 0.1;
-    const newZoom = Math.max(0.1, Math.min(this.zoom + delta, 3));
-    this.zoom = newZoom;
-    this.redrawCanvas();
-    this.emit(CANVAS_ZOOM_EVENT, {
-      data: {
-        zoom: this.zoom,
-        x: this.canvasX,
-        y: this.canvasY,
-        delta: delta,
-        originalZoom: this.originalZoom,
-      },
-    });
+    this.targetZoom = Math.max(this.minZoom, Math.min(this.zoom + delta, this.maxZoom));
+    this.zoomRaf();
   }
 
   handleZoomChange(zoom) {
     this.zoom = zoom;
     this.redrawCanvas();
+    this.emitZoomEvent();
+  }
+
+  emitZoomEvent() {
     this.emit(CANVAS_ZOOM_EVENT, {
       data: {
         zoom: this.zoom,
         x: this.canvasX,
         y: this.canvasY,
-        delta: null,
         originalZoom: this.originalZoom,
       },
     });
+  }
+
+  zoomRaf() {
+    if (this.zoomRafId) return;
+
+    const loop = () => {
+      const diff = this.targetZoom - this.zoom;
+      if (Math.abs(diff) < 0.001) {
+        cancelAnimationFrame(this.zoomRafId);
+        this.zoomRafId = null;
+        return;
+      }
+
+      const targetZoom = this.zoom + diff * this.zoomEase;
+      this.handleZoomChange(targetZoom);
+      this.zoomRafId = requestAnimationFrame(loop);
+    };
+
+    this.zoomRafId = requestAnimationFrame(loop);
   }
 
   onDrop(e) {
