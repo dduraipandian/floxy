@@ -218,6 +218,9 @@ class DragHandler {
     this.elementX = this.initialPosition.x;
     this.elementY = this.initialPosition.y;
 
+    this.cx = this.initialPosition.x;
+    this.cy = this.initialPosition.y;
+
     this.rafId = null;
     this.onMoveCursor = onMoveCursor;
     this.onReleaseCursor = onReleaseCursor;
@@ -309,9 +312,13 @@ class DragHandler {
         return;
       }
 
+      this.rafId = requestAnimationFrame(loop);
+      if (this.cx == this.elementX && this.cy == this.elementY) return;
+
       // DOM update happens ONLY here
       this.onMoveHandler(this.elementX, this.elementY);
-      this.rafId = requestAnimationFrame(loop);
+      this.cx = this.elementX;
+      this.cy = this.elementY;
     };
 
     this.rafId = requestAnimationFrame(loop);
