@@ -76,6 +76,18 @@ const CONNECTION_DESELECTED_EVENT = "connection:deselected";
 
 const DEFAULT_CONNECTION_PATH_TYPE = "bezier";
 
+const CONNECTION_PATH_TYPES = {
+  BEZIER: DEFAULT_CONNECTION_PATH_TYPE,
+  LINE: "line",
+  ORTHOGONAL: "orthogonal",
+};
+
+const PATH_CAPABILITIES = {
+  BEZIER: `path:${CONNECTION_PATH_TYPES.BEZIER}`,
+  LINE: `path:${CONNECTION_PATH_TYPES.LINE}`,
+  ORTHOGONAL: `path:${CONNECTION_PATH_TYPES.ORTHOGONAL}`,
+};
+
 const COMMON_CAPABILITIES = {
   SELECTABLE: "selectable",
 };
@@ -98,6 +110,9 @@ const DEFAULT_SUPPORTED_CAPABILITIES = [
 const DEFAULT_SUPPORTED_CONNECTION_CAPABILITIES = [
   COMMON_CAPABILITIES.SELECTABLE,
   CAPABILITIES.REMOVABLE,
+  PATH_CAPABILITIES.BEZIER,
+  PATH_CAPABILITIES.LINE,
+  PATH_CAPABILITIES.ORTHOGONAL,
 ];
 
 const SVGShapes = ["ellipse", "circle", "rect", "line", "polyline", "polygon", "path"];
@@ -535,6 +550,10 @@ class ResizableBehavior extends NodeCapability {
 }
 
 class BaseCommand extends BaseCapability {
+  static get group() {
+    return "default";
+  }
+
   static get capability() {
     throw new Error("Static property capability must be implemented in the subclass");
   }
@@ -575,6 +594,9 @@ class BaseCommand extends BaseCapability {
 }
 
 class RemovableCommand extends BaseCommand {
+  static get group() {
+    return "danger";
+  }
   static get capability() {
     return "removable";
   }
@@ -595,10 +617,70 @@ class RemovableCommand extends BaseCommand {
     return 100;
   }
   static get icon() {
-    return '<i class="bi bi-trash"></i>';
+    return '<i class="bi bi-trash text-danger"></i>';
   }
-  static get toolclass() {
-    return "btn-danger";
+}
+
+class SetBezierPath extends BaseCommand {
+  static get capability() {
+    return PATH_CAPABILITIES.BEZIER;
+  }
+  static get group() {
+    return "path";
+  }
+  static get order() {
+    return 10;
+  }
+  static get icon() {
+    // svg for bezier path
+    return "<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M 4 8 C 12 0, 16 24, 20 10' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>";
+  }
+
+  execute(flow, manager, connection) {
+    connection.setPathStyle(CONNECTION_PATH_TYPES.BEZIER);
+    return true;
+  }
+}
+
+class SetLinePath extends BaseCommand {
+  static get capability() {
+    return PATH_CAPABILITIES.LINE;
+  }
+  static get group() {
+    return "path";
+  }
+  static get order() {
+    return 20;
+  }
+  static get icon() {
+    // svg for line path
+    return "<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M2 12H22' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>";
+  }
+
+  execute(flow, manager, connection) {
+    connection.setPathStyle(CONNECTION_PATH_TYPES.LINE);
+    return true;
+  }
+}
+
+class SetOrthogonalPath extends BaseCommand {
+  static get capability() {
+    return PATH_CAPABILITIES.ORTHOGONAL;
+  }
+  static get group() {
+    return "path";
+  }
+  static get order() {
+    return 30;
+  }
+  static get icon() {
+    // svg for orthogonal path
+    return "<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M0 2 H10 V20 H20' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>";
+  }
+
+  execute(flow, manager, connection) {
+    connection.setPathStyle(CONNECTION_PATH_TYPES.ORTHOGONAL);
+    return true;
   }
 }
 
@@ -620,6 +702,10 @@ class _PathRegistry {
 
   has(type) {
     return this.paths.has(type);
+  }
+
+  getAll() {
+    return [...this.paths.keys()];
   }
 }
 
@@ -1761,6 +1847,7 @@ class ConnectionModel extends EmitterComponent {
       animated: false,
       ...options.style,
     };
+    this.pathType = options.pathType ?? DEFAULT_CONNECTION_PATH_TYPE;
     this.style = new ConnectionStyle(this.pathType, this.style);
     this.capabilities = capabilities;
   }
@@ -1781,10 +1868,6 @@ class ConnectionModel extends EmitterComponent {
 
   get arrows() {
     return this.style.arrows;
-  }
-
-  get pathType() {
-    return this.options.pathType ?? DEFAULT_CONNECTION_PATH_TYPE;
   }
 }
 
@@ -1928,7 +2011,7 @@ class ConnectionView extends EmitterComponent {
   }
 
   updatePath(p1, p2, meta = {}) {
-    const type = this.model.style.path ?? "bezier";
+    const type = this.model.pathType ?? "bezier";
     this.#p1 = p1 ?? this.#p1;
     this.#p2 = p2 ?? this.#p2;
 
@@ -2130,7 +2213,7 @@ class Connection extends EmitterComponent {
 
   setPathStyle(pathType) {
     this.model.pathType = pathType;
-    this.view.updatePath();
+    this.update();
   }
 
   select(cx, cy) {
@@ -2442,7 +2525,7 @@ class SelectionToolbar extends EmitterComponent {
 
   html() {
     return `
-        <div id="floxy-selection-toolbar-btn-group" class="btn-group btn-group-sm floxy-selection-toolbar" role="group" aria-label="floxy flow toolbar">
+        <div id="floxy-selection-toolbar-btn-group" class="list-group tools list-group-horizontal-sm floxy-selection-toolbar" style="width: fit-content;">
         </div>`;
   }
 
@@ -2452,7 +2535,7 @@ class SelectionToolbar extends EmitterComponent {
   }
 
   updateView() {
-    this.container.innerHTML = this.html();
+    this.container.innerHTML = "";
 
     this.container.style.zIndex = "1000";
     this.container.style.height = "fit-content";
@@ -2462,7 +2545,7 @@ class SelectionToolbar extends EmitterComponent {
       return;
     }
 
-    this.container.style.display = "block";
+    this.container.style.display = "flex";
     this.container.style.position = "absolute";
 
     const commands = [...this.selection.commands];
@@ -2470,12 +2553,12 @@ class SelectionToolbar extends EmitterComponent {
     commands
       .sort((a, b) => (a.constructor.order ?? 0) - (b.constructor.order ?? 0))
       .forEach((cmd) => {
-        const btn = document.createElement("button");
-        btn.classList.add("btn");
+        const btn = document.createElement("a");
+        btn.classList.add("list-group-item");
+        btn.classList.add("tool-item");
         if (cmd.constructor.icon) btn.innerHTML = cmd.constructor.icon;
         else btn.textContent = cmd.constructor.label;
         if (cmd.constructor.toolclass) btn.classList.add(cmd.constructor.toolclass);
-        else btn.classList.add("btn-outline-secondary");
         btn.onclick = () => {
           const success = this.selection.execute(cmd.constructor.capability);
           if (success && cmd.clearSelection) this.updateView();
@@ -2620,17 +2703,33 @@ class Flow extends EmitterComponent {
     this.zoomInEl = null;
     this.zoomOutEl = null;
     this.zoomResetEl = null;
+
+    this.defaultPathType = options.defaultPathType || "bezier";
+    this.availablePaths = [SetBezierPath, SetLinePath, SetOrthogonalPath];
+    console.log("availablePaths", this.availablePaths);
   }
 
   /**
    * Returns component HTML structure.
    */
   html() {
-    return `<ul class="list-group list-group-horizontal-sm zoom-actions" style="width: fit-content;">
-                  <a href="#" class="list-group-item list-group-item-action zoom-item" id="${this.id}-zoomin" data-action="zoomin"><i class="bi bi-plus-lg"></i></a>                  
-                  <a href="#" class="list-group-item list-group-item-action zoom-item" id="${this.id}-zoomreset" data-action="zoomreset"><i class="bi bi-justify"></i></a>
-                  <a href="#" class="list-group-item list-group-item-action zoom-item" id="${this.id}-zoomout" data-action="zoomout"><i class="bi bi-dash-lg"></i></a>
-                </ul>`;
+    const pathOptions = this.availablePaths
+      .map((cmd) => {
+        const path = cmd.capability.slice(5);
+        const label = path.charAt(0).toUpperCase() + path.slice(1);
+        return `<a href="#" class="list-group-item list-group-item-action tool-item ${path === this.defaultPathType ? "active" : ""}" 
+                  id="${this.id}-${path}" data-path="${path}">${cmd.icon} <span class="ms-2">${label}</span></a>`;
+      })
+      .join("");
+    return `<div class="list-group tools list-group-horizontal-sm zoom-actions" style="width: fit-content;">
+              <a href="#" class="list-group-item tool-item list-group-item-action zoom-item" id="${this.id}-zoomin" data-action="zoomin"><i class="bi bi-plus-lg"></i></a>                  
+              <a href="#" class="list-group-item tool-item list-group-item-action zoom-item" id="${this.id}-zoomreset" data-action="zoomreset"><i class="bi bi-justify"></i></a>
+              <a href="#" class="list-group-item tool-item list-group-item-action zoom-item" id="${this.id}-zoomout" data-action="zoomout"><i class="bi bi-dash-lg"></i></a>
+            </div>
+            <div class="list-group tools path-selection">
+              ${pathOptions}
+            </div>
+            `;
   }
 
   init() {
@@ -2653,6 +2752,13 @@ class Flow extends EmitterComponent {
     this.zoomInEl.addEventListener("click", this.onZoomAction.bind(this));
     this.zoomOutEl.addEventListener("click", this.onZoomAction.bind(this));
     this.zoomResetEl.addEventListener("click", this.onZoomAction.bind(this));
+
+    this.pathOptionsEls = this.containerEl.querySelectorAll(
+      ".list-group.tools.path-selection .list-group-item"
+    );
+    this.pathOptionsEls.forEach((el) => {
+      el.addEventListener("click", this.onPathOptionAction.bind(this));
+    });
 
     this.nodeManager = new FlowNodeManager({
       name: this.name + "-flow-node-manager",
@@ -2739,6 +2845,10 @@ class Flow extends EmitterComponent {
     });
 
     this.nodeManager.on(PORT_CONNECT_START_EVENT, ({ nodeId, portIndex, event }) => {
+      if (this.isConnecting) {
+        console.debug("Already connection is being drawn. Ignoring this event.");
+        return;
+      }
       console.debug("Port connect start: ", nodeId, portIndex, event);
       this.mouseDownStartConnection({ dataset: { index: portIndex } }, nodeId, event);
     });
@@ -2818,6 +2928,16 @@ class Flow extends EmitterComponent {
     }
   }
 
+  onPathOptionAction(e) {
+    e.preventDefault();
+    const path = e.currentTarget.dataset.path;
+    this.defaultPathType = path;
+    this.pathOptionsEls.forEach((el) => {
+      el.classList.remove("active");
+    });
+    e.currentTarget.classList.add("active");
+  }
+
   highlightCycle(stack) {
     if (!stack || stack.length < 2) return;
 
@@ -2851,7 +2971,7 @@ class Flow extends EmitterComponent {
     event.stopPropagation();
     this.isConnecting = true;
     this.connectionStart = { nodeId, index: port.dataset.index };
-    this.connectionManager.beginTempConnection(nodeId, port.dataset.index);
+    this.connectionManager.beginTempConnection(nodeId, port.dataset.index, this.defaultPathType);
     // Use addEventListener instead of window.onmousemove to avoid JSDOM redefinition errors
     this._drawConnection = (e) => this.mouseMoveDrawConnection(port, nodeId, e);
     this._cancelConnection = (e) => this.keyDownCancelConnection(e, nodeId);
@@ -2923,7 +3043,13 @@ class Flow extends EmitterComponent {
       }
     }
 
-    const created = this.connectionManager.addConnection(outNodeId, outPort, inNodeId, inPort);
+    const created = this.connectionManager.addConnection(
+      outNodeId,
+      outPort,
+      inNodeId,
+      inPort,
+      this.defaultPathType
+    );
 
     if (created) {
       this.validators.forEach((v) => v.onConnectionAdded?.({ outNodeId, inNodeId }));
@@ -3655,6 +3781,9 @@ defaultCommandRegistry$1.register(RemovableCommand);
 
 defaultBehaviorRegistry.register(SelectableBehavior$1);
 defaultCommandRegistry.register(RemovableCommand);
+defaultCommandRegistry.register(SetBezierPath);
+defaultCommandRegistry.register(SetLinePath);
+defaultCommandRegistry.register(SetOrthogonalPath);
 
 nodeViewRegistry.register(EllipseNodeView);
 
