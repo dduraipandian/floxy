@@ -108,9 +108,6 @@ class FlowCanvas extends EmitterComponent {
     const gridSize = this.gridFactor * this.zoom;
     this.containerEl.style.backgroundSize = `${gridSize}px ${gridSize}px`;
     this.containerEl.style.backgroundPosition = `${x}px ${y}px`;
-
-    // this.containerEl.style.backgroundImage = `radial-gradient(#c1c1c4 ${1.5 * this.zoom}px, transparent ${1.5 * this.zoom}px)`;
-    // this.zoomChangeUpdate();
   }
 
   // handling mouse left click on port in the node
@@ -141,6 +138,7 @@ class FlowCanvas extends EmitterComponent {
         zoom: this.zoom,
         x: this.canvasX,
         y: this.canvasY,
+        delta: null,
         originalZoom: this.originalZoom,
       },
     });

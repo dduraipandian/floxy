@@ -170,6 +170,7 @@ class Flow extends EmitterComponent {
       this.zoom = data.zoom;
       this.connectionManager.zoom = data.zoom;
       this.nodeManager.zoom = data.zoom;
+      this.zoomChangeUpdate();
     });
 
     this.nodeManager.on(constants.NODE_SELECTED_EVENT, ({ id, cx, cy }) => {
@@ -299,7 +300,6 @@ class Flow extends EmitterComponent {
         this.zoom = this.originalZoom;
         break;
     }
-    this.zoomChangeUpdate();
     this.canvas.handleZoomChange(this.zoom);
   }
 
