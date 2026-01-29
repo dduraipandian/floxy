@@ -61,6 +61,12 @@
   --floxy-grid-child-color: color-mix(in srgb, var(--floxy-grid-line-color), transparent 50%);
   --floxy-grid-child-size: 10px; /* 1/4th of your 40px major grid */
   --floxy-grid-child-width: 1px;
+
+  --floxy-button-bg: #ffffff;
+  --floxy-button-color: #212529;
+  --floxy-button-border: #dee2e6;
+  --floxy-button-focus-bg: #0d6efd;
+  --floxy-button-focus-color: #ffffff;
 }
 
 /* Dark Theme Overrides */
@@ -381,6 +387,25 @@
 .flow-connection-path.animated {
   stroke-dasharray: 6, 4;
   animation: flow 1s linear infinite;
+}
+
+.zoom-actions {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 5rem;
+  z-index: 1000;
+
+  .zoom-item {
+    color: var(--floxy-label-color);
+    background-color: var(--floxy-node-bg);
+    border: var(--floxy-node-border-width) var(--floxy-node-border-style) var(--floxy-node-border);
+    box-shadow: var(--floxy-node-shadow);
+
+    &.active {
+      background-color: var(--floxy-node-focus-color);
+      color: var(--floxy-label-color);
+    }
+  }
 }
 
 @keyframes flow {

@@ -11,7 +11,7 @@ class SelectionToolbar extends EmitterComponent {
 
   html() {
     return `
-        <div id="floxy-selection-toolbar-btn-group" class="btn-group btn-group-sm role="group" aria-label="floxy flow toolbar">
+        <div id="floxy-selection-toolbar-btn-group" class="btn-group btn-group-sm floxy-selection-toolbar" role="group" aria-label="floxy flow toolbar">
         </div>`;
   }
 
