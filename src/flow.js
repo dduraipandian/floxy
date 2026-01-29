@@ -10,6 +10,8 @@ import { defaultCommandRegistry as defaultConnectionCommandRegistry } from "./co
 
 import { SelectionToolbar } from "./toolbar.js";
 
+import { pathRegistry } from "./components/connection/paths/index.js";
+
 import * as constants from "./components/constants.js";
 
 class Selection {
@@ -118,17 +120,31 @@ class Flow extends EmitterComponent {
     this.zoomInEl = null;
     this.zoomOutEl = null;
     this.zoomResetEl = null;
+
+    this.defaultPathType = options.defaultPathType || "bezier";
+    this.availablePaths = pathRegistry.getAll();
+    console.log("availablePaths", this.availablePaths);
   }
 
   /**
    * Returns component HTML structure.
    */
   html() {
-    return `<ul class="list-group list-group-horizontal-sm zoom-actions" style="width: fit-content;">
-                  <a href="#" class="list-group-item list-group-item-action zoom-item" id="${this.id}-zoomin" data-action="zoomin"><i class="bi bi-plus-lg"></i></a>                  
-                  <a href="#" class="list-group-item list-group-item-action zoom-item" id="${this.id}-zoomreset" data-action="zoomreset"><i class="bi bi-justify"></i></a>
-                  <a href="#" class="list-group-item list-group-item-action zoom-item" id="${this.id}-zoomout" data-action="zoomout"><i class="bi bi-dash-lg"></i></a>
-                </ul>`;
+    const pathOptions = this.availablePaths
+      .map((path) => {
+        const label = path.charAt(0).toUpperCase() + path.slice(1);
+        return `<a href="#" class="list-group-item list-group-item-action tool-item ${path === this.defaultPathType ? "active" : ""}" id="${this.id}-${path}" data-path="${path}">${label}</a>`;
+      })
+      .join("");
+    return `<div class="list-group tools list-group-horizontal-sm zoom-actions" style="width: fit-content;">
+              <a href="#" class="list-group-item tool-item list-group-item-action zoom-item" id="${this.id}-zoomin" data-action="zoomin"><i class="bi bi-plus-lg"></i></a>                  
+              <a href="#" class="list-group-item tool-item list-group-item-action zoom-item" id="${this.id}-zoomreset" data-action="zoomreset"><i class="bi bi-justify"></i></a>
+              <a href="#" class="list-group-item tool-item list-group-item-action zoom-item" id="${this.id}-zoomout" data-action="zoomout"><i class="bi bi-dash-lg"></i></a>
+            </div>
+            <div class="list-group tools path-selection">
+              ${pathOptions}
+            </div>
+            `;
   }
 
   init() {
@@ -151,6 +167,13 @@ class Flow extends EmitterComponent {
     this.zoomInEl.addEventListener("click", this.onZoomAction.bind(this));
     this.zoomOutEl.addEventListener("click", this.onZoomAction.bind(this));
     this.zoomResetEl.addEventListener("click", this.onZoomAction.bind(this));
+
+    this.pathOptionsEls = this.containerEl.querySelectorAll(
+      ".list-group.tools.path-selection .list-group-item"
+    );
+    this.pathOptionsEls.forEach((el) => {
+      el.addEventListener("click", this.onPathOptionAction.bind(this));
+    });
 
     this.nodeManager = new FlowNodeManager({
       name: this.name + "-flow-node-manager",
@@ -316,6 +339,16 @@ class Flow extends EmitterComponent {
     }
   }
 
+  onPathOptionAction(e) {
+    e.preventDefault();
+    const path = e.currentTarget.dataset.path;
+    this.defaultPathType = path;
+    this.pathOptionsEls.forEach((el) => {
+      el.classList.remove("active");
+    });
+    e.currentTarget.classList.add("active");
+  }
+
   highlightCycle(stack) {
     if (!stack || stack.length < 2) return;
 
@@ -349,7 +382,7 @@ class Flow extends EmitterComponent {
     event.stopPropagation();
     this.isConnecting = true;
     this.connectionStart = { nodeId, index: port.dataset.index };
-    this.connectionManager.beginTempConnection(nodeId, port.dataset.index);
+    this.connectionManager.beginTempConnection(nodeId, port.dataset.index, this.defaultPathType);
     // Use addEventListener instead of window.onmousemove to avoid JSDOM redefinition errors
     this._drawConnection = (e) => this.mouseMoveDrawConnection(port, nodeId, e);
     this._cancelConnection = (e) => this.keyDownCancelConnection(e, nodeId);
@@ -421,7 +454,13 @@ class Flow extends EmitterComponent {
       }
     }
 
-    const created = this.connectionManager.addConnection(outNodeId, outPort, inNodeId, inPort);
+    const created = this.connectionManager.addConnection(
+      outNodeId,
+      outPort,
+      inNodeId,
+      inPort,
+      this.defaultPathType
+    );
 
     if (created) {
       this.validators.forEach((v) => v.onConnectionAdded?.({ outNodeId, inNodeId }));

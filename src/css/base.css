@@ -389,13 +389,8 @@
   animation: flow 1s linear infinite;
 }
 
-.zoom-actions {
-  position: fixed;
-  bottom: 1.5rem;
-  right: 5rem;
-  z-index: 1000;
-
-  .zoom-item {
+.tools {
+  .tool-item {
     color: var(--floxy-label-color);
     background-color: var(--floxy-node-bg);
     border: var(--floxy-node-border-width) var(--floxy-node-border-style) var(--floxy-node-border);
@@ -405,6 +400,25 @@
       background-color: var(--floxy-node-focus-color);
       color: var(--floxy-label-color);
     }
+  }
+}
+
+.zoom-actions {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 5rem;
+  z-index: 1000;
+}
+
+.path-selection {
+  position: fixed;
+  top: 1.5rem;
+  right: 1rem;
+  z-index: 1000;
+  width: fit-content;
+
+  .tool-item {
+    padding: 0.25rem 0.75rem;
   }
 }
 
