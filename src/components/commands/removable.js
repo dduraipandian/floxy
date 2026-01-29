@@ -1,6 +1,9 @@
 import { BaseCommand } from "./base.js";
 
 class RemovableCommand extends BaseCommand {
+  static get group() {
+    return "danger";
+  }
   static get capability() {
     return "removable";
   }
@@ -21,10 +24,7 @@ class RemovableCommand extends BaseCommand {
     return 100;
   }
   static get icon() {
-    return '<i class="bi bi-trash"></i>';
-  }
-  static get toolclass() {
-    return "btn-danger";
+    return '<i class="bi bi-trash text-danger"></i>';
   }
 }
 

@@ -12,6 +12,8 @@ import { SelectionToolbar } from "./toolbar.js";
 
 import { pathRegistry } from "./components/connection/paths/index.js";
 
+import { SetBezierPath, SetLinePath, SetOrthogonalPath } from "./components/commands/paths.js";
+
 import * as constants from "./components/constants.js";
 
 class Selection {
@@ -122,7 +124,7 @@ class Flow extends EmitterComponent {
     this.zoomResetEl = null;
 
     this.defaultPathType = options.defaultPathType || "bezier";
-    this.availablePaths = pathRegistry.getAll();
+    this.availablePaths = [SetBezierPath, SetLinePath, SetOrthogonalPath];
     console.log("availablePaths", this.availablePaths);
   }
 
@@ -131,9 +133,11 @@ class Flow extends EmitterComponent {
    */
   html() {
     const pathOptions = this.availablePaths
-      .map((path) => {
+      .map((cmd) => {
+        const path = cmd.capability.slice(5);
         const label = path.charAt(0).toUpperCase() + path.slice(1);
-        return `<a href="#" class="list-group-item list-group-item-action tool-item ${path === this.defaultPathType ? "active" : ""}" id="${this.id}-${path}" data-path="${path}">${label}</a>`;
+        return `<a href="#" class="list-group-item list-group-item-action tool-item ${path === this.defaultPathType ? "active" : ""}" 
+                  id="${this.id}-${path}" data-path="${path}">${cmd.icon} <span class="ms-2">${label}</span></a>`;
       })
       .join("");
     return `<div class="list-group tools list-group-horizontal-sm zoom-actions" style="width: fit-content;">
@@ -260,6 +264,10 @@ class Flow extends EmitterComponent {
     });
 
     this.nodeManager.on(constants.PORT_CONNECT_START_EVENT, ({ nodeId, portIndex, event }) => {
+      if (this.isConnecting) {
+        console.debug("Already connection is being drawn. Ignoring this event.");
+        return;
+      }
       console.debug("Port connect start: ", nodeId, portIndex, event);
       this.mouseDownStartConnection({ dataset: { index: portIndex } }, nodeId, event);
     });

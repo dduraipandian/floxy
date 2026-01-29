@@ -27,6 +27,7 @@ class ConnectionModel extends EmitterComponent {
       animated: false,
       ...options.style,
     };
+    this.pathType = options.pathType ?? constants.DEFAULT_CONNECTION_PATH_TYPE;
     this.style = new ConnectionStyle(this.pathType, this.style);
     this.capabilities = capabilities;
   }
@@ -47,10 +48,6 @@ class ConnectionModel extends EmitterComponent {
 
   get arrows() {
     return this.style.arrows;
-  }
-
-  get pathType() {
-    return this.options.pathType ?? constants.DEFAULT_CONNECTION_PATH_TYPE;
   }
 }
 

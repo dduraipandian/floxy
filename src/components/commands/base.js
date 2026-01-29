@@ -1,6 +1,10 @@
 import { BaseCapability } from "../capability/base.js";
 
 class BaseCommand extends BaseCapability {
+  static get group() {
+    return "default";
+  }
+
   static get capability() {
     throw new Error("Static property capability must be implemented in the subclass");
   }
