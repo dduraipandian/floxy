@@ -128,6 +128,11 @@ class ConnectionView extends EmitterComponent {
     this.#update(p1, p2, meta);
   }
 
+  updateFrozenPath(p1, p2, meta) {
+    if (!p1 || !p2) return;
+    this.#update(p1, p2, meta);
+  }
+
   updateTempPath(p1, p2, meta = {}) {
     this.model.style.markTemp(true);
 

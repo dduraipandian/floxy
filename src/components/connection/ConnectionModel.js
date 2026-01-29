@@ -29,6 +29,12 @@ class ConnectionModel extends EmitterComponent {
     };
     this.style = new ConnectionStyle(this.pathType, this.style);
     this.capabilities = capabilities;
+
+    // independent connections for diagrams
+    this.detachedSource = false;
+    this.detachedTarget = false;
+    this.frozenPosition = { source: null, target: null };
+    this.frozenBounds = { source: null, target: null };
   }
 
   get source() {

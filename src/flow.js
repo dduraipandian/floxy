@@ -82,6 +82,7 @@ class Flow extends EmitterComponent {
     name,
     options = {},
     validators = [],
+    type = "diagram",
     notification = null,
     nodeCommandRegistry = defaultNodeCommandRegistry,
     connectionCommandRegistry = defaultConnectionCommandRegistry,
@@ -118,6 +119,8 @@ class Flow extends EmitterComponent {
     this.zoomInEl = null;
     this.zoomOutEl = null;
     this.zoomResetEl = null;
+
+    this.type = type ?? "workflow";
   }
 
   /**
@@ -449,7 +452,11 @@ class Flow extends EmitterComponent {
   }
 
   removeNode(nodeId) {
-    this.connectionManager.removeRelatedConnections(nodeId);
+    if (this.type === "workflow") {
+      this.connectionManager.removeRelatedConnections(nodeId);
+    } else {
+      this.connectionManager.detachConnections(nodeId);
+    }
   }
 
   export() {
