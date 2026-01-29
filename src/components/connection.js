@@ -155,6 +155,16 @@ class FlowConnectionManager extends EmitterComponent {
     });
   }
 
+  detachConnections(nodeId) {
+    this.connections.forEach((conn, id) => {
+      if (conn.source.nodeId === nodeId) conn.detachSource();
+      if (conn.target.nodeId === nodeId) conn.detachTarget();
+      if (conn.detachedSource && conn.detachedTarget) {
+        this.removeConnection(id);
+      }
+    });
+  }
+
   endTempConnection() {
     this.clearTempPath();
     this.tempConnection = null;

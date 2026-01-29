@@ -10,9 +10,6 @@ class Connection extends EmitterComponent {
     this.nodeManager = nodeManager;
     this.destroyed = false;
 
-    this._source = null;
-    this._target = null;
-
     this.behaviors = behaviors;
     this.id = this.model.id;
   }
@@ -34,21 +31,33 @@ class Connection extends EmitterComponent {
   }
 
   get source() {
-    if (!this._source)
-      this._source = {
-        nodeId: this.model.source.nodeId,
-        portIndex: this.model.source.portIndex,
-      };
-    return this._source;
+    return {
+      nodeId: this.model.outNodeId,
+      portIndex: this.model.outPort,
+    };
   }
 
   get target() {
-    if (!this._target)
-      this._target = {
-        nodeId: this.model.target.nodeId,
-        portIndex: this.model.target.portIndex,
-      };
-    return this._target;
+    return {
+      nodeId: this.model.inNodeId,
+      portIndex: this.model.inPort,
+    };
+  }
+
+  get detachedSource() {
+    return this.model.detachedSource;
+  }
+
+  get detachedTarget() {
+    return this.model.detachedTarget;
+  }
+
+  detachSource() {
+    this.model.detachedSource = true;
+  }
+
+  detachTarget() {
+    this.model.detachedTarget = true;
   }
 
   renderInto(container) {
@@ -59,17 +68,49 @@ class Connection extends EmitterComponent {
   init() {
     this.update();
     this.attachBehaviors();
-    console.log("Connection init", this.behaviors);
   }
 
   update() {
+    if (this.detachedSource || this.detachedTarget) {
+      this.updateFrozenPath();
+      return;
+    }
+
     const sourceNode = this.nodeManager.getNode(this.model.source.nodeId);
     const targetNode = this.nodeManager.getNode(this.model.target.nodeId);
     const meta = {
       sourceBounds: sourceNode.view.getBounds(),
-      targetBounds: targetNode?.view.getBounds(),
+      targetBounds: targetNode.view.getBounds(),
     };
     this.view.update(sourceNode, targetNode, meta);
+    this.updateConnectionPosition("source", sourceNode, "output", this.source.portIndex);
+    this.updateConnectionPosition("target", targetNode, "input", this.target.portIndex);
+  }
+
+  updateConnectionPosition(type, node, portType, portIndex) {
+    this.model.frozenPosition[type] = node.view.getPortPosition({
+      type: portType,
+      index: portIndex,
+    });
+    this.model.frozenBounds[type] = node.view.getBounds();
+  }
+
+  updateFrozenPath() {
+    if (!this.detachedSource) {
+      const sourceNode = this.nodeManager.getNode(this.model.source.nodeId);
+      this.updateConnectionPosition("source", sourceNode, "output", this.source.portIndex);
+    }
+    if (!this.detachedTarget) {
+      const targetNode = this.nodeManager.getNode(this.model.target.nodeId);
+      this.updateConnectionPosition("target", targetNode, "input", this.target.portIndex);
+    }
+    const sourcePos = this.model.frozenPosition.source;
+    const targetPos = this.model.frozenPosition.target;
+    const meta = {
+      sourceBounds: this.model.frozenBounds.source,
+      targetBounds: this.model.frozenBounds.target,
+    };
+    this.view.updateFrozenPath(sourcePos, targetPos, meta);
   }
 
   updateWithXY(x, y) {
