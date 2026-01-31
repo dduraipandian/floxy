@@ -82,7 +82,7 @@ class BaseNodeView extends EmitterComponent {
   }
 
   destroy() {
-    console.log("FLOW: Destroying node view", this.model.id);
+    console.debug("FLOW: Destroying node view", this.model.id);
     this.el?.remove();
     this.el = null;
   }

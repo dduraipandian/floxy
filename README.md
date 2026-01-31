@@ -4,110 +4,207 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js >= 18.16.0](https://img.shields.io/badge/node-%3E%3D%2018.16.0-brightgreen)](https://nodejs.org/)
 
-A lightweight, opinionated composable Flow/Node editor editor. Built on top of Bootstrap 5, `floxy` provides a high-performance, reusable Flow component for building node-based interfaces with minimal configuration and native ES Module support.
-
-## Why floxy?
-
-`floxy` is designed as a focused utility for building flow-based UIs like DAGs, workflow editors, and graph visualizations. It leverages Bootstrap 5 for styling and provides a clean, manager-based architecture for extending functionality.
+A lightweight, opinionated composable Flow/Node editor. Built on top of Bootstrap 5, `floxy` provides a high-performance, reusable Flow component for building node-based interfaces with minimal configuration and native ES Module support.
 
 ## Features
 
-- **🚀 Performance Oriented**: Efficient DOM manipulation and clean lifecycle management.
-- **🎨 Modern Aesthetics**: Professional styling out of the box with Bootstrap 5 integration.
-- **📂 Core Features**:
-  - **Flow Editor**: Draggable nodes, zoom/pan canvas, and bezier connections.
-  - **DAG Validation**: Built-in plugin for ensuring directed acyclic graphs.
-  - **Extensible**: Plugin-based architecture for custom validators and managers.
-  - **Event Driven**: Robust event system for reacting to node moves, connections, and deletions.
-- **🧪 Robust Testing**: Comprehensive unit test suite using Jest and JSDOM.
+- 🚀 **Performance Oriented** – Efficient DOM manipulation and clean lifecycle management
+- 🎨 **Modern Aesthetics** – Professional styling with Bootstrap 5 integration
+- � **Multiple Path Types** – Bezier curves, straight lines, and orthogonal connectors
+- 📦 **Extensible** – Composite architecture for custom node views and behaviors
+- ⚡ **Event Driven** – Robust event system for reacting to user interactions
+- 🧪 **Well Tested** – Comprehensive unit test suite using Jest
+
+---
 
 ## Getting Started
 
 ### Prerequisites
 
-- **Node.js** (v18.16.0 or higher)
-- **Modern browser** with ES Module support (all modern browsers: Chrome 61+, Firefox 67+, Safari 11+, Edge 79+)
+- **Node.js** v18.16.0 or higher
+- **Modern browser** (Chrome 61+, Firefox 67+, Safari 11+, Edge 79+)
 
 ### Installation
-
-Clone locally for development:
 
 ```bash
 git clone https://github.com/dduraipandian/floxy.git
 cd floxy
 npm install
+npm run dev
+# Visit http://localhost:8001
 ```
 
 ### Quick Start
 
-All components are ES Modules. Here's a simple example using the `Flow` component:
-
 ```html
-<!-- In your HTML -->
-<div id="flow-container" style="height: 600px; width: 100%;"></div>
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link href="./dist/floxy.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="flow-container" style="height: 600px; width: 100%;"></div>
 
-<script type="module">
-  import { Flow } from "./index.js";
+    <script type="module">
+      import { Flow } from "./index.js";
 
-  const flow = new Flow({
-    name: "MainFlow",
-    options: {
-      zoom: 1,
-    },
-  });
+      // Create flow instance
+      const flow = new Flow({
+        name: "MyFlow",
+        options: { zoom: 1 },
+      });
 
-  // Render into a container
-  flow.renderInto("flow-container");
+      // Render into container
+      flow.renderInto("flow-container");
 
-  // Add nodes
-  const n1 = flow.addNode({ name: "Start", x: 100, y: 100, outputs: 1 });
-  const n2 = flow.addNode({ name: "End", x: 400, y: 100, inputs: 1 });
+      // Add nodes
+      const n1 = flow.addNode({ name: "Start", label: "Start", x: 100, y: 100, outputs: 1 });
+      const n2 = flow.addNode({ name: "End", label: "End", x: 400, y: 100, inputs: 1 });
 
-  // Connect them
-  flow.addConnection(n1, 0, n2, 0);
-</script>
+      // Connect them
+      flow.addConnection(n1, 0, n2, 0);
+    </script>
+  </body>
+</html>
 ```
 
-## Documentation
+---
 
-To run the interactive documentation and live demos locally:
+## API Overview
 
-```bash
-npm install
-npm run dev
-# Visit http://localhost:8000 in your browser
+### Creating a Flow
+
+```javascript
+const flow = new Flow({
+  name: "MyFlow",
+  options: {
+    zoom: 1, // Initial zoom level
+    connection: { pathType: "bezier" }, // "bezier" | "line" | "orthogonal"
+  },
+});
+
+flow.renderInto("container-id");
 ```
+
+### Adding Nodes
+
+```javascript
+const nodeId = flow.addNode({
+  name: "NodeType", // Node identifier
+  label: "Display Name", // Visible label
+  x: 100,
+  y: 100, // Position
+  inputs: 1, // Input port count
+  outputs: 1, // Output port count
+  data: {}, // Custom data
+});
+```
+
+### Creating Connections
+
+```javascript
+// Connect node1's output port 0 to node2's input port 0
+flow.addConnection(node1Id, 0, node2Id, 0);
+```
+
+### Listening to Events
+
+```javascript
+flow.on("node:moved", ({ id, x, y }) => {
+  console.log(`Node ${id} moved to (${x}, ${y})`);
+});
+
+flow.on("connection:created", ({ outNodeId, inNodeId }) => {
+  console.log(`Connected: ${outNodeId} → ${inNodeId}`);
+});
+```
+
+### Import/Export
+
+```javascript
+// Export
+const data = flow.export();
+
+// Import
+flow.import(data);
+```
+
+---
+
+## Events Reference
+
+| Event                 | Payload                                        |
+| --------------------- | ---------------------------------------------- |
+| `node:moved`          | `{ id, x, y }`                                 |
+| `node:selected`       | `{ id }`                                       |
+| `node:removed`        | `{ id }`                                       |
+| `node:updated`        | `{ id, x, y, w, h }`                           |
+| `connection:created`  | `{ id, outNodeId, outPort, inNodeId, inPort }` |
+| `connection:removed`  | `{ id }`                                       |
+| `connection:selected` | `{ id }`                                       |
+
+---
+
+## Connection Path Types
+
+| Type         | Description                   |
+| ------------ | ----------------------------- |
+| `bezier`     | Smooth curved paths (default) |
+| `line`       | Direct straight lines         |
+| `orthogonal` | Right-angle connector paths   |
+
+---
 
 ## Development
 
-### Running Tests
-
-We use Jest and JSDOM for unit testing:
-
 ```bash
-npm install  # Install dev dependencies
-npm test     # Run full test suite
+npm run dev      # Start dev server
+npm test         # Run tests
+npm run lint     # Run ESLint
+npm run build    # Build production bundle
 ```
 
-### Code Quality
+---
 
-```bash
-npm run lint    # Run ESLint style checker
-npm run format  # Auto-format code with Prettier
-```
+## Architecture
 
-### Project Structure
+For detailed architecture documentation, see [Architecture Guide](src/components/README.md).
 
-| File/Directory    | Purpose                                                  |
-| ----------------- | -------------------------------------------------------- |
-| `src/base.js`     | Core component classes (`Component`, `EmitterComponent`) |
-| `src/flow.js`     | Main Flow component orchestrator                         |
-| `src/components/` | Managers (node, connection, canvas, serializer)          |
-| `src/css/`        | Component styles                                         |
+---
+
+## Known Limitations
+
+- Single node/connection selection only (multi-select planned)
+- Orthogonal paths may overlap with target nodes during drawing
+
+## Future Enhancements
+
+- [ ] Multi-node selection
+- [ ] Undo/Redo support
+- [ ] Copy/Paste nodes
+- [ ] Minimap navigation
+- [ ] Touch/mobile improvements
+
+---
+
+## Browser Support
+
+| Browser | Version |
+| ------- | ------- |
+| Chrome  | 61+     |
+| Firefox | 67+     |
+| Safari  | 11+     |
+| Edge    | 79+     |
+
+---
 
 ## Contributing
 
-Contributions are welcome!
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
