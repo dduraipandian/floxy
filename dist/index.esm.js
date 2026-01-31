@@ -1450,7 +1450,7 @@ class BaseNodeView extends EmitterComponent {
   }
 
   destroy() {
-    console.log("FLOW: Destroying node view", this.model.id);
+    console.debug("FLOW: Destroying node view", this.model.id);
     this.el?.remove();
     this.el = null;
   }
@@ -1744,12 +1744,12 @@ class FlowNodeManager extends EmitterComponent {
 
   reset() {
     this.nodes.forEach((node) => {
-      console.log("FLOW: Destroying node", node.id);
+      console.debug("FLOW: Destroying node", node.id);
       node.destroy();
     });
     this.nodes.clear();
     this.idCounter = 1;
-    console.log("FLOW: Node manager reset", this.nodes);
+    console.debug("FLOW: Node manager reset", this.nodes);
   }
 
   getNode(id) {
@@ -2060,7 +2060,7 @@ class ConnectionView extends EmitterComponent {
   }
 
   destroy() {
-    console.log("FLOW: Destroying connection view", this.model.id);
+    console.debug("FLOW: Destroying connection view", this.model.id);
     this.path?.remove();
     this.shadowPath?.remove();
     this.path = null;
