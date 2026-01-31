@@ -1,0 +1,983 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>floxy | Flow</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@uiframe/core@0.1.0/dist/base.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@uiframe/notification@0.1.1/dist/notification.css"
+    />
+    <link rel="stylesheet" type="text/css" href="../../dist/floxy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/themeeditor.css" />
+    <link rel="stylesheet" type="text/css" href="../css/palette.css" />
+    <style>
+      body {
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      #app-layout {
+        display: flex;
+        height: 100%;
+      }
+
+      #flow-wrapper {
+        flex-grow: 1;
+        position: relative;
+        background: var(--floxy-app-bg);
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Palette Sidebar -->
+    <div id="sidebar">
+      <div class="palette-toggle" id="palette-toggle" title="Hide Palette">
+        <i class="bi bi-chevron-left"></i>
+      </div>
+      <h5>Flow Blocks</h5>
+      <p class="text-muted small">Drag blocks to canvas</p>
+
+      <div id="node-area"></div>
+
+      <div class="palette-footer">
+        <!-- import file to flow -->
+        <input
+          type="file"
+          id="import-file"
+          accept=".json"
+          onchange="importData()"
+          style="display: none"
+        />
+        <button
+          class="btn btn-warning btn-flow-data"
+          onclick="document.getElementById('import-file').click()"
+        >
+          Import JSON
+        </button>
+        <button class="btn btn-primary btn-flow-data" onclick="exportData()">Export JSON</button>
+        <button class="btn btn-outline-danger btn-flow-data" onclick="clearData()">Clear</button>
+      </div>
+    </div>
+
+    <div id="palette-reveal-btn" title="Show Palette">
+      <i class="bi bi-list"></i>
+    </div>
+
+    <!-- Main Content Area -->
+    <div id="app-layout">
+      <!-- Flow Canvas Area -->
+      <div id="flow-wrapper"></div>
+    </div>
+
+    <div id="theme-editor-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../dist/floxy.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@uiframe/core@0.1.0/dist/core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@uiframe/notification@0.1.1/dist/notification.min.js"></script>
+    <script type="module">
+      const validators = [new floxy.DagValidator()];
+
+      const nodeArea = document.getElementById("node-area");
+
+      window.flow_form_functions = {};
+
+      // Custom HTML form functions for each node type
+      window.flow_form_functions.aws_s3_html = () => {
+        return `
+          <div>
+            <label for="s3-bucket">Bucket Name</label>
+            <input type="text" name="bucket" placeholder="Enter bucket name">
+          </div>
+          <div>
+            <label for="s3-region">Region</label>
+            <select name="region">
+              <option value="">Select region</option>
+              <option value="us-east-1">US East (N. Virginia)</option>
+              <option value="us-west-2">US West (Oregon)</option>
+              <option value="eu-west-1">EU (Ireland)</option>
+            </select>
+          </div>
+          <div>
+            <label for="s3-key">Access Key</label>
+            <input type="password" name="key" placeholder="Enter access key">
+          </div>
+        `;
+      };
+
+      window.flow_form_functions.email_service_html = () => {
+        return `
+          <div>
+            <label for="email-to">To Address</label>
+            <input type="email" name="to" placeholder="recipient@example.com">
+          </div>
+          <div>
+            <label for="email-subject">Subject</label>
+            <input type="text" name="subject" placeholder="Email subject">
+          </div>
+          <div>
+            <label for="email-template">Template</label>
+            <select name="template">
+              <option value="welcome">Welcome Email</option>
+              <option value="notification">Notification</option>
+              <option value="alert">Alert</option>
+            </select>
+          </div>
+          <div>
+            <label for="email-priority">Priority</label>
+            <input type="range" name="priority" min="1" max="5" value="3">
+            <small>Low (1) to High (5)</small>
+          </div>
+        `;
+      };
+
+      window.flow_form_functions.database_query_html = () => {
+        return `
+          <div>
+            <label for="db-connection">Connection String</label>
+            <input type="text" name="connection" placeholder="postgresql://user:pass@host:5432/db">
+          </div>
+          <div>
+            <label for="db-query">SQL Query</label>
+            <textarea name="query" rows="3" placeholder="SELECT * FROM users WHERE..."></textarea>
+          </div>
+          <div>
+            <label for="db-timeout">Timeout (seconds)</label>
+            <input type="number" name="timeout" value="30" min="1">
+          </div>
+          <div>
+            <label>
+              <input type="checkbox" name="cache" checked>
+              Enable Query Cache
+            </label>
+          </div>
+        `;
+      };
+
+      window.flow_form_functions.api_endpoint_html = () => {
+        return `
+          <div>
+            <label for="api-url">Endpoint URL</label>
+            <input type="url" name="url" placeholder="https://api.example.com/endpoint">
+          </div>
+          <div>
+            <label for="api-method">HTTP Method</label>
+            <select name="method">
+              <option value="GET">GET</option>
+              <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="DELETE">DELETE</option>
+            </select>
+          </div>
+          <div>
+            <label for="api-auth">Authentication</label>
+            <select name="auth">
+              <option value="none">None</option>
+              <option value="basic">Basic Auth</option>
+              <option value="bearer">Bearer Token</option>
+              <option value="apikey">API Key</option>
+            </select>
+          </div>
+          <div>
+            <label for="api-headers">Custom Headers (JSON)</label>
+            <textarea name="headers" rows="2" placeholder='{"Content-Type": "application/json"}'></textarea>
+          </div>
+        `;
+      };
+
+      window.flow_form_functions.file_processor_html = () => {
+        return `
+          <div>
+            <label for="file-path">File Path</label>
+            <input type="text" name="path" placeholder="/path/to/file.csv">
+          </div>
+          <div>
+            <label for="file-type">File Type</label>
+            <select name="type">
+              <option value="csv">CSV</option>
+              <option value="json">JSON</option>
+              <option value="xml">XML</option>
+              <option value="excel">Excel</option>
+            </select>
+          </div>
+          <div>
+            <label for="file-encoding">Encoding</label>
+            <select name="encoding">
+              <option value="utf-8">UTF-8</option>
+              <option value="ascii">ASCII</option>
+              <option value="iso-8859-1">ISO-8859-1</option>
+            </select>
+          </div>
+          <div>
+            <label>
+              <input type="checkbox" name="validate">
+              Validate on Import
+            </label>
+          </div>
+        `;
+      };
+
+      window.flow_form_functions.notification_service_html = () => {
+        return `
+          <div>
+            <label for="notif-channel">Channel</label>
+            <select name="channel">
+              <option value="slack">Slack</option>
+              <option value="teams">Microsoft Teams</option>
+              <option value="discord">Discord</option>
+              <option value="webhook">Custom Webhook</option>
+            </select>
+          </div>
+          <div>
+            <label for="notif-message">Message</label>
+            <textarea name="message" rows="3" placeholder="Enter notification message"></textarea>
+          </div>
+          <div>
+            <label for="notif-webhook">Webhook URL</label>
+            <input type="url" name="webhook" placeholder="https://hooks.example.com/...">
+          </div>
+          <div>
+            <label>
+              <input type="checkbox" name="mention">
+              Mention @channel
+            </label>
+          </div>
+        `;
+      };
+
+      const nodesList = [
+        { name: "AWS S3", icon: "bi-cloud-upload", func: "aws_s3_html" },
+        { name: "Email Service", icon: "bi-envelope", func: "email_service_html" },
+        { name: "Database Query", icon: "bi-database", func: "database_query_html" },
+        { name: "API Endpoint", icon: "bi-arrow-left-right", func: "api_endpoint_html" },
+        { name: "File Processor", icon: "bi-file-earmark-text", func: "file_processor_html" },
+        { name: "Notification Service", icon: "bi-bell", func: "notification_service_html" },
+      ];
+
+      nodesList.forEach((node) => {
+        const div = document.createElement("div");
+        div.className = "draggable-item";
+        div.draggable = true;
+        div.ondragstart = drag;
+        div.dataset.flowModule = "workflow";
+        div.dataset.flowGroup = "form";
+        div.dataset.flowName = "form";
+        div.dataset.flowLabel = node.name;
+        div.dataset.flowHtmlFunction = node.func;
+        div.innerHTML = `<i class="bi ${node.icon} me-3"></i> ${node.name}`;
+        nodeArea.appendChild(div);
+      });
+
+      const connectionOptions = {
+        path_type: "line",
+      };
+      // Initialize Flow
+      const flow = new floxy.Flow({
+        name: "MyFlow",
+        options: { zoom: 0.8, connection: connectionOptions },
+        notification: uiframe.notification({ name: "floxy" }),
+        validators: validators,
+      });
+      flow.renderInto("flow-wrapper");
+
+      // Setup global access for drag handlers
+      window.flow = flow;
+
+      // Realistic workflow: Automated Daily Report Generation & Distribution
+      const dummyFlowData = {
+        nodes: [
+          {
+            id: 1,
+            module: "default",
+            group: "default",
+            name: "Start",
+            inputs: 0,
+            outputs: 1,
+            x: 67.24999999999996,
+            y: 708.25,
+            h: 70,
+            w: 200,
+            data: {},
+            capabilities: ["selectable", "movable", "editable-label", "resizable", "removable"],
+            label: "Start Workflow",
+            extras: {},
+          },
+          {
+            id: 2,
+            module: "workflow",
+            group: "form",
+            name: "form",
+            inputs: 1,
+            outputs: 1,
+            x: 618.75,
+            y: 103.25,
+            h: 0,
+            w: 280,
+            data: {
+              form_values: {
+                path: "/data/sales_data.csv",
+                type: "csv",
+                encoding: "utf-8",
+              },
+            },
+            capabilities: ["selectable", "movable", "editable-label", "removable"],
+            label: "File Processor",
+            extras: {
+              html_function: "file_processor_html",
+            },
+          },
+          {
+            id: 3,
+            module: "workflow",
+            group: "form",
+            name: "form",
+            inputs: 1,
+            outputs: 1,
+            x: 614,
+            y: 533.5,
+            h: 0,
+            w: 280,
+            data: {
+              form_values: {
+                connection: "postgresql://analytics:pass@db.example.com:5432/reports",
+                query: "SELECT * FROM sales WHERE date = CURRENT_DATE",
+                timeout: "30",
+              },
+            },
+            capabilities: ["selectable", "movable", "editable-label", "removable"],
+            label: "Database Query",
+            extras: {
+              html_function: "database_query_html",
+            },
+          },
+          {
+            id: 4,
+            module: "workflow",
+            group: "form",
+            name: "form",
+            inputs: 1,
+            outputs: 1,
+            x: 611.75,
+            y: 1053.75,
+            h: 0,
+            w: 280,
+            data: {
+              form_values: {
+                url: "https://api.analytics.com/process",
+                method: "POST",
+                auth: "bearer",
+              },
+            },
+            capabilities: ["selectable", "movable", "editable-label", "removable"],
+            label: "API Endpoint",
+            extras: {
+              html_function: "api_endpoint_html",
+            },
+          },
+          {
+            id: 5,
+            module: "workflow",
+            group: "form",
+            name: "form",
+            inputs: 3,
+            outputs: 1,
+            x: 1412,
+            y: 573.9999999999999,
+            h: 0,
+            w: 280,
+            data: {
+              form_values: {
+                bucket: "company-reports",
+                region: "us-east-1",
+                key: "prod-access-key-123",
+              },
+            },
+            capabilities: ["selectable", "movable", "editable-label", "removable"],
+            label: "AWS S3",
+            extras: {
+              html_function: "aws_s3_html",
+            },
+          },
+          {
+            id: 6,
+            module: "workflow",
+            group: "form",
+            name: "form",
+            inputs: 1,
+            outputs: 1,
+            x: 2043.9999999999998,
+            y: 162,
+            h: 0,
+            w: 280,
+            data: {
+              form_values: {
+                to: "team@example.com",
+                subject: "Daily Sales Report",
+                template: "notification",
+                priority: "4",
+              },
+            },
+            capabilities: ["selectable", "movable", "editable-label", "removable"],
+            label: "Email Service",
+            extras: {
+              html_function: "email_service_html",
+            },
+          },
+          {
+            id: 7,
+            module: "workflow",
+            group: "form",
+            name: "form",
+            inputs: 1,
+            outputs: 1,
+            x: 2056,
+            y: 795.9999999999999,
+            h: 0,
+            w: 280,
+            data: {
+              form_values: {
+                channel: "slack",
+                message: "Daily report generated successfully!",
+                webhook: "https://hooks.slack.com/services/T00/B00/XX",
+              },
+            },
+            capabilities: ["selectable", "movable", "editable-label", "removable"],
+            label: "Notification Service",
+            extras: {
+              html_function: "notification_service_html",
+            },
+          },
+          {
+            id: 8,
+            module: "default",
+            group: "default",
+            name: "End",
+            inputs: 2,
+            outputs: 0,
+            x: 2636,
+            y: 709.9999999999999,
+            h: 70,
+            w: 200,
+            data: {},
+            capabilities: ["selectable", "movable", "editable-label", "resizable", "removable"],
+            label: "Complete",
+            extras: {},
+          },
+        ],
+        connections: [
+          {
+            name: "connection-1:0-2:0",
+            containerID: "connection-1:0-2:0",
+            id: "1:0-2:0",
+            container: null,
+            created: false,
+            rendered: false,
+            parentContainer: null,
+            onlyChild: null,
+            events: {},
+            outNodeId: 1,
+            outPort: 0,
+            inNodeId: 2,
+            inPort: 0,
+            options: {
+              path_type: "line",
+              pathType: "bezier",
+            },
+            style: {
+              width: 2,
+              dash: null,
+              animated: false,
+              path: "bezier",
+              arrows: {
+                start: false,
+                end: true,
+              },
+              bad: false,
+              hover: false,
+              selected: false,
+              temp: false,
+              execution: false,
+              speed: 2,
+            },
+            pathType: "bezier",
+            capabilities: [
+              "selectable",
+              "removable",
+              "path:bezier",
+              "path:line",
+              "path:orthogonal",
+            ],
+          },
+          {
+            name: "connection-1:0-3:0",
+            containerID: "connection-1:0-3:0",
+            id: "1:0-3:0",
+            container: null,
+            created: false,
+            rendered: false,
+            parentContainer: null,
+            onlyChild: null,
+            events: {},
+            outNodeId: 1,
+            outPort: 0,
+            inNodeId: 3,
+            inPort: 0,
+            options: {
+              path_type: "line",
+              pathType: "bezier",
+            },
+            style: {
+              width: 2,
+              dash: null,
+              animated: false,
+              path: "bezier",
+              arrows: {
+                start: false,
+                end: true,
+              },
+              bad: false,
+              hover: false,
+              selected: false,
+              temp: false,
+              execution: false,
+              speed: 2,
+            },
+            pathType: "bezier",
+            capabilities: [
+              "selectable",
+              "removable",
+              "path:bezier",
+              "path:line",
+              "path:orthogonal",
+            ],
+          },
+          {
+            name: "connection-1:0-4:0",
+            containerID: "connection-1:0-4:0",
+            id: "1:0-4:0",
+            container: null,
+            created: false,
+            rendered: false,
+            parentContainer: null,
+            onlyChild: null,
+            events: {},
+            outNodeId: 1,
+            outPort: 0,
+            inNodeId: 4,
+            inPort: 0,
+            options: {
+              path_type: "line",
+              pathType: "bezier",
+            },
+            style: {
+              width: 2,
+              dash: null,
+              animated: false,
+              path: "bezier",
+              arrows: {
+                start: false,
+                end: true,
+              },
+              bad: false,
+              hover: false,
+              selected: false,
+              temp: false,
+              execution: false,
+              speed: 2,
+            },
+            pathType: "bezier",
+            capabilities: [
+              "selectable",
+              "removable",
+              "path:bezier",
+              "path:line",
+              "path:orthogonal",
+            ],
+          },
+          {
+            name: "connection-2:0-5:0",
+            containerID: "connection-2:0-5:0",
+            id: "2:0-5:0",
+            container: null,
+            created: false,
+            rendered: false,
+            parentContainer: null,
+            onlyChild: null,
+            events: {},
+            outNodeId: 2,
+            outPort: 0,
+            inNodeId: 5,
+            inPort: 0,
+            options: {
+              path_type: "line",
+              pathType: "bezier",
+            },
+            style: {
+              width: 2,
+              dash: null,
+              animated: false,
+              path: "bezier",
+              arrows: {
+                start: false,
+                end: true,
+              },
+              bad: false,
+              hover: false,
+              selected: false,
+              temp: false,
+              execution: false,
+              speed: 2,
+            },
+            pathType: "bezier",
+            capabilities: [
+              "selectable",
+              "removable",
+              "path:bezier",
+              "path:line",
+              "path:orthogonal",
+            ],
+          },
+          {
+            name: "connection-3:0-5:1",
+            containerID: "connection-3:0-5:1",
+            id: "3:0-5:1",
+            container: null,
+            created: false,
+            rendered: false,
+            parentContainer: null,
+            onlyChild: null,
+            events: {},
+            outNodeId: 3,
+            outPort: 0,
+            inNodeId: 5,
+            inPort: 1,
+            options: {
+              path_type: "line",
+              pathType: "bezier",
+            },
+            style: {
+              width: 2,
+              dash: null,
+              animated: false,
+              path: "bezier",
+              arrows: {
+                start: false,
+                end: true,
+              },
+              bad: false,
+              hover: false,
+              selected: false,
+              temp: false,
+              execution: false,
+              speed: 2,
+            },
+            pathType: "bezier",
+            capabilities: [
+              "selectable",
+              "removable",
+              "path:bezier",
+              "path:line",
+              "path:orthogonal",
+            ],
+          },
+          {
+            name: "connection-4:0-5:2",
+            containerID: "connection-4:0-5:2",
+            id: "4:0-5:2",
+            container: null,
+            created: false,
+            rendered: false,
+            parentContainer: null,
+            onlyChild: null,
+            events: {},
+            outNodeId: 4,
+            outPort: 0,
+            inNodeId: 5,
+            inPort: 2,
+            options: {
+              path_type: "line",
+              pathType: "bezier",
+            },
+            style: {
+              width: 2,
+              dash: null,
+              animated: false,
+              path: "bezier",
+              arrows: {
+                start: false,
+                end: true,
+              },
+              bad: false,
+              hover: false,
+              selected: false,
+              temp: false,
+              execution: false,
+              speed: 2,
+            },
+            pathType: "bezier",
+            capabilities: [
+              "selectable",
+              "removable",
+              "path:bezier",
+              "path:line",
+              "path:orthogonal",
+            ],
+          },
+          {
+            name: "connection-5:0-6:0",
+            containerID: "connection-5:0-6:0",
+            id: "5:0-6:0",
+            container: null,
+            created: false,
+            rendered: false,
+            parentContainer: null,
+            onlyChild: null,
+            events: {},
+            outNodeId: 5,
+            outPort: 0,
+            inNodeId: 6,
+            inPort: 0,
+            options: {
+              path_type: "line",
+              pathType: "bezier",
+            },
+            style: {
+              width: 2,
+              dash: null,
+              animated: false,
+              path: "bezier",
+              arrows: {
+                start: false,
+                end: true,
+              },
+              bad: false,
+              hover: false,
+              selected: false,
+              temp: false,
+              execution: false,
+              speed: 2,
+            },
+            pathType: "bezier",
+            capabilities: [
+              "selectable",
+              "removable",
+              "path:bezier",
+              "path:line",
+              "path:orthogonal",
+            ],
+          },
+          {
+            name: "connection-5:0-7:0",
+            containerID: "connection-5:0-7:0",
+            id: "5:0-7:0",
+            container: null,
+            created: false,
+            rendered: false,
+            parentContainer: null,
+            onlyChild: null,
+            events: {},
+            outNodeId: 5,
+            outPort: 0,
+            inNodeId: 7,
+            inPort: 0,
+            options: {
+              path_type: "line",
+              pathType: "bezier",
+            },
+            style: {
+              width: 2,
+              dash: null,
+              animated: false,
+              path: "bezier",
+              arrows: {
+                start: false,
+                end: true,
+              },
+              bad: false,
+              hover: false,
+              selected: false,
+              temp: false,
+              execution: false,
+              speed: 2,
+            },
+            pathType: "bezier",
+            capabilities: [
+              "selectable",
+              "removable",
+              "path:bezier",
+              "path:line",
+              "path:orthogonal",
+            ],
+          },
+          {
+            name: "connection-6:0-8:0",
+            containerID: "connection-6:0-8:0",
+            id: "6:0-8:0",
+            container: null,
+            created: false,
+            rendered: false,
+            parentContainer: null,
+            onlyChild: null,
+            events: {},
+            outNodeId: 6,
+            outPort: 0,
+            inNodeId: 8,
+            inPort: 0,
+            options: {
+              path_type: "line",
+              pathType: "bezier",
+            },
+            style: {
+              width: 2,
+              dash: null,
+              animated: false,
+              path: "bezier",
+              arrows: {
+                start: false,
+                end: true,
+              },
+              bad: false,
+              hover: false,
+              selected: false,
+              temp: false,
+              execution: false,
+              speed: 2,
+            },
+            pathType: "bezier",
+            capabilities: [
+              "selectable",
+              "removable",
+              "path:bezier",
+              "path:line",
+              "path:orthogonal",
+            ],
+          },
+          {
+            name: "connection-7:0-8:1",
+            containerID: "connection-7:0-8:1",
+            id: "7:0-8:1",
+            container: null,
+            created: false,
+            rendered: false,
+            parentContainer: null,
+            onlyChild: null,
+            events: {},
+            outNodeId: 7,
+            outPort: 0,
+            inNodeId: 8,
+            inPort: 1,
+            options: {
+              path_type: "line",
+              pathType: "bezier",
+            },
+            style: {
+              width: 2,
+              dash: null,
+              animated: false,
+              path: "bezier",
+              arrows: {
+                start: false,
+                end: true,
+              },
+              bad: false,
+              hover: false,
+              selected: false,
+              temp: false,
+              execution: false,
+              speed: 2,
+            },
+            pathType: "bezier",
+            capabilities: [
+              "selectable",
+              "removable",
+              "path:bezier",
+              "path:line",
+              "path:orthogonal",
+            ],
+          },
+        ],
+        zoom: 0.5,
+        canvas: {
+          x: 0,
+          y: 0,
+        },
+      };
+
+      flow.import(dummyFlowData);
+
+      window.exportData = () => {
+        console.log("Exporting flow data to file...");
+        const data = flow.export();
+        console.log(data);
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "flow.json";
+        a.click();
+        URL.revokeObjectURL(url);
+      };
+
+      window.importData = () => {
+        const file = document.getElementById("import-file").files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const data = JSON.parse(e.target.result);
+          flow.import(data);
+        };
+        reader.readAsText(file);
+      };
+
+      window.clearData = () => {
+        flow.import({ nodes: [], connections: [] });
+      };
+
+      // Theme Editor
+      const themeManager = new floxy.ThemeManager();
+      const themeEditor = new floxy.ThemeEditor({ manager: themeManager });
+      // themeEditor.render();
+      themeEditor.renderInto("theme-editor-container");
+
+      // Palette Toggle Logic
+      const toggleBtn = document.getElementById("palette-toggle");
+      const revealBtn = document.getElementById("palette-reveal-btn");
+
+      toggleBtn.onclick = () => {
+        document.body.classList.add("palette-closed");
+      };
+
+      revealBtn.onclick = () => {
+        document.body.classList.remove("palette-closed");
+      };
+    </script>
+    <script>
+      function drag(ev) {
+        const module = ev.target.dataset.flowModule;
+        const group = ev.target.dataset.flowGroup;
+        const name = ev.target.dataset.flowName;
+        const label = ev.target.dataset.flowLabel;
+        const htmlFunction = ev.target.dataset.flowHtmlFunction;
+        const extras = {
+          html_function: htmlFunction,
+        };
+
+        ev.dataTransfer.setData("module", module);
+        ev.dataTransfer.setData("group", group);
+        ev.dataTransfer.setData("name", name);
+        ev.dataTransfer.setData("label", label);
+        ev.dataTransfer.setData("extras", JSON.stringify(extras));
+      }
+    </script>
+  </body>
+</html>

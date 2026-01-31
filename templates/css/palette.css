@@ -147,13 +147,22 @@ body.palette-closed #palette-reveal-btn {
 .palette-footer {
   margin-top: auto;
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
 .palette-footer .btn {
-  flex: 1;
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.6rem;
   white-space: nowrap;
+}
+
+.palette-footer .btn-flow-data {
+  flex: 1 1 calc(50% - 0.25rem);
+  min-width: 0;
+}
+
+.palette-footer .btn-outline-danger {
+  flex: 1 1 100%;
 }
