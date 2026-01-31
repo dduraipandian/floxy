@@ -10,8 +10,6 @@ import { defaultCommandRegistry as defaultConnectionCommandRegistry } from "./co
 
 import { SelectionToolbar } from "./toolbar.js";
 
-import { pathRegistry } from "./components/connection/paths/index.js";
-
 import { SetBezierPath, SetLinePath, SetOrthogonalPath } from "./components/commands/paths.js";
 
 import * as constants from "./components/constants.js";
