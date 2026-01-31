@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>floxy | Documentation</title>
+    <!-- Bootstrap 5 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+
+    <style>
+      :root {
+        --navbar-height: 60px;
+        --sidebar-width: 280px;
+        --accent: #0d6efd;
+      }
+      body {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        padding-top: var(--navbar-height);
+        color: #212529;
+      }
+      /* Navbar */
+      .navbar {
+        height: var(--navbar-height);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #e9ecef;
+      }
+      .navbar-brand { font-weight: 600; }
+      
+      /* Sidebar */
+      .sidebar {
+        position: fixed;
+        top: var(--navbar-height);
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 24px 0 48px 20px;
+        width: var(--sidebar-width);
+        overflow-y: auto;
+        border-right: 1px solid #e9ecef;
+      }
+      .sidebar-search {
+        padding-right: 20px;
+        margin-bottom: 1.5rem;
+      }
+      .nav-section-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #adb5bd;
+        margin-bottom: 0.5rem;
+        margin-top: 1.5rem;
+        padding-left: 1rem;
+      }
+      .nav-link {
+        color: #495057;
+        font-size: 0.9rem;
+        padding: 0.35rem 1rem;
+        border-left: 2px solid transparent;
+        transition: color 0.15s, border-color 0.15s;
+      }
+      .nav-link:hover {
+        color: var(--accent);
+        border-left-color: rgba(13, 110, 253, 0.2);
+        background: linear-gradient(90deg, rgba(13, 110, 253, 0.03), transparent);
+      }
+      .nav-link.active {
+        color: var(--accent);
+        font-weight: 600;
+        border-left-color: var(--accent);
+        background: linear-gradient(90deg, rgba(13, 110, 253, 0.08), transparent);
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-left: var(--sidebar-width);
+        padding: 4rem 5rem;
+        max-width: 1000px;
+      }
+      
+      /* Typography */
+      h1 { font-weight: 800; letter-spacing: -0.02em; margin-bottom: 1.5rem; color: #111; }
+      h2 { font-weight: 700; margin-top: 3.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid #eee; padding-bottom: 0.75rem; color: #343a40; }
+      h3 { font-weight: 600; margin-top: 2.5rem; margin-bottom: 1rem; color: #495057; }
+      p { line-height: 1.75; color: #444; margin-bottom: 1.5rem; font-size: 1.05rem; }
+      li { line-height: 1.7; color: #444; margin-bottom: 0.5rem; }
+      code { color: #d63384; word-wrap: break-word; font-size: 0.9em; }
+      
+      /* Code Blocks */
+      .code-wrapper {
+        position: relative;
+        margin-bottom: 1.5rem;
+      }
+      pre { 
+        background: #f8f9fa; 
+        border-radius: 8px; 
+        padding: 1.25rem; 
+        border: 1px solid #e9ecef; 
+        margin: 0;
+      }
+      .btn-copy {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        color: #6c757d;
+        background: rgba(255,255,255,0.8);
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .code-wrapper:hover .btn-copy {
+        opacity: 1;
+      }
+      .btn-copy:hover {
+        background: #fff;
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      
+      /* Tables */
+      .table th { font-weight: 600; background: #f8f9fa; border-bottom-width: 2px; }
+      .table td { vertical-align: middle; }
+      
+      /* Responsive */
+      @media (max-width: 991.98px) {
+        .sidebar { display: none; } /* Hide sidebar on mobile for now */
+        .main-content { margin-left: 0; padding: 2rem; }
+      }
+    </style>
+  </head>
+  <body data-bs-spy="scroll" data-bs-target="#docs-nav" data-bs-offset="100" tabindex="0">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+      <div class="container-fluid px-4">
+        <a class="navbar-brand d-flex align-items-center" href="index.html">
+          <i class="bi bi-diagram-3-fill me-2 text-primary"></i>
+          floxy
+        </a>
+        <div class="d-flex align-items-center">
+            <a href="https://github.com/dduraipandian/floxy" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-github me-1"></i> GitHub
+            </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar Navigation -->
+        <nav id="docs-nav" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+          <div class="position-sticky">
+            <div class="sidebar-search">
+                <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Search docs..." aria-label="Search">
+            </div>
+            
+            <ul class="nav flex-column" id="nav-list">
+                <div class="nav-group">
+                    <div class="nav-section-title">Introduction</div>
+                    <li class="nav-item"><a class="nav-link" href="#introduction">Overview</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#installation">Installation</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#quick-start">Quick Start</a></li>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-section-title">Core Concepts</div>
+                    <li class="nav-item"><a class="nav-link" href="#flow-api">Flow API</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#nodes">Nodes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#connections">Connections</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#events">Events</a></li>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-section-title">Advanced</div>
+                    <li class="nav-item"><a class="nav-link" href="#architecture">Architecture</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#custom-nodes">Custom Nodes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#behaviors">Behaviors</a></li>
+                </div>
+            </ul>
+          </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+            
+            <!-- Introduction -->
+            <section id="introduction">
+                <h1 class="display-4 mb-4">Documentation</h1>
+                <p class="lead">A lightweight, opinionated composable Flow/Node editor built on Bootstrap 5.</p>
+                <p>
+                    Floxy provides a high-performance, reusable Flow component for building node-based interfaces like workflow editors, diagramming tools, and freeform canvases. It is designed to be:
+                </p>
+                <ul>
+                    <li><strong>Performance Oriented:</strong> Efficient DOM manipulation and clean lifecycle management.</li>
+                    <li><strong>Bootstrap Native:</strong> Integrates seamlessly with your existing Bootstrap 5 theme.</li>
+                    <li><strong>Composable:</strong> Uses a composite pattern (Model-View-Behavior) for maximum extensibility.</li>
+                </ul>
+            </section>
+
+            <!-- Installation -->
+            <section id="installation">
+                <h2>Installation</h2>
+                <p>Floxy is available as an NPM package or can be cloned directly.</p>
+                <pre><code class="language-bash">npm install floxy</code></pre>
+                <p>Or clone for development:</p>
+                <pre><code class="language-bash">git clone https://github.com/dduraipandian/floxy.git
+cd floxy
+npm install
+npm run dev</code></pre>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <strong>Prerequisites:</strong> Node.js v18.16.0+, Modern Browser (Chrome 61+, Firefox 67+, Safari 11+)
+                </div>
+            </section>
+
+            <!-- Quick Start -->
+            <section id="quick-start">
+                <h2>Quick Start</h2>
+                <p>Get up and running quickly with a simple HTML setup. Make sure to include the CSS and JS bundles.</p>
+                <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;!-- Dependencies --&gt;
+  &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
+  &lt;link href="./dist/floxy.min.css" rel="stylesheet"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;!-- Container --&gt;
+  &lt;div id="flow-container" style="height: 600px; width: 100%;"&gt;&lt;/div&gt;
+
+  &lt;!-- Script --&gt;
+  &lt;script src="./dist/floxy.min.js"&gt;&lt;/script&gt;
+  &lt;script&gt;
+    const flow = new floxy.Flow({
+      name: "MyFlow",
+      options: { zoom: 1 }
+    });
+
+    flow.renderInto("flow-container");
+
+    // Add some nodes
+    flow.addNode({ name: "Start", x: 100, y: 100, outputs: 1 });
+    flow.addNode({ name: "End", x: 400, y: 100, inputs: 1 });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            </section>
+
+            <!-- Flow API -->
+            <section id="flow-api">
+                <h2>Flow API</h2>
+                <p>The <code>Flow</code> class is the main entry point.</p>
+                
+                <h3>Constructor</h3>
+                <pre><code class="language-javascript">const flow = new Flow({
+  name: "MyFlow",           // Unique identifier
+  options: {
+    zoom: 1,                // Initial zoom level
+    connection: {
+      pathType: "bezier"    // "bezier" | "line" | "orthogonal"
+    }
+  }
+});</code></pre>
+
+                <h3>Core Methods</h3>
+                <table class="table table-bordered">
+                    <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>renderInto(id)</code></td><td>Renders the flow into a DOM container.</td></tr>
+                        <tr><td><code>addNode(config)</code></td><td>Adds a new node and returns its ID.</td></tr>
+                        <tr><td><code>addConnection(n1, p1, n2, p2)</code></td><td>Connects source node/port to target node/port.</td></tr>
+                        <tr><td><code>export()</code></td><td>Returns the flow state as a JSON object.</td></tr>
+                        <tr><td><code>import(data)</code></td><td>Loads flow state from a JSON object.</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Nodes -->
+            <section id="nodes">
+                <h2>Nodes</h2>
+                <p>Nodes are the building blocks of your graph. They can have input ports, output ports, and custom data.</p>
+                <pre><code class="language-javascript">flow.addNode({
+  name: "Service",
+  label: "AWS Interface",
+  x: 100,
+  y: 100,
+  inputs: 1,
+  outputs: 2,
+  data: { 
+    service: "s3",
+    bucket: "my-bucket" 
+  }
+});</code></pre>
+            </section>
+
+            <!-- Connections -->
+            <section id="connections">
+                <h2>Connections</h2>
+                <p>Connections link nodes together. Floxy supports multiple path styles.</p>
+                
+                <h3>Path Types</h3>
+                <ul>
+                    <li><code>bezier</code>: Smooth curved paths (default).</li>
+                    <li><code>line</code>: Direct straight lines.</li>
+                    <li><code>orthogonal</code>: Right-angle flowchart-style connectors.</li>
+                </ul>
+            </section>
+
+            <!-- Events -->
+            <section id="events">
+                <h2>Events</h2>
+                <p>Floxy is event-driven. You can listen to events using the <code>on()</code> method.</p>
+                <pre><code class="language-javascript">flow.on("node:moved", ({ id, x, y }) => {
+  console.log(`Node ${id} moved to ${x},${y}`);
+});
+
+flow.on("connection:created", (conn) => {
+  console.log("New connection:", conn);
+});</code></pre>
+            </section>
+
+            <!-- Architecture -->
+            <section id="architecture">
+                <h2>Architecture</h2>
+                <p>Floxy uses a <strong>Composite Architecture</strong>. Components (Nodes, Connections) are not single classes but compositions of:
+                  <ul>
+                      <li><strong>Model:</strong> Holds state (x, y, data).</li>
+                      <li><strong>View:</strong> Handles DOM rendering and updates.</li>
+                      <li><strong>Behaviors:</strong> Pluggable interaction logic (dragging, selecting).</li>
+                  </ul>
+                </p>
+                <div class="alert alert-light border">
+                    See <code>src/components/README.md</code> for a deep dive into the internal design.
+                </div>
+            </section>
+
+            <!-- Custom Nodes -->
+            <section id="custom-nodes">
+                <h2>Creating Custom Nodes</h2>
+                <p>To create a custom node appearance, extend <code>BaseNodeView</code>:</p>
+                <pre><code class="language-javascript">import { BaseNodeView, nodeViewRegistry } from "floxy";
+
+class MyNode extends BaseNodeView {
+  static get name() { return "my-node"; }
+  
+  getNodeElement() {
+    return `
+      &lt;div class="node my-custom-style"&gt;
+        &lt;h5&gt;${this.model.label}&lt;/h5&gt;
+        &lt;button&gt;Click Me&lt;/button&gt;
+      &lt;/div&gt;
+    `;
+  }
+}
+
+// Register it
+nodeViewRegistry.register(MyNode);</code></pre>
+            </section>
+
+            <!-- Behaviors -->
+            <section id="behaviors">
+                <h2>Behaviors</h2>
+                <p>Behaviors extend functionality without modifying the core view. Standard behaviors include:</p>
+                <ul>
+                    <li><code>DraggableBehavior</code>: Enables moving nodes.</li>
+                    <li><code>SelectableBehavior</code>: Handles click selection.</li>
+                    <li><code>ResizableBehavior</code>: Adds resize handles.</li>
+                </ul>
+            </section>
+
+            <footer class="mt-5 pt-5 border-top text-muted small">
+                <p>&copy; 2025 Floxy Project. MIT License.</p>
+            </footer>
+
+        </main>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+      hljs.highlightAll();
+
+      // Implement Copy Code functionality
+      document.querySelectorAll('pre').forEach((pre) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+
+        const btn = document.createElement('button');
+        btn.className = 'btn-copy';
+        btn.innerHTML = '<i class="bi bi-clipboard"></i> Copy';
+        wrapper.appendChild(btn);
+
+        btn.addEventListener('click', () => {
+          const code = pre.querySelector('code').innerText;
+          navigator.clipboard.writeText(code);
+          btn.innerHTML = '<i class="bi bi-check"></i> Copied!';
+          btn.classList.add('text-success');
+          
+          setTimeout(() => {
+            btn.innerHTML = '<i class="bi bi-clipboard"></i> Copy';
+            btn.classList.remove('text-success');
+          }, 2000);
+        });
+      });
+
+      // Implement Sidebar Search
+      const searchInput = document.getElementById('search-input');
+      const navItems = document.querySelectorAll('.nav-item');
+      
+      searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        
+        navItems.forEach(item => {
+          const text = item.textContent.toLowerCase();
+          if (text.includes(term)) {
+            item.style.display = '';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+
+        // Hide titles if all children are hidden
+        document.querySelectorAll('.nav-group').forEach(group => {
+            const visibleChildren = group.querySelectorAll('.nav-item:not([style*="display: none"])');
+            const title = group.querySelector('.nav-section-title');
+            if (title) {
+                title.style.display = visibleChildren.length > 0 ? '' : 'none';
+            }
+        });
+      });
+    </script>
+  </body>
+</html>

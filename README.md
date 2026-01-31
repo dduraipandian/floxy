@@ -38,35 +38,79 @@ npm run dev
 
 ```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Flow App</title>
+    <!-- Bootstrap 5 -->
     <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link href="./dist/floxy.min.css" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <!-- Floxy styles -->
+    <link rel="stylesheet" href="./dist/floxy.min.css" />
+    <style>
+      #flow-container {
+        height: 600px;
+        width: 100%;
+        background: var(--floxy-app-bg);
+      }
+    </style>
   </head>
   <body>
-    <div id="flow-container" style="height: 600px; width: 100%;"></div>
+    <div id="flow-container"></div>
 
+    <!-- Floxy bundle -->
+    <script src="./dist/floxy.min.js"></script>
     <script type="module">
-      import { Flow } from "./index.js";
-
       // Create flow instance
-      const flow = new Flow({
+      const flow = new floxy.Flow({
         name: "MyFlow",
-        options: { zoom: 1 },
+        options: {
+          zoom: 1,
+          connection: { pathType: "bezier" },
+        },
       });
 
       // Render into container
       flow.renderInto("flow-container");
 
       // Add nodes
-      const n1 = flow.addNode({ name: "Start", label: "Start", x: 100, y: 100, outputs: 1 });
-      const n2 = flow.addNode({ name: "End", label: "End", x: 400, y: 100, inputs: 1 });
+      const n1 = flow.addNode({
+        name: "Start",
+        label: "Start",
+        x: 100,
+        y: 100,
+        inputs: 0,
+        outputs: 1,
+      });
 
-      // Connect them
+      const n2 = flow.addNode({
+        name: "Process",
+        label: "Process",
+        x: 400,
+        y: 100,
+        inputs: 1,
+        outputs: 1,
+      });
+
+      const n3 = flow.addNode({
+        name: "End",
+        label: "End",
+        x: 700,
+        y: 100,
+        inputs: 1,
+        outputs: 0,
+      });
+
+      // Connect nodes
       flow.addConnection(n1, 0, n2, 0);
+      flow.addConnection(n2, 0, n3, 0);
     </script>
   </body>
 </html>
