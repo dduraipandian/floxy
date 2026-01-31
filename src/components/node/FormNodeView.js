@@ -57,6 +57,10 @@ class FormNodeView extends BaseNodeView {
       form.innerHTML = this.model.data.customHtml;
     }
 
+    if (!this.model.data.form_values) {
+      this.model.data.form_values = {};
+    }
+
     const formInputs = this.el.querySelectorAll(".form-node-body input");
 
     formInputs.forEach((input) => {
@@ -68,10 +72,7 @@ class FormNodeView extends BaseNodeView {
       }
     });
 
-    if (!this.model.data.form_values) {
-      this.model.data.form_values = {};
-    }
-
+    this.addPasswordEyeIcon();
     this.loadInitFormData();
 
     form.addEventListener("input", (e) => {
@@ -93,6 +94,32 @@ class FormNodeView extends BaseNodeView {
       if (this.model.data.form_values[input.name]) {
         input.value = this.model.data.form_values[input.name];
       }
+    });
+  }
+
+  addPasswordEyeIcon() {
+    const formPassword = this.el.querySelectorAll(".form-node-body input[type=password]");
+
+    formPassword.forEach((input) => {
+      const eye = document.createElement("i");
+      eye.className = "bi bi-eye flow-eye";
+      eye.style.cursor = "pointer";
+      eye.style.position = "absolute";
+      eye.style.right = ".75rem";
+      eye.style.top = "55%";
+      eye.style.opacity = "0.5";
+      input.parentNode.style.position = "relative";
+      input.parentNode.appendChild(eye);
+
+      eye.addEventListener("click", () => {
+        if (input.type === "password") {
+          input.type = "text";
+          eye.className = "bi bi-eye-slash";
+        } else {
+          input.type = "password";
+          eye.className = "bi bi-eye";
+        }
+      });
     });
   }
 }

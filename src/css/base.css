@@ -471,6 +471,14 @@
         border-color: var(--floxy-node-focus-color);
         box-shadow: 0 0 0 1px var(--floxy-node-focus-color);
       }
+
+      &.flow-eye {
+        position: absolute;
+        right: 0.75rem;
+        top: 55%;
+        opacity: 0.5;
+        cursor: pointer;
+      }
     }
 
     textarea {
