@@ -166,4 +166,25 @@ describe("FlowNodeManager", () => {
     expect(pos.x).toBe(197.5);
     expect(pos.y).toBe(107.5);
   });
+
+  test("should remove all nodes on reset", () => {
+    const id = manager.addNode({
+      name: "Moving Node",
+      x: 100,
+      y: 100,
+      module: "default",
+      group: "mygroup",
+      label: "Action",
+    });
+    const node = manager.getNode(id);
+    node.move(200, 300);
+
+    expect(node.x).toBe(200);
+    expect(node.y).toBe(300);
+
+    manager.reset();
+
+    const nodeEl = canvasContainer.querySelector(`#node-${id}`);
+    expect(nodeEl).toBeNull();
+  });
 });
