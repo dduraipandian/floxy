@@ -99,7 +99,7 @@ const CAPABILITIES = {
   REMOVABLE: "removable",
 };
 
-const DEFAULT_SUPPORTED_CAPABILITIES = [
+const DEFAULT_SUPPORTED_CAPABILITIES$1 = [
   COMMON_CAPABILITIES.SELECTABLE,
   CAPABILITIES.MOVABLE,
   CAPABILITIES.EDITABLE_LABEL,
@@ -373,7 +373,6 @@ class CapabilityRegistry {
       const CapabilityCls = this.get(capability);
       if (CapabilityCls) {
         const capabilityInstance = new CapabilityCls(context);
-        console.log("capabilityInstance", capabilityInstance);
         resolved.add(capabilityInstance);
       }
     });
@@ -1120,7 +1119,7 @@ class FlowCanvas extends EmitterComponent {
   // handling mouse left click on port in the node
   onCanvasWheelZoom(e) {
     e.preventDefault();
-    console.log("FLOW: Wheel on canvas with deltaY: ", e.deltaY);
+    console.debug("FLOW: Wheel on canvas with deltaY: ", e.deltaY);
 
     const delta = e.deltaY > 0 ? -0.1 : 0.1;
     this.targetZoom = Math.max(this.minZoom, Math.min(this.zoom + delta, this.maxZoom));
@@ -1172,7 +1171,10 @@ class FlowCanvas extends EmitterComponent {
       const group = e.dataTransfer.getData("group");
       const name = e.dataTransfer.getData("name");
       const label = e.dataTransfer.getData("label");
+      const extrasString = e.dataTransfer.getData("extras");
       const data = e.dataTransfer.getData("data");
+
+      const extras = extrasString ? JSON.parse(extrasString) : {};
 
       if (!module || !group || !name) return;
 
@@ -1187,8 +1189,17 @@ class FlowCanvas extends EmitterComponent {
       const x = e.clientX - rect.left - this.canvasX;
       const y = e.clientY - rect.top - this.canvasY;
 
-      this.emit(NODE_DROPPED_EVENT, { module, group, name, label, x, y, data: nodeData });
-      console.debug("FLOW - DROP: ", module, group, name, label, x, y, nodeData);
+      this.emit(NODE_DROPPED_EVENT, {
+        module,
+        group,
+        name,
+        label,
+        x,
+        y,
+        data: nodeData,
+        extras,
+      });
+      console.debug("FLOW - DROP: ", module, group, name, label, x, y, nodeData, extras);
     } catch (err) {
       console.error("Invalid drop data", err);
     }
@@ -1309,7 +1320,8 @@ class NodeModel {
     h = 100,
     w = 200,
     data = {},
-    capabilities = DEFAULT_SUPPORTED_CAPABILITIES,
+    capabilities = DEFAULT_SUPPORTED_CAPABILITIES$1,
+    extras = {},
   }) {
     this.id = id;
     this.module = module;
@@ -1324,6 +1336,7 @@ class NodeModel {
     this.data = data;
     this.capabilities = capabilities;
     this.label = label ?? this.name;
+    this.extras = extras;
   }
 
   move(x, y) {
@@ -1382,7 +1395,7 @@ class BaseNodeView extends EmitterComponent {
       label: "Node",
       group: "default",
       module: "default",
-      capabilities: DEFAULT_SUPPORTED_CAPABILITIES,
+      capabilities: DEFAULT_SUPPORTED_CAPABILITIES$1,
       data: {},
     };
   }
@@ -1437,6 +1450,7 @@ class BaseNodeView extends EmitterComponent {
   }
 
   destroy() {
+    console.log("FLOW: Destroying node view", this.model.id);
     this.el?.remove();
     this.el = null;
   }
@@ -1729,11 +1743,13 @@ class FlowNodeManager extends EmitterComponent {
   }
 
   reset() {
-    Object.values(this.nodes).forEach((n) => {
-      n.destroy();
+    this.nodes.forEach((node) => {
+      console.log("FLOW: Destroying node", node.id);
+      node.destroy();
     });
     this.nodes.clear();
     this.idCounter = 1;
+    console.log("FLOW: Node manager reset", this.nodes);
   }
 
   getNode(id) {
@@ -2044,6 +2060,7 @@ class ConnectionView extends EmitterComponent {
   }
 
   destroy() {
+    console.log("FLOW: Destroying connection view", this.model.id);
     this.path?.remove();
     this.shadowPath?.remove();
     this.path = null;
@@ -2161,7 +2178,6 @@ class Connection extends EmitterComponent {
   init() {
     this.update();
     this.attachBehaviors();
-    console.log("Connection init", this.behaviors);
   }
 
   update() {
@@ -2361,9 +2377,13 @@ class FlowConnectionManager extends EmitterComponent {
   }
 
   reset() {
-    this.connections.forEach((conn) => conn.destroy());
+    this.connections.forEach((conn) => {
+      console.debug("FLOW: Destroying connection", conn.id);
+      conn.destroy();
+    });
     this.connections.clear();
     this.clearTempPath?.();
+    console.debug("FLOW: Connection manager reset", this.connections);
   }
 
   updateConnections(nodeId) {
@@ -2704,9 +2724,8 @@ class Flow extends EmitterComponent {
     this.zoomOutEl = null;
     this.zoomResetEl = null;
 
-    this.defaultPathType = options.defaultPathType || "bezier";
+    this.defaultPathType = options.connection?.pathType || "bezier";
     this.availablePaths = [SetBezierPath, SetLinePath, SetOrthogonalPath];
-    console.log("availablePaths", this.availablePaths);
   }
 
   /**
@@ -2885,11 +2904,12 @@ class Flow extends EmitterComponent {
 
     this.toolbar = new SelectionToolbar({ selection: this.selectionManager });
     this.toolbar.renderInto(this.canvasEl);
+
+    this.zoomChangeUpdate();
   }
 
   bindCommandEvents() {
     window.addEventListener("keydown", (e) => {
-      console.log("Key pressed: ", e.key);
       const capability = COMMAND_CAPABILITIES[e.key];
       if (capability && this.selectionManager.active) {
         const success = this.selectionManager.execute(capability);
@@ -2941,7 +2961,7 @@ class Flow extends EmitterComponent {
   highlightCycle(stack) {
     if (!stack || stack.length < 2) return;
 
-    console.log("FLOW: highlight cycle", stack);
+    console.debug("FLOW: highlight cycle", stack);
     // TODO: need to fix O(n^2) time complexity
     for (let pos = 0; pos < stack.length - 1; pos++) {
       const conn = this.connectionManager
@@ -3086,6 +3106,7 @@ class Flow extends EmitterComponent {
 
   import(data) {
     this.serializer.import(this, data);
+    this.zoomChangeUpdate();
   }
 
   startRaf(rafn) {
@@ -3671,7 +3692,7 @@ class SVGNodeView extends BaseNodeView {
       module: "default",
       group: "default",
       name: "svg",
-      capabilities: DEFAULT_SUPPORTED_CAPABILITIES,
+      capabilities: DEFAULT_SUPPORTED_CAPABILITIES$1,
       data: {},
     };
   }
@@ -3720,6 +3741,129 @@ class SVGNodeView extends BaseNodeView {
 
   resize() {
     throw new Error("Method 'resize()' must be implemented in the subclass");
+  }
+}
+
+const DEFAULT_SUPPORTED_CAPABILITIES = [
+  COMMON_CAPABILITIES.SELECTABLE,
+  CAPABILITIES.MOVABLE,
+  CAPABILITIES.EDITABLE_LABEL,
+  CAPABILITIES.REMOVABLE,
+];
+
+class FormNodeView extends BaseNodeView {
+  constructor(model, options = {}) {
+    super(model, options);
+  }
+
+  static get name() {
+    return "form-node-view";
+  }
+
+  static get modelDefaults() {
+    return {
+      inputs: 1,
+      outputs: 1,
+      w: 250,
+      h: 0,
+      label: "Form Node",
+      module: "workflow",
+      group: "form",
+      name: "form",
+      capabilities: DEFAULT_SUPPORTED_CAPABILITIES,
+      data: {},
+    };
+  }
+
+  getNodeElement() {
+    const extras = this.model.extras;
+    const htmlFunctionName = extras.html_function;
+    let contentHTML =
+      "<p style='color: var(--floxy-danger-color);'>HTML function not found to load form node.</p>";
+
+    if (window.flow_form_functions && window.flow_form_functions[htmlFunctionName]) {
+      contentHTML = window.flow_form_functions[htmlFunctionName]();
+    }
+
+    return `
+        <div class="node form-node" style="display: grid; place-items: center; height: fit-content;">
+            <div class="node-label">${this.model.label}</div>
+            <form class="form-node-body">${contentHTML}</form>
+        </div>
+    `;
+  }
+
+  bindEvents() {
+    const form = this.el.querySelector(".form-node-body");
+
+    if (this.model.data.customHtml) {
+      form.innerHTML = this.model.data.customHtml;
+    }
+
+    if (!this.model.data.form_values) {
+      this.model.data.form_values = {};
+    }
+
+    const formInputs = this.el.querySelectorAll(".form-node-body input");
+
+    formInputs.forEach((input) => {
+      if (!input.name) {
+        console.error("Input name is required");
+        form.innerHTML =
+          "<p style='color: var(--floxy-danger-color);'>Input name is required to load form.</p>";
+        return;
+      }
+    });
+
+    this.addPasswordEyeIcon();
+    this.loadInitFormData();
+
+    form.addEventListener("input", (e) => {
+      this.model.data.form_values[e.target.name] = e.target.value;
+    });
+
+    this.container.style.height = "fit-content";
+    this.container.style.width = "fit-content";
+
+    form.addEventListener("mousedown", (e) => e.stopPropagation());
+    form.addEventListener("keydown", (e) => e.stopPropagation());
+  }
+
+  loadInitFormData() {
+    const form = this.el.querySelector(".form-node-body");
+    const formInputs = form.querySelectorAll("input");
+
+    formInputs.forEach((input) => {
+      if (this.model.data.form_values[input.name]) {
+        input.value = this.model.data.form_values[input.name];
+      }
+    });
+  }
+
+  addPasswordEyeIcon() {
+    const formPassword = this.el.querySelectorAll(".form-node-body input[type=password]");
+
+    formPassword.forEach((input) => {
+      const eye = document.createElement("i");
+      eye.className = "bi bi-eye flow-eye";
+      eye.style.cursor = "pointer";
+      eye.style.position = "absolute";
+      eye.style.right = ".75rem";
+      eye.style.top = "55%";
+      eye.style.opacity = "0.5";
+      input.parentNode.style.position = "relative";
+      input.parentNode.appendChild(eye);
+
+      eye.addEventListener("click", () => {
+        if (input.type === "password") {
+          input.type = "text";
+          eye.className = "bi bi-eye-slash";
+        } else {
+          input.type = "password";
+          eye.className = "bi bi-eye";
+        }
+      });
+    });
   }
 }
 
@@ -3785,6 +3929,7 @@ defaultCommandRegistry.register(SetBezierPath);
 defaultCommandRegistry.register(SetLinePath);
 defaultCommandRegistry.register(SetOrthogonalPath);
 
+nodeViewRegistry.register(FormNodeView);
 nodeViewRegistry.register(EllipseNodeView);
 
 export { DagValidator, Flow, ThemeEditor, ThemeManager };
