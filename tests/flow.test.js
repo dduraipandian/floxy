@@ -144,8 +144,6 @@ describe("Flow Integration", () => {
     // Wait for internal RAF/timeouts in DragHandler (we simulate delay)
     await new Promise((resolve) => setTimeout(resolve, 20));
 
-    console.log(zoomedFlow.nodeManager.getNode(n1).x);
-
     expect(zoomedFlow.nodeManager.getNode(n1).x).toBe(300); // 100 + 100/0.5
     expect(zoomedFlow.nodeManager.getNode(n1).y).toBe(300);
 

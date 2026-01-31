@@ -59,7 +59,6 @@ class Connection extends EmitterComponent {
   init() {
     this.update();
     this.attachBehaviors();
-    console.log("Connection init", this.behaviors);
   }
 
   update() {

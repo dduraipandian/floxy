@@ -98,8 +98,6 @@ class Flow extends EmitterComponent {
     this.zoom = options.zoom || 1;
     this.originalZoom = this.zoom;
 
-    console.log("zoom", this.zoom);
-
     this.nodes = {}; // { id: { id, x, y, inputs, outputs, data, el } }
     // this.connections = []; // [ { outputNodeId, outputPort, inputNodeId, inputPort } ]
     this.nodeIdCounter = 1;
@@ -125,7 +123,6 @@ class Flow extends EmitterComponent {
 
     this.defaultPathType = options.connection?.pathType || "bezier";
     this.availablePaths = [SetBezierPath, SetLinePath, SetOrthogonalPath];
-    console.log("availablePaths", this.availablePaths);
   }
 
   /**
@@ -310,7 +307,6 @@ class Flow extends EmitterComponent {
 
   bindCommandEvents() {
     window.addEventListener("keydown", (e) => {
-      console.log("Key pressed: ", e.key);
       const capability = constants.COMMAND_CAPABILITIES[e.key];
       if (capability && this.selectionManager.active) {
         const success = this.selectionManager.execute(capability);
@@ -362,7 +358,7 @@ class Flow extends EmitterComponent {
   highlightCycle(stack) {
     if (!stack || stack.length < 2) return;
 
-    console.log("FLOW: highlight cycle", stack);
+    console.debug("FLOW: highlight cycle", stack);
     // TODO: need to fix O(n^2) time complexity
     for (let pos = 0; pos < stack.length - 1; pos++) {
       const conn = this.connectionManager

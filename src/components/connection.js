@@ -114,12 +114,12 @@ class FlowConnectionManager extends EmitterComponent {
 
   reset() {
     this.connections.forEach((conn) => {
-      console.log("FLOW: Destroying connection", conn.id);
+      console.debug("FLOW: Destroying connection", conn.id);
       conn.destroy();
     });
     this.connections.clear();
     this.clearTempPath?.();
-    console.log("FLOW: Connection manager reset", this.connections);
+    console.debug("FLOW: Connection manager reset", this.connections);
   }
 
   updateConnections(nodeId) {
