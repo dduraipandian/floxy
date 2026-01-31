@@ -39,6 +39,12 @@ export { ThemeEditor } from "./src/components/theme.js";
 
 // register nodes
 import { nodeViewRegistry } from "./src/components/node/NodeViewRegistry.js";
+// eslint-disable-next-line no-unused-vars
+import { BaseNodeView } from "./src/components/node/NodeView.js";
+// eslint-disable-next-line no-unused-vars
+import { SVGNodeView } from "./src/components/node/SVGNodeView.js";
+import { FormNodeView } from "./src/components/node/FormNodeView.js";
 import { EllipseNodeView } from "./src/components/node/views/packages/workflow/EllipseNodeView.js";
 
+nodeViewRegistry.register(FormNodeView);
 nodeViewRegistry.register(EllipseNodeView);

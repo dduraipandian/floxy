@@ -10,8 +10,6 @@ import { defaultCommandRegistry as defaultConnectionCommandRegistry } from "./co
 
 import { SelectionToolbar } from "./toolbar.js";
 
-import { pathRegistry } from "./components/connection/paths/index.js";
-
 import { SetBezierPath, SetLinePath, SetOrthogonalPath } from "./components/commands/paths.js";
 
 import * as constants from "./components/constants.js";
@@ -123,9 +121,8 @@ class Flow extends EmitterComponent {
     this.zoomOutEl = null;
     this.zoomResetEl = null;
 
-    this.defaultPathType = options.defaultPathType || "bezier";
+    this.defaultPathType = options.connection?.pathType || "bezier";
     this.availablePaths = [SetBezierPath, SetLinePath, SetOrthogonalPath];
-    console.log("availablePaths", this.availablePaths);
   }
 
   /**
@@ -304,11 +301,12 @@ class Flow extends EmitterComponent {
 
     this.toolbar = new SelectionToolbar({ selection: this.selectionManager });
     this.toolbar.renderInto(this.canvasEl);
+
+    this.zoomChangeUpdate();
   }
 
   bindCommandEvents() {
     window.addEventListener("keydown", (e) => {
-      console.log("Key pressed: ", e.key);
       const capability = constants.COMMAND_CAPABILITIES[e.key];
       if (capability && this.selectionManager.active) {
         const success = this.selectionManager.execute(capability);
@@ -360,7 +358,7 @@ class Flow extends EmitterComponent {
   highlightCycle(stack) {
     if (!stack || stack.length < 2) return;
 
-    console.log("FLOW: highlight cycle", stack);
+    console.debug("FLOW: highlight cycle", stack);
     // TODO: need to fix O(n^2) time complexity
     for (let pos = 0; pos < stack.length - 1; pos++) {
       const conn = this.connectionManager
@@ -505,6 +503,7 @@ class Flow extends EmitterComponent {
 
   import(data) {
     this.serializer.import(this, data);
+    this.zoomChangeUpdate();
   }
 
   startRaf(rafn) {

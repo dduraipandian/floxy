@@ -115,4 +115,21 @@ describe("FlowConnectionManager", () => {
 
     expect(connection.model.pathType).toBe("line");
   });
+
+  test("should remove all connections on reset", () => {
+    const n1 = nodeManager.addNode({ name: "Source", x: 100, y: 100 });
+    const n2 = nodeManager.addNode({ name: "Target", x: 400, y: 100 });
+
+    manager.addConnection(n1, 0, n2, 0);
+
+    expect(manager.size).toBe(1);
+    expect(connectionContainer.querySelector("path.connection")).toBeTruthy();
+    expect(connectionContainer.querySelector("path.shadow-path")).toBeTruthy();
+
+    manager.reset();
+
+    expect(manager.size).toBe(0);
+    expect(connectionContainer.querySelector("path.connection")).toBeFalsy();
+    expect(connectionContainer.querySelector("path.shadow-path")).toBeFalsy();
+  });
 });

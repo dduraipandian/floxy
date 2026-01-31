@@ -47,48 +47,75 @@
       </div>
       <h5>Flow Blocks</h5>
       <p class="text-muted small">Drag blocks to canvas</p>
+      <div id="node-aread">
+        <div
+          class="draggable-item"
+          draggable="true"
+          ondragstart="drag(event)"
+          data-flow-label="Start"
+        >
+          <i class="bi bi-play-circle me-3"></i> Start
+        </div>
 
-      <div
-        class="draggable-item"
-        draggable="true"
-        ondragstart="drag(event)"
-        data-flow-label="Start"
-      >
-        <i class="bi bi-play-circle me-3"></i> Start
+        <div
+          class="draggable-item"
+          draggable="true"
+          ondragstart="drag(event)"
+          data-flow-module="workflow"
+          data-flow-group="form"
+          data-flow-name="form"
+          data-flow-label="AWS S3"
+          data-flow-html-function="aws_s3_html"
+        >
+          <i class="bi bi-gear me-3"></i> AWS S3
+        </div>
+
+        <div
+          class="draggable-item"
+          draggable="true"
+          ondragstart="drag(event)"
+          data-flow-module="diagram"
+          data-flow-group="workflow"
+          data-flow-name="action"
+        >
+          <i class="bi bi-gear me-3"></i> Action
+        </div>
+
+        <div
+          class="draggable-item"
+          draggable="true"
+          ondragstart="drag(event)"
+          data-flow-label="Condition"
+        >
+          <i class="bi bi-question-diamond me-3"></i> Condition
+        </div>
+
+        <div
+          class="draggable-item"
+          draggable="true"
+          ondragstart="drag(event)"
+          data-flow-label="Terminate"
+        >
+          <i class="bi bi-stop-circle me-3"></i> End
+        </div>
       </div>
-
-      <div
-        class="draggable-item"
-        draggable="true"
-        ondragstart="drag(event)"
-        data-flow-module="diagram"
-        data-flow-group="workflow"
-        data-flow-name="action"
-      >
-        <i class="bi bi-gear me-3"></i> Action
-      </div>
-
-      <div
-        class="draggable-item"
-        draggable="true"
-        ondragstart="drag(event)"
-        data-flow-label="Condition"
-      >
-        <i class="bi bi-question-diamond me-3"></i> Condition
-      </div>
-
-      <div
-        class="draggable-item"
-        draggable="true"
-        ondragstart="drag(event)"
-        data-flow-label="Terminate"
-      >
-        <i class="bi bi-stop-circle me-3"></i> End
-      </div>
-
       <div class="palette-footer">
-        <button class="btn btn-primary" onclick="exportData()">Export JSON</button>
-        <button class="btn btn-outline-danger" onclick="clearData()">Clear</button>
+        <!-- import file to flow -->
+        <input
+          type="file"
+          id="import-file"
+          accept=".json"
+          onchange="importData()"
+          style="display: none"
+        />
+        <button
+          class="btn btn-warning btn-flow-data"
+          onclick="document.getElementById('import-file').click()"
+        >
+          Import JSON
+        </button>
+        <button class="btn btn-primary btn-flow-data" onclick="exportData()">Export JSON</button>
+        <button class="btn btn-outline-danger btn-flow-data" onclick="clearData()">Clear</button>
       </div>
     </div>
 
@@ -111,8 +138,35 @@
     <script type="module">
       const validators = [new floxy.DagValidator()];
 
+      window.flow_form_functions = {};
+
+      window.flow_form_functions.aws_s3_html = () => {
+        return `
+          <div>
+            <label for="s3-bucket">Bucket Name</label>
+            <input type="text" name="bucket" placeholder="Enter bucket name">
+          </div>
+          <div>
+            <label for="s3-key">Key</label>
+            <input type="password" name="key" placeholder="Enter key">
+          </div>
+          <div>
+            <label for="s3-key">Key</label>
+            <input type="text" name="key" placeholder="Enter key">
+          </div>
+          <div>
+            <label for="s3-key">Key</label>
+            <input type="password" name="key" placeholder="Enter key">
+          </div>
+          <div>
+            <label for="s3-key">Key</label>
+            <input type="text" name="key" placeholder="Enter key">
+          </div>
+        `;
+      };
+
       const connectionOptions = {
-        path_type: "line",
+        pathType: "line",
       };
       // Initialize Flow
       const flow = new floxy.Flow({
@@ -126,29 +180,236 @@
       // Setup global access for drag handlers
       window.flow = flow;
 
-      // Add some initial nodes
-      const n1 = flow.addNode({
-        name: "Start",
-        inputs: 0,
-        outputs: 1,
-        x: 100,
-        y: 100,
-        label: "Start",
-        data: {},
-      });
-      const n2 = flow.addNode({
-        name: "Process",
-        inputs: 1,
-        outputs: 2,
-        x: 500,
-        y: 100,
-        label: "Process",
-        data: {},
-      });
-      flow.addConnection(n1, 0, n2, 0);
+      const flowData = {
+        nodes: [
+          {
+            id: 1,
+            module: "default",
+            group: "default",
+            name: "Start",
+            inputs: 0,
+            outputs: 1,
+            x: 100,
+            y: 100,
+            h: 70,
+            w: 250,
+            data: {},
+            capabilities: ["selectable", "movable", "editable-label", "resizable", "removable"],
+            label: "Start",
+            extras: {},
+          },
+          {
+            id: 2,
+            module: "default",
+            group: "default",
+            name: "Process",
+            inputs: 1,
+            outputs: 2,
+            x: 500,
+            y: 100,
+            h: 70,
+            w: 250,
+            data: {},
+            capabilities: ["selectable", "movable", "editable-label", "resizable", "removable"],
+            label: "Process",
+            extras: {},
+          },
+          {
+            id: 3,
+            module: "workflow",
+            group: "form",
+            name: "form",
+            inputs: 1,
+            outputs: 1,
+            x: 430,
+            y: 385,
+            h: 0,
+            w: 250,
+            data: {
+              form_values: {
+                bucket: "logfiles",
+                key: "randowmkey",
+              },
+            },
+            capabilities: ["selectable", "movable", "editable-label", "removable"],
+            label: "AWS S3",
+            extras: {
+              html_function: "aws_s3_html",
+            },
+          },
+          {
+            id: 4,
+            module: "default",
+            group: "default",
+            name: "undefined",
+            inputs: 1,
+            outputs: 1,
+            x: 888.75,
+            y: 457.5,
+            h: 70,
+            w: 250,
+            data: {},
+            capabilities: ["selectable", "movable", "editable-label", "resizable", "removable"],
+            label: "Terminate",
+            extras: {},
+          },
+        ],
+        connections: [
+          {
+            name: "connection-1:0-2:0",
+            containerID: "connection-1:0-2:0",
+            id: "1:0-2:0",
+            container: null,
+            created: false,
+            rendered: false,
+            parentContainer: null,
+            onlyChild: null,
+            events: {},
+            outNodeId: 1,
+            outPort: 0,
+            inNodeId: 2,
+            inPort: 0,
+            options: {
+              pathType: "line",
+            },
+            style: {
+              width: 2,
+              dash: null,
+              animated: false,
+              path: "line",
+              arrows: {
+                start: false,
+                end: true,
+              },
+              bad: false,
+              hover: false,
+              selected: false,
+              temp: false,
+              execution: false,
+              speed: 2,
+            },
+            pathType: "line",
+            capabilities: [
+              "selectable",
+              "removable",
+              "path:bezier",
+              "path:line",
+              "path:orthogonal",
+            ],
+          },
+          {
+            name: "connection-2:1-3:0",
+            containerID: "connection-2:1-3:0",
+            id: "2:1-3:0",
+            container: null,
+            created: false,
+            rendered: false,
+            parentContainer: null,
+            onlyChild: null,
+            events: {},
+            outNodeId: 2,
+            outPort: "1",
+            inNodeId: 3,
+            inPort: 0,
+            options: {
+              pathType: "line",
+            },
+            style: {
+              width: 2,
+              dash: null,
+              animated: false,
+              path: "line",
+              arrows: {
+                start: false,
+                end: true,
+              },
+              bad: false,
+              hover: false,
+              selected: false,
+              temp: false,
+              execution: false,
+              speed: 2,
+            },
+            pathType: "line",
+            capabilities: [
+              "selectable",
+              "removable",
+              "path:bezier",
+              "path:line",
+              "path:orthogonal",
+            ],
+          },
+          {
+            name: "connection-3:0-4:0",
+            containerID: "connection-3:0-4:0",
+            id: "3:0-4:0",
+            container: null,
+            created: false,
+            rendered: false,
+            parentContainer: null,
+            onlyChild: null,
+            events: {},
+            outNodeId: 3,
+            outPort: "0",
+            inNodeId: 4,
+            inPort: 0,
+            options: {
+              pathType: "line",
+            },
+            style: {
+              width: 2,
+              dash: null,
+              animated: false,
+              path: "line",
+              arrows: {
+                start: false,
+                end: true,
+              },
+              bad: false,
+              hover: false,
+              selected: false,
+              temp: false,
+              execution: false,
+              speed: 2,
+            },
+            pathType: "line",
+            capabilities: [
+              "selectable",
+              "removable",
+              "path:bezier",
+              "path:line",
+              "path:orthogonal",
+            ],
+          },
+        ],
+        zoom: 0.8,
+        canvas: {
+          x: 0,
+          y: 0,
+        },
+      };
 
+      flow.import(flowData);
       window.exportData = () => {
-        console.log(flow.export());
+        console.debug("Exporting flow data to file...");
+        const data = flow.export();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "flow.json";
+        a.click();
+        URL.revokeObjectURL(url);
+      };
+
+      window.importData = () => {
+        const file = document.getElementById("import-file").files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const data = JSON.parse(e.target.result);
+          flow.import(data);
+        };
+        reader.readAsText(file);
       };
 
       window.clearData = () => {
@@ -179,13 +440,16 @@
         const group = ev.target.dataset.flowGroup;
         const name = ev.target.dataset.flowName;
         const label = ev.target.dataset.flowLabel;
-
-        console.log("module", module, "group", group, "name", name, "label", label);
+        const htmlFunction = ev.target.dataset.flowHtmlFunction;
+        const extras = {
+          html_function: htmlFunction,
+        };
 
         ev.dataTransfer.setData("module", module);
         ev.dataTransfer.setData("group", group);
         ev.dataTransfer.setData("name", name);
         ev.dataTransfer.setData("label", label);
+        ev.dataTransfer.setData("extras", JSON.stringify(extras));
       }
     </script>
   </body>

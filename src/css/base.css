@@ -287,7 +287,7 @@
         place-items: center;
         height: 100%;
         width: 100%;
-        position: absolute;
+        /* position: absolute; */
         color: var(--floxy-label-color);
         font-weight: 500;
         text-align: center;
@@ -422,6 +422,87 @@
 
     &:last-child {
       padding-bottom: 0.5rem;
+    }
+  }
+}
+
+.form-node {
+  pointer-events: none;
+
+  .form-node-body {
+    pointer-events: auto;
+    padding: 1rem;
+    /* font-size: 0.875rem; */
+
+    /* Field wrapper */
+    > div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    label {
+      /* font-size: 0.75rem; */
+      font-weight: 500;
+      color: var(--floxy-label-color);
+      opacity: 0.85;
+    }
+
+    input,
+    textarea,
+    select {
+      /* font-size: 0.875rem; */
+      padding: 0.75rem;
+      min-width: 15rem;
+      border-radius: 0.25rem;
+      border: 1px solid var(--floxy-node-border);
+      background: var(--floxy-node-bg);
+      color: var(--floxy-node-text);
+      outline: none;
+      pointer-events: auto;
+
+      &::placeholder {
+        color: var(--floxy-label-color);
+        opacity: 0.4;
+      }
+
+      &:focus {
+        border-color: var(--floxy-node-focus-color);
+        box-shadow: 0 0 0 1px var(--floxy-node-focus-color);
+      }
+
+      &.flow-eye {
+        position: absolute;
+        right: 0.75rem;
+        top: 55%;
+        opacity: 0.5;
+        cursor: pointer;
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 3rem;
+    }
+  }
+
+  /* Compact variant (optional) */
+  &.compact {
+    .form-node-body {
+      padding: 0.25rem 0.5rem;
+    }
+  }
+
+  /* Read-only / locked node (future) */
+  &.readonly {
+    .form-node-body {
+      input,
+      textarea,
+      select {
+        pointer-events: none;
+        background: color-mix(in srgb, var(--floxy-node-bg), #000 5%);
+      }
     }
   }
 }

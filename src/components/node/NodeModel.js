@@ -15,6 +15,7 @@ class NodeModel {
     w = 200,
     data = {},
     capabilities = constants.DEFAULT_SUPPORTED_CAPABILITIES,
+    extras = {},
   }) {
     this.id = id;
     this.module = module;
@@ -29,6 +30,7 @@ class NodeModel {
     this.data = data;
     this.capabilities = capabilities;
     this.label = label ?? this.name;
+    this.extras = extras;
   }
 
   move(x, y) {

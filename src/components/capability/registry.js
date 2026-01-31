@@ -31,7 +31,6 @@ class CapabilityRegistry {
       const CapabilityCls = this.get(capability);
       if (CapabilityCls) {
         const capabilityInstance = new CapabilityCls(context);
-        console.log("capabilityInstance", capabilityInstance);
         resolved.add(capabilityInstance);
       }
     });

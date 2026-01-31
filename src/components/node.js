@@ -123,11 +123,13 @@ class FlowNodeManager extends EmitterComponent {
   }
 
   reset() {
-    Object.values(this.nodes).forEach((n) => {
-      n.destroy();
+    this.nodes.forEach((node) => {
+      console.log("FLOW: Destroying node", node.id);
+      node.destroy();
     });
     this.nodes.clear();
     this.idCounter = 1;
+    console.log("FLOW: Node manager reset", this.nodes);
   }
 
   getNode(id) {
