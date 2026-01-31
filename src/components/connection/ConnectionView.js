@@ -174,7 +174,7 @@ class ConnectionView extends EmitterComponent {
   }
 
   destroy() {
-    console.log("FLOW: Destroying connection view", this.model.id);
+    console.debug("FLOW: Destroying connection view", this.model.id);
     this.path?.remove();
     this.shadowPath?.remove();
     this.path = null;
