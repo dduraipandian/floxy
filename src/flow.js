@@ -98,6 +98,8 @@ class Flow extends EmitterComponent {
     this.zoom = options.zoom || 1;
     this.originalZoom = this.zoom;
 
+    console.log("zoom", this.zoom);
+
     this.nodes = {}; // { id: { id, x, y, inputs, outputs, data, el } }
     // this.connections = []; // [ { outputNodeId, outputPort, inputNodeId, inputPort } ]
     this.nodeIdCounter = 1;
@@ -302,6 +304,8 @@ class Flow extends EmitterComponent {
 
     this.toolbar = new SelectionToolbar({ selection: this.selectionManager });
     this.toolbar.renderInto(this.canvasEl);
+
+    this.zoomChangeUpdate();
   }
 
   bindCommandEvents() {
@@ -503,6 +507,7 @@ class Flow extends EmitterComponent {
 
   import(data) {
     this.serializer.import(this, data);
+    this.zoomChangeUpdate();
   }
 
   startRaf(rafn) {
