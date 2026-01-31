@@ -72,6 +72,8 @@ class FormNodeView extends BaseNodeView {
       this.model.data.form_values = {};
     }
 
+    this.loadInitFormData();
+
     form.addEventListener("input", (e) => {
       this.model.data.form_values[e.target.name] = e.target.value;
     });
@@ -81,6 +83,17 @@ class FormNodeView extends BaseNodeView {
 
     form.addEventListener("mousedown", (e) => e.stopPropagation());
     form.addEventListener("keydown", (e) => e.stopPropagation());
+  }
+
+  loadInitFormData() {
+    const form = this.el.querySelector(".form-node-body");
+    const formInputs = form.querySelectorAll("input");
+
+    formInputs.forEach((input) => {
+      if (this.model.data.form_values[input.name]) {
+        input.value = this.model.data.form_values[input.name];
+      }
+    });
   }
 }
 

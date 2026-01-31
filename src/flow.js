@@ -121,7 +121,7 @@ class Flow extends EmitterComponent {
     this.zoomOutEl = null;
     this.zoomResetEl = null;
 
-    this.defaultPathType = options.defaultPathType || "bezier";
+    this.defaultPathType = options.connection?.pathType || "bezier";
     this.availablePaths = [SetBezierPath, SetLinePath, SetOrthogonalPath];
     console.log("availablePaths", this.availablePaths);
   }
