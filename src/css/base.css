@@ -393,12 +393,11 @@
   .tool-item {
     color: var(--floxy-label-color);
     background-color: var(--floxy-node-bg);
-    border: var(--floxy-node-border-width) var(--floxy-node-border-style) var(--floxy-node-border);
     box-shadow: var(--floxy-node-shadow);
 
     &.active {
+      color: #ffffff;
       background-color: var(--floxy-node-focus-color);
-      color: var(--floxy-label-color);
     }
   }
 }
@@ -454,7 +453,8 @@
     select {
       /* font-size: 0.875rem; */
       padding: 0.75rem;
-      min-width: 15rem;
+      min-width: 25rem;
+      width: 25rem;
       border-radius: 0.25rem;
       border: 1px solid var(--floxy-node-border);
       background: var(--floxy-node-bg);
@@ -479,6 +479,12 @@
         opacity: 0.5;
         cursor: pointer;
       }
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+      min-width: fit-content;
+      width: fit-content;
     }
 
     textarea {
