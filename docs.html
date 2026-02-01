@@ -93,8 +93,12 @@
       /* Main Content */
       .main-content {
         margin-left: var(--sidebar-width);
-        padding: 4rem 5rem;
-        max-width: 1000px;
+        padding: 4rem 2rem;
+        /* Removed max-width from here to let it fill the space for centering */
+      }
+      .content-container {
+        max-width: 960px;
+        margin: 0 auto;
       }
       
       /* Typography */
@@ -205,11 +209,13 @@
         </nav>
 
         <!-- Main Content -->
+        <!-- Use col-12 but margin-left handles layout. The col-* classes on main were conflicting with fixed sidebar logic -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-          <noscript>
-            <div class="alert alert-warning">JavaScript is required for the interactive demos in these docs. Basic reading is still available.</div>
-          </noscript>
-            
+          <div class="content-container">
+            <noscript>
+                <div class="alert alert-warning">JavaScript is required for the interactive demos in these docs. Basic reading is still available.</div>
+            </noscript>
+                
             <!-- Introduction -->
             <section id="introduction">
                 <h1 class="display-4 mb-4">Documentation</h1>
@@ -398,6 +404,7 @@ nodeViewRegistry.register(MyNode);</code></pre>
             <footer class="mt-5 pt-5 border-top text-muted small">
                 <p>&copy; 2025 Floxy Project. MIT License.</p>
             </footer>
+          </div>
 
         </main>
       </div>

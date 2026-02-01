@@ -31,42 +31,41 @@ The following diagram illustrates the hierarchy and composition of the entire Fl
 ```mermaid
 graph TD
     Flow[Flow<br>Entry Point]
-    
+
     subgraph Managers
         Flow --> Canvas[Canvas]
         Flow --> NodeMgr[NodeManager]
         Flow --> ConnMgr[ConnectionManager]
     end
-    
+
     subgraph Node Composite
         NodeMgr --> Node[Node<br>Composite Root]
         Node --> NodeModel[NodeModel]
         Node --> NodeView[NodeView]
         Node --> NodeBehaviors[Node Behaviors]
-        
+
         NodeView --> PortView[PortView]
         NodeView -.-> FormView["FormNodeView<br>(Optional)"]
-        
+
         NodeBehaviors --> DragB[Draggable]
         NodeBehaviors --> SelectB[Selectable]
         NodeBehaviors --> ResizeB[Resizable]
     end
-    
+
     subgraph Connection Composite
         ConnMgr --> Conn[Connection<br>Composite Root]
         Conn --> ConnModel[ConnectionModel]
         Conn --> ConnView[ConnectionView]
         Conn --> ConnBehaviors[Connection Behaviors]
-        
+
         ConnView --> ConnStyle[ConnectionStyle]
         ConnView --> PathAlg[Path Algorithms]
-        
+
         PathAlg --> Bezier[Bezier]
         PathAlg --> Ortho[Orthogonal]
         PathAlg --> Line[Line]
     end
 ```
-
 
 ---
 
@@ -430,11 +429,11 @@ sequenceDiagram
     User->>NodeView: mousedown (output port)
     NodeView->>Flow: emit "node:port:connect:start"
     Flow->>ConnectionManager: create temp connection
-    
+
     loop Dragging
         ConnectionManager->>ConnectionManager: mousemove (update path)
     end
-    
+
     User->>NodeView: mouseup (input port)
     NodeView->>Flow: emit "node:port:connect:end"
     Flow->>ConnectionManager: finalize connection
