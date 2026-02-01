@@ -3832,10 +3832,22 @@ class FormNodeView extends BaseNodeView {
   loadInitFormData() {
     const form = this.el.querySelector(".form-node-body");
     const formInputs = form.querySelectorAll("input");
+    const formTextareas = form.querySelectorAll("textarea");
+    const formSelects = form.querySelectorAll("select");
 
-    formInputs.forEach((input) => {
-      if (this.model.data.form_values[input.name]) {
-        input.value = this.model.data.form_values[input.name];
+    const formElements = [...formInputs, ...formTextareas, ...formSelects];
+
+    formElements.forEach((element) => {
+      if (this.model.data.form_values[element.name]) {
+        if (element.type === "checkbox") {
+          element.checked = this.model.data.form_values[element.name];
+        } else if (element.type === "radio") {
+          element.checked = this.model.data.form_values[element.name];
+        } else if (element.type === "select") {
+          element.value = this.model.data.form_values[element.name];
+        } else {
+          element.value = this.model.data.form_values[element.name];
+        }
       }
     });
   }
