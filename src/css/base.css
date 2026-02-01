@@ -391,14 +391,12 @@
 
 .tools {
   .tool-item {
-    color: var(--floxy-label-color);
     background-color: var(--floxy-node-bg);
     border: var(--floxy-node-border-width) var(--floxy-node-border-style) var(--floxy-node-border);
     box-shadow: var(--floxy-node-shadow);
 
     &.active {
       background-color: var(--floxy-node-focus-color);
-      color: var(--floxy-label-color);
     }
   }
 }
